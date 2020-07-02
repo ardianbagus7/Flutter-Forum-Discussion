@@ -3,6 +3,7 @@ import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/utils/ClipPathHome.dart';
 import 'package:discussion_app/utils/ClipShadowPath.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
+import 'package:discussion_app/views/create_post.dart';
 import 'package:discussion_app/views/detail_page.dart';
 import 'package:discussion_app/views/search_page.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   AnimationController _textAnimationController;
   Animation _iconColorTween, _opacityTween;
   Animation<Offset> _transTween;
-
+  String tokenProvider;
   int status = 0;
   final TextEditingController searchController = TextEditingController();
 
@@ -67,7 +68,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void submit() {
-    Provider.of<AuthProvider>(context, listen: false).logOut();
+    Provider.of<AuthProvider>(context, listen: false).logOut(false);
+    Provider.of<PostProvider>(context, listen: false).getLogout();
   }
 
   void filterPost(String kategori) {
@@ -76,6 +78,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void getdata() {
     Provider.of<PostProvider>(context, listen: false).getAllPost();
+  }
+
+  void didChangeDepedencies() {
+    super.didChangeDependencies();
+
+    tokenProvider = Provider.of<AuthProvider>(context).token;
   }
 
   @override
@@ -94,6 +102,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     String profil = Provider.of<AuthProvider>(context).profil;
     var filterPost = Provider.of<PostProvider>(context).filterPost ?? null;
     var detailProfil = Provider.of<PostProvider>(context).detailProfil ?? null;
+    tokenProvider = Provider.of<AuthProvider>(context).token;
     return Scaffold(
       backgroundColor: AppStyle.colorBg,
       body: GestureDetector(
@@ -236,7 +245,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           horizontal: 34.0),
                                       child: InkWell(
                                         onTap: () {
-                                          Navigator.push(
+                                          /*Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => EditProfil(
@@ -246,7 +255,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     detailProfil.user.angkatan,
                                               ),
                                             ),
-                                          );
+                                          ); */
+                                          submit();
                                         },
                                         child: Container(
                                           height: 50,
@@ -348,8 +358,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ),
           ),
           onPressed: () {
-            //Provider.of<AuthProvider>(context, listen: false).logOut();
-            Navigator.pushNamed(context, '/create-post');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CreatePost(
+                  token: tokenProvider,
+                ),
+              ),
+            );
           },
         ),
       ),
@@ -557,6 +573,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     id: filterPost[index].id,
                     image: filterPost[index].postImage,
                     index: index,
+                    token: tokenProvider,
                   ),
                 ),
               );
@@ -635,6 +652,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     id: allPost[index].id,
                     image: allPost[index].postImage,
                     index: index,
+                    token: tokenProvider,
                   ),
                 ),
               );

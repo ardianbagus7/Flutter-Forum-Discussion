@@ -9,23 +9,32 @@ class DetailPage extends StatefulWidget {
   final int id;
   final int index;
   final String image;
-  DetailPage({Key key, @required this.id, this.image, this.index})
+  final String token;
+  DetailPage({Key key, @required this.id, this.image, this.index, this.token})
       : super(key: key);
   @override
   _DetailPageState createState() =>
-      _DetailPageState(index: index, id: id, image: image);
+      _DetailPageState(index: index, id: id, image: image, token: token);
 }
 
 class _DetailPageState extends State<DetailPage> {
   final int id;
   final int index;
   final String image;
+  final String token;
 
-  _DetailPageState({Key key, @required this.index, this.id, this.image});
+  _DetailPageState(
+      {Key key, @required this.index, this.id, this.image, this.token});
 
   void initState() {
-    Provider.of<PostProvider>(context, listen: false).getIdPost(id);
+    Provider.of<PostProvider>(context, listen: false).getIdPost(id, token);
+    print('initState : $token');
     super.initState();
+  }
+
+  void didChangeDepedencies() {
+    Provider.of<PostProvider>(context, listen: false).getIdPost(id, token);
+    super.didChangeDependencies();
   }
 
   @override
@@ -46,15 +55,18 @@ class _DetailPageState extends State<DetailPage> {
                     borderRadius: BorderRadius.all(
                       Radius.circular(10.0),
                     ),
-                    
                   ),
-                  child: Icon(Icons.keyboard_arrow_left,
-                      color: AppStyle.colorMain,size: 35,),
+                  child: Icon(
+                    Icons.keyboard_arrow_left,
+                    color: AppStyle.colorMain,
+                    size: 35,
+                  ),
                 ),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               stretch: true,
-              title: Text('Diskusi',style: TextStyle(color: AppStyle.colorMain)),
+              title:
+                  Text('Diskusi', style: TextStyle(color: AppStyle.colorMain)),
               backgroundColor: Colors.white,
               expandedHeight: MediaQuery.of(context).size.height / 3,
               floating: false,
@@ -166,12 +178,15 @@ class _DetailPageState extends State<DetailPage> {
                       InkWell(
                         onTap: () {
                           Provider.of<PostProvider>(context, listen: false)
-                              .getIdPost(id);
+                              .getIdPost(id, token);
                           Navigator.of(context).push(
                             PageRouteBuilder(
                               opaque: false,
                               pageBuilder: (BuildContext context, _, __) =>
-                                  KomentarScreen(detailPost: detailPost),
+                                  KomentarScreen(
+                                detailPost: detailPost,
+                                token: token,
+                              ),
                             ),
                           );
                           //komentarSheet(context, detailPost);

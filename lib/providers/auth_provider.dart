@@ -79,7 +79,7 @@ class AuthProvider with ChangeNotifier {
       _angkatan = apiResponse.user.angkatan;
       await storeUserData(apiResponse, nrp, password);
       notifyListeners();
-
+      print('token auth login : $token');
       print('login sukses');
       return true;
     }
@@ -153,13 +153,14 @@ class AuthProvider with ChangeNotifier {
   logOut([bool tokenExpired = false]) async {
     _status = Status.Unauthenticated;
     if (tokenExpired == true) {
-      signin(_nrp, _password);
+     // signin(_nrp, _password);
       _notification =
           NotificationText('Waktu sesi habis. Harap masuk lagi.', type: 'info');
-    } else {
-      SharedPreferences storage = await SharedPreferences.getInstance();
-      await storage.clear();
     }
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    await storage.clear();
+    _token = null;
+    print('logout token : $token');
     notifyListeners();
   }
 

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:discussion_app/models/allPost_model.dart';
 import 'package:discussion_app/models/detailProfil_model.dart';
 import 'package:discussion_app/models/filterPost_model.dart';
@@ -12,10 +13,19 @@ import 'package:http/http.dart' as http;
 class ApiService {
   AuthProvider authProvider;
   String token;
+  String storageToken;
+  String storageNama;
 
   ApiService(AuthProvider authProvider) {
     this.authProvider = authProvider;
     this.token = authProvider.token;
+    _init();
+  }
+
+  Future _init() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    storageToken = storage.getString('token');
+    storageNama = storage.getString('name');
   }
 
   final String api = 'http://192.168.43.47/api/v1';
@@ -41,26 +51,29 @@ class ApiService {
 
     validateResponseStatus(response.statusCode, 200);
 
+    print('token api : $token');
+    print('token storage : $storageToken');
+
     return allPostFromJson(response.body);
   }
 
-  Future<IdPost> getIdPost(int id) async {
+  Future<IdPost> getIdPost(int id,String tokenProvider) async {
     final url = "$api/post/$id";
 
     Map<String, String> headers = {
       'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $tokenProvider'
     };
 
     final response = await http.get(url, headers: headers);
 
     validateResponseStatus(response.statusCode, 200);
-
+    print('sukses get id post');
     return idPostFromJson(response.body);
   }
 
   Future<bool> createPost(
-      String title, String description, String kategori, File image) async {
+      String title, String description, String kategori, File image, String tokenProvider) async {
     final url = '$api/post';
     var request = http.MultipartRequest("POST", Uri.parse(url));
     request.fields['title'] = title;
@@ -72,7 +85,7 @@ class ApiService {
       request.files.add(pic);
     } else {}
     request.headers['Accept'] = 'application/json';
-    request.headers['Authorization'] = 'Bearer $token';
+    request.headers['Authorization'] = 'Bearer $tokenProvider';
 
     var response = await request.send();
 
@@ -141,12 +154,12 @@ class ApiService {
     return searchPostFromJson(response.body);
   }
 
-  Future<bool> createKomentar(String postId, String komentar) async {
+  Future<bool> createKomentar(String postId, String komentar,String tokenProvider) async {
     final url = '$api/komentar';
 
     Map<String, String> headers = {
       'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $tokenProvider'
     };
 
     Map<String, String> body = {
@@ -157,7 +170,7 @@ class ApiService {
     final response = await http.post(url, headers: headers, body: body);
 
     validateResponseStatus(response.statusCode, 201);
-
+    print('token api komentar : $tokenProvider');
     return true;
   }
 
@@ -173,12 +186,12 @@ class ApiService {
 
     validateResponseStatus(response.statusCode, 200);
 
+    print('token api detail profil : $token');
+
     return userDetailFromJson(response.body);
   }
 
-  
-  Future<bool> editProfil(
-      String nama, String angkatan,  File image) async {
+  Future<bool> editProfil(String nama, String angkatan, File image) async {
     final url = '$api/user/profil';
     var request = http.MultipartRequest("POST", Uri.parse(url));
     request.fields['name'] = nama;
@@ -198,6 +211,23 @@ class ApiService {
     var responseString = String.fromCharCodes(responseData);
     print(responseString);
     validateResponseStatus(response.statusCode, 200);
+
+    return true;
+  }
+
+  Future<bool> logout() async {
+    final url = "$api/user/logout";
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    print('token api detail profil : $token');
 
     return true;
   }

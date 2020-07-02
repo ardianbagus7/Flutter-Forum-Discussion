@@ -26,7 +26,6 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => Router(),
           '/home-page': (context) => HomePage(),
-          '/create-post': (context) => CreatePost(),
         },
       ),
     );

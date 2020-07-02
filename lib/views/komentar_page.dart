@@ -9,17 +9,20 @@ import 'package:provider/provider.dart';
 
 class KomentarScreen extends StatefulWidget {
   final detailPost;
-  KomentarScreen({Key key, @required this.detailPost}) : super(key: key);
+  final String token;
+  KomentarScreen({Key key, @required this.detailPost, this.token})
+      : super(key: key);
   @override
   _KomentarScreenState createState() =>
-      _KomentarScreenState(detailPost: detailPost);
+      _KomentarScreenState(detailPost: detailPost, token: token);
 }
 
 class _KomentarScreenState extends State<KomentarScreen> {
   var statusKomentar;
+  final String token;
   TextEditingController komentarController = TextEditingController();
   final detailPost;
-  _KomentarScreenState({Key key, @required this.detailPost});
+  _KomentarScreenState({Key key, @required this.detailPost, this.token});
   final _controller = ScrollController();
 
   @override
@@ -29,9 +32,9 @@ class _KomentarScreenState extends State<KomentarScreen> {
 
     void submit(String id) async {
       bool status1 = await Provider.of<PostProvider>(context, listen: false)
-          .createKomentar(id, komentarController.text);
+          .createKomentar(id, komentarController.text, token);
       bool status2 = await Provider.of<PostProvider>(context, listen: false)
-          .getIdPost(detailPost.post[0].id);
+          .getIdPost(detailPost.post[0].id, token);
       if (status1 && status2) {
         komentarController = TextEditingController(text: '');
         Timer(

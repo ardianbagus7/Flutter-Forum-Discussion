@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
@@ -9,11 +10,16 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CreatePost extends StatefulWidget {
+  final String token;
+  CreatePost({Key key, @required this.token}) : super(key: key);
   @override
-  _CreatePostState createState() => _CreatePostState();
+  _CreatePostState createState() => _CreatePostState(token: token);
 }
 
 class _CreatePostState extends State<CreatePost> {
+  final String token;
+  _CreatePostState({Key key, @required this.token});
+
   int statusKategori;
   List kategori = [
     'Forum Alumni',
@@ -43,10 +49,9 @@ class _CreatePostState extends State<CreatePost> {
     void submit() async {
       bool status = await Provider.of<PostProvider>(context, listen: false)
           .createPost(titleController.text, descriptionController.text,
-              kategori[statusKategori], _image);
+              kategori[statusKategori], _image,token);
       if (status) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/home-page', (Route<dynamic> route) => false);
+        Navigator.of(context).pop();
       } else {
         setState(() {
           statusCreate = 'menunggu';
@@ -55,44 +60,49 @@ class _CreatePostState extends State<CreatePost> {
       }
     }
 
-    return Scaffold(
-      appBar: appBar(submit),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
-        },
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              SizedBox(height: 20.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      decoration: AppStyle.decorationCard,
-                      margin: EdgeInsets.only(top: 100),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(height: 80.0),
-                            kategoriField(context),
-                            SizedBox(height: 20.0),
-                            judulField(),
-                            deskripsiField(),
-                            SizedBox(height: 20.0),
-                            //submitPost(submit),
-                          ],
+    final authProvider = Provider.of<AuthProvider>(context);
+
+    return ChangeNotifierProvider(
+      create: (context) => PostProvider(authProvider),
+      child: Scaffold(
+        appBar: appBar(submit),
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 20.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        decoration: AppStyle.decorationCard,
+                        margin: EdgeInsets.only(top: 100),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(height: 80.0),
+                              kategoriField(context),
+                              SizedBox(height: 20.0),
+                              judulField(),
+                              deskripsiField(),
+                              SizedBox(height: 20.0),
+                              //submitPost(submit),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Center(child: imagePost()),
-                  ],
+                      Center(child: imagePost()),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 20.0),
-            ],
+                SizedBox(height: 20.0),
+              ],
+            ),
           ),
         ),
       ),
