@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:discussion_app/models/allPost_model.dart';
+import 'package:discussion_app/models/detailProfil_model.dart';
 import 'package:discussion_app/models/filterPost_model.dart';
 import 'package:discussion_app/models/idPost_model.dart';
 import 'package:discussion_app/models/searchPost_model.dart';
@@ -156,6 +157,47 @@ class ApiService {
     final response = await http.post(url, headers: headers, body: body);
 
     validateResponseStatus(response.statusCode, 201);
+
+    return true;
+  }
+
+  Future<UserDetail> getDetailProfil() async {
+    final url = "$api/user/detail";
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    return userDetailFromJson(response.body);
+  }
+
+  
+  Future<bool> editProfil(
+      String nama, String angkatan,  File image) async {
+    final url = '$api/user/profil';
+    var request = http.MultipartRequest("POST", Uri.parse(url));
+    request.fields['name'] = nama;
+    request.fields['angkatan'] = angkatan;
+
+    if (image != null) {
+      var pic = await http.MultipartFile.fromPath('image', image.path);
+      request.files.add(pic);
+    } else {}
+
+    request.headers['Accept'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $token';
+
+    var response = await request.send();
+
+    var responseData = await response.stream.toBytes();
+    var responseString = String.fromCharCodes(responseData);
+    print(responseString);
+    validateResponseStatus(response.statusCode, 200);
 
     return true;
   }

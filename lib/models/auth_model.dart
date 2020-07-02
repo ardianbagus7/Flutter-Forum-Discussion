@@ -40,6 +40,8 @@ class User {
         this.image,
         this.createdAt,
         this.updatedAt,
+        this.angkatan,
+        this.role,
     });
 
     final int id;
@@ -48,6 +50,8 @@ class User {
     final String image;
     final DateTime createdAt;
     final DateTime updatedAt;
+    final String angkatan;
+    final int role;
 
     factory User.fromJson(Map<String, dynamic> json) => User(
         id: json["id"] == null ? null : json["id"],
@@ -56,6 +60,8 @@ class User {
         image: json["image"] == null ? null : json["image"],
         createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
         updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
+        angkatan: json["angkatan"] == null ? null : json["angkatan"],
+        role: json["role"] == null ? null : json["role"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -65,5 +71,7 @@ class User {
         "image": image == null ? null : image,
         "created_at": createdAt == null ? null : createdAt.toIso8601String(),
         "updated_at": updatedAt == null ? null : updatedAt.toIso8601String(),
+        "angkatan": angkatan == null ? null : angkatan,
+        "role": role == null ? null : role,
     };
 }

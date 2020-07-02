@@ -33,7 +33,7 @@ dev_dependencies:
   google_fonts: ^0.1.0
   cached_network_image: ^2.2.0+1
   image_picker: ^0.6.7+2
-
+  flutter_sticky_header: "^0.4.2"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

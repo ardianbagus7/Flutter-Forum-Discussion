@@ -1,25 +1,69 @@
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/utils/ClipPathHome.dart';
+import 'package:discussion_app/utils/ClipShadowPath.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/views/detail_page.dart';
 import 'package:discussion_app/views/search_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:discussion_app/views/editProfil_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  int bottomNavBarIndex;
+  PageController pageController;
+  ScrollController scrollControl;
+  double scrollOffset;
+  bool statusScroll = false;
+
+  AnimationController _colorAnimationController;
+  AnimationController _textAnimationController;
+  Animation _iconColorTween, _opacityTween;
+  Animation<Offset> _transTween;
+
   int status = 0;
   final TextEditingController searchController = TextEditingController();
+
   @override
   void initState() {
+    _colorAnimationController =
+        AnimationController(vsync: this, duration: Duration(seconds: 0));
+
+    _iconColorTween = ColorTween(begin: Colors.grey, end: AppStyle.colorMain)
+        .animate(_colorAnimationController);
+    _opacityTween =
+        Tween<double>(begin: 0, end: 1).animate(_colorAnimationController);
+    _textAnimationController =
+        AnimationController(vsync: this, duration: Duration(seconds: 0));
+
+    _transTween = Tween(begin: Offset(0, 40), end: Offset(0, 0))
+        .animate(_textAnimationController);
+
     Provider.of<PostProvider>(context, listen: false).getAllPost();
+    Provider.of<PostProvider>(context, listen: false).getDetailProfil();
+
+    bottomNavBarIndex = 0;
+    pageController = PageController(initialPage: bottomNavBarIndex);
     super.initState();
+  }
+
+  bool _scrollListener(ScrollNotification scrollInfo) {
+    if (scrollInfo.metrics.axis == Axis.vertical) {
+      _colorAnimationController.animateTo(scrollInfo.metrics.pixels / 125);
+      _textAnimationController
+          .animateTo((scrollInfo.metrics.pixels - 125) / 50);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void submit() {
@@ -46,38 +90,440 @@ class _HomePageState extends State<HomePage> {
     ];
     var allPost = Provider.of<PostProvider>(context).allPost ?? null;
     String name = Provider.of<AuthProvider>(context).name;
+    List nameSplit = name.split(' ');
     String profil = Provider.of<AuthProvider>(context).profil;
     var filterPost = Provider.of<PostProvider>(context).filterPost ?? null;
+    var detailProfil = Provider.of<PostProvider>(context).detailProfil ?? null;
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: customAppBar(),
+      backgroundColor: AppStyle.colorBg,
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
         },
-        child: CustomScrollView(
-          slivers: <Widget>[
-            SliverAppBar(
-              elevation: 0,
-              floating: true,
-              backgroundColor: Color(0xFFFAFAFA),
-              expandedHeight: 225.0,
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.pin,
-                centerTitle: true,
-                background: Stack(
+        child: Stack(
+          children: <Widget>[
+            Container(
+              color: AppStyle.colorBg,
+            ),
+            PageView(
+              controller: pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  bottomNavBarIndex = index;
+
+                  if (index == 0) {
+                    Provider.of<PostProvider>(context, listen: false)
+                        .getAllPost();
+                  } else if (index == 1) {
+                    Provider.of<PostProvider>(context, listen: false)
+                        .getDetailProfil();
+                  }
+                });
+              },
+              children: <Widget>[
+                // HALAMAN HOME PAGE / MAIN PAGE
+                mainPage(
+                    name, nameSplit[0], profil, kategori, allPost, filterPost),
+
+                //HALAMAN PROFIL
+                profilPage(detailProfil, name, profil)
+              ],
+            ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 18.0, vertical: 10.0),
+                child: SafeArea(
+                  child: Row(
+                    children: <Widget>[],
+                  ),
+                ),
+              ),
+            ),
+            customNavBar(),
+            createPostButton(context)
+          ],
+        ),
+      ),
+    );
+  }
+
+  NotificationListener profilPage(detailProfil, String name, String profil) {
+    return NotificationListener<ScrollNotification>(
+        onNotification: _scrollListener,
+        child: (detailProfil == null)
+            ? Center(
+                child: SizedBox(
+                  height: 50.0,
+                  width: 50.0,
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : Container(
+                height: double.infinity,
+                child: Stack(
                   children: <Widget>[
-                    ClipPath(
-                      child: header(name),
-                      clipper: CustomClipPathHome(),
+                    SafeArea(
+                      child: CustomScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        slivers: <Widget>[
+                          SliverToBoxAdapter(
+                            child: Stack(
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18.0),
+                                  child: Container(
+                                    margin: EdgeInsets.only(top: 100),
+                                    height: 250,
+                                    decoration: BoxDecoration(
+                                      color: AppStyle.colorWhite,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10.0)),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          offset: Offset(0.0, 2),
+                                          blurRadius: 15.0,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Column(
+                                  children: <Widget>[
+                                    SizedBox(height: 20),
+                                    Center(
+                                      child: CircleAvatar(
+                                        radius: 75,
+                                        backgroundColor: AppStyle.colorMain3,
+                                        child: CircleAvatar(
+                                          radius: 70,
+                                          backgroundImage:
+                                              CachedNetworkImageProvider(
+                                                  profil),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+                                    Center(
+                                      child: Text(
+                                        '$name',
+                                        style: AppStyle.textHeadlineProfil,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+                                    Center(
+                                      child: Text(
+                                        'Angkatan ${detailProfil.user.angkatan}',
+                                        style: AppStyle.textSubHeadlineBlack,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+                                    Center(
+                                      child: Text(
+                                        '${detailProfil.user.nrp}',
+                                        style: AppStyle.textSubHeadlineBlack,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 34.0),
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => EditProfil(
+                                                image: profil,
+                                                name: name,
+                                                angkatan:
+                                                    detailProfil.user.angkatan,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Container(
+                                          height: 50,
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                            color: AppStyle.colorMain,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10.0)),
+                                          ),
+                                          child: Center(
+                                              child: Text(
+                                            'Edit Profil',
+                                            style:
+                                                AppStyle.textSubHeading2Putih,
+                                          )),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          SliverToBoxAdapter(child: SizedBox(height: 10)),
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Divider(
+                                thickness: 2,
+                              ),
+                            ),
+                          ),
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 18.0),
+                              child: Text('Thread', style: AppStyle.textList),
+                            ),
+                          ),
+                          listAllPost(detailProfil.post)
+                        ],
+                      ),
                     ),
-                    createPost(profil),
-                    kategoriListView(kategori)
+                    Container(
+                      height: 83,
+                      child: AnimatedBuilder(
+                        animation: _colorAnimationController,
+                        builder: (context, child) => Opacity(
+                          opacity: _opacityTween.value,
+                          child: AppBar(
+                            backgroundColor: AppStyle.colorBg,
+                            centerTitle: true,
+                            title: Transform.translate(
+                              offset: _transTween.value,
+                              child: Text(
+                                '$name',
+                                style: AppStyle.textSubHeadlineBlack,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            iconTheme: IconThemeData(
+                              color: _iconColorTween.value,
+                            ),
+                            actions: <Widget>[
+                              Transform.translate(
+                                offset: _transTween.value,
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.settings,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ));
+  }
+
+  Align createPostButton(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        height: 66,
+        width: 66,
+        margin: EdgeInsets.only(bottom: 30),
+        child: FloatingActionButton(
+          backgroundColor: AppStyle.colorMain3,
+          child: SizedBox(
+            height: 36,
+            width: 36,
+            child: Icon(
+              Icons.add,
+              size: 36,
+            ),
+          ),
+          onPressed: () {
+            //Provider.of<AuthProvider>(context, listen: false).logOut();
+            Navigator.pushNamed(context, '/create-post');
+          },
+        ),
+      ),
+    );
+  }
+
+  Align customNavBar() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: ClipShadowPath(
+        shadow: Shadow(
+          blurRadius: 15,
+          offset: Offset(0, -2),
+          color: Colors.black.withOpacity(0.25),
+        ),
+        clipper: CustomClipPathNavbar(),
+        child: Container(
+          height: 60,
+          decoration: BoxDecoration(
+            color: AppStyle.colorWhite,
+          ),
+          child: BottomNavigationBar(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            selectedItemColor: AppStyle.colorMain,
+            unselectedItemColor: Color(0xFFE5E5E5),
+            currentIndex: bottomNavBarIndex,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            onTap: (index) {
+              setState(() {
+                bottomNavBarIndex = index;
+                pageController.jumpToPage(index);
+              });
+            },
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home,
+                  size: 30,
+                ),
+                title: Text(''),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.account_circle,
+                  size: 30,
+                ),
+                title: Text(''),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  SafeArea mainPage(String name, String nameSplit, String profil, List kategori,
+      allPost, filterPost) {
+    return SafeArea(
+      child: CustomScrollView(
+        controller: scrollControl,
+        physics: const BouncingScrollPhysics(),
+        slivers: <Widget>[
+          SliverAppBar(
+            expandedHeight: 150.0,
+            floating: false,
+            pinned: true,
+            backgroundColor: AppStyle.colorBg,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: EdgeInsetsDirectional.only(
+                  start: 0, bottom: 10, end: 0, top: 0),
+              title: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  child: InkWell(
+                    onTap: null,
+                    child: Container(
+                      height: 38.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.1),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10.0),
+                        ),
+                      ),
+                      child: TextField(
+                        controller: searchController,
+                        style: AppStyle.textSearchPutih,
+                        maxLines: 1,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Colors.grey,
+                          ),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide.none),
+                          hintStyle: TextStyle(color: Colors.grey),
+                          hintText: 'Cari diskusi...',
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 10),
+                        ),
+                        textInputAction: TextInputAction.search,
+                        onSubmitted: (newValue) {
+                          Navigator.of(context).push(
+                            PageRouteBuilder(
+                              opaque: false,
+                              pageBuilder: (BuildContext context, _, __) =>
+                                  SearchPage(search: newValue),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              collapseMode: CollapseMode.parallax,
+              background: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 18.0, vertical: 10.0),
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              'Hai,',
+                              style: AppStyle.textHeadlineTipisBlack,
+                            ),
+                            FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Container(
+                                width: MediaQuery.of(context).size.width *
+                                        13 /
+                                        16 -
+                                    36,
+                                child: Text(
+                                  '$name',
+                                  style: AppStyle.textHeadlineBlack,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        Hero(
+                          tag: 'profil',
+                          child: CircleAvatar(
+                            radius: 25,
+                            backgroundImage: CachedNetworkImageProvider(profil),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
-            (allPost == null && status == 0 ||
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 18.0, top: 20.0),
+              child: Text('Kategori', style: AppStyle.textList),
+            ),
+          ),
+          SliverStickyHeader(
+            header: kategoriListView(kategori),
+            sliver: (allPost == null && status == 0 ||
                     filterPost == null && status != 0)
                 ? SliverToBoxAdapter(
                     child: Center(
@@ -91,8 +537,8 @@ class _HomePageState extends State<HomePage> {
                 : (status != 0)
                     ? filterKategoriPost(filterPost)
                     : listAllPost(allPost),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -154,6 +600,8 @@ class _HomePageState extends State<HomePage> {
                             child: Text(
                               '${filterPost[index].title}',
                               style: AppStyle.textRegular,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
                             ),
                           ),
                           Text(
@@ -230,6 +678,8 @@ class _HomePageState extends State<HomePage> {
                             child: Text(
                               '${allPost[index].title}',
                               style: AppStyle.textRegular,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
                             ),
                           ),
                           Text(
@@ -246,34 +696,6 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       }, childCount: allPost.length),
-    );
-  }
-
-  Container header(String name) {
-    return Container(
-      height: 220.0,
-      width: double.infinity,
-      color: AppStyle.colorMain,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18.0),
-        child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text('Hello',
-                  textAlign: TextAlign.left, style: AppStyle.textHeadlineWhite),
-              Expanded(
-                child: Text(
-                  '$name',
-                  textAlign: TextAlign.left,
-                  style: AppStyle.textHeadlineWhite,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -343,254 +765,59 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Container kategoriListView(List kategori) {
-    return Container(
-      margin: EdgeInsets.only(top: 280, left: 13),
-      height: 30.0,
-      child: ListView.builder(
-        itemCount: kategori.length,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (_, i) {
-          return FittedBox(
-            fit: BoxFit.fitWidth,
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  filterPost(kategori[i]);
-                  status = i;
+  Padding kategoriListView(List kategori) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 20, left: 13),
+      child: Container(
+        height: 30.0,
+        child: ListView.builder(
+          itemCount: kategori.length,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (_, i) {
+            return FittedBox(
+              fit: BoxFit.fitWidth,
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    filterPost(kategori[i]);
+                    status = i;
 
-                  if (status == 0) {
-                    getdata();
-                  }
-                });
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
-                margin: EdgeInsets.symmetric(horizontal: 5.0),
-                decoration: (i == status)
-                    ? BoxDecoration(
-                        color: AppStyle.colorMain,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(50.0),
+                    if (status == 0) {
+                      getdata();
+                    }
+                  });
+                },
+                child: Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+                  margin: EdgeInsets.symmetric(horizontal: 5.0),
+                  decoration: (i == status)
+                      ? BoxDecoration(
+                          color: AppStyle.colorMain,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(50.0),
+                          ),
+                        )
+                      : BoxDecoration(
+                          color: AppStyle.colorWhite,
+                          border:
+                              Border.all(color: Colors.black.withOpacity(0.5)),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(50.0),
+                          ),
                         ),
-                      )
-                    : BoxDecoration(
-                        color: AppStyle.colorWhite,
-                        border:
-                            Border.all(color: Colors.black.withOpacity(0.5)),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(50.0),
-                        ),
-                      ),
-                child: Text(
-                  '${kategori[i]}',
-                  style: (status == i)
-                      ? AppStyle.textSubHeadingPutih
-                      : AppStyle.textSubHeadingAbu,
+                  child: Text(
+                    '${kategori[i]}',
+                    style: (status == i)
+                        ? AppStyle.textSubHeadingPutih
+                        : AppStyle.textSubHeadingAbu,
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  CustomAppBar customAppBar() {
-    return CustomAppBar(
-      height: 85.0,
-      child: Column(
-        children: <Widget>[
-          SizedBox(height: 30.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  flex: 1,
-                  child: IconButton(
-                      icon: Icon(
-                        Icons.menu,
-                        size: 40.0,
-                        color: Colors.white,
-                      ),
-                      onPressed: (null)),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: SizedBox(),
-                ),
-                Expanded(
-                  flex: 20,
-                  child: InkWell(
-                    onTap: null,
-                    child: Container(
-                      height: 38.0,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
-                        ),
-                      ),
-                      child: TextField(
-                        controller: searchController,
-                        style: AppStyle.textSearchPutih,
-                        maxLines: 1,
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Colors.white54,
-                          ),
-                          hintStyle: TextStyle(color: Colors.white54),
-                          hintText: 'Cari diskusi',
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 10),
-                        ),
-                        textInputAction: TextInputAction.search,
-                        onSubmitted: (newValue) {
-                          Navigator.of(context).push(
-                            PageRouteBuilder(
-                              opaque: false,
-                              pageBuilder: (BuildContext context, _, __) =>
-                                  SearchPage(search: newValue),
-                            ),
-                          );
-                        },
-                      ),
-                      /*child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-
-                            Text(
-                              'Cari diskusi',
-                              style: GoogleFonts.poppins(
-                                textStyle: TextStyle(
-                                  color: Colors.white.withOpacity(0.6),
-                                ),
-                                fontSize: 16,
-                                fontStyle: FontStyle.normal,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Icon(
-                              Icons.search,
-                              size: 30.0,
-                              color: Colors.white.withOpacity(0.6),
-                            )
-                          ],
-                        ),
-                      ), */
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: SizedBox(),
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomAppBar extends PreferredSize {
-  final Widget child;
-  final double height;
-
-  CustomAppBar({@required this.child, this.height = kToolbarHeight});
-
-  @override
-  Size get preferredSize => Size.fromHeight(height);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(width: 0, color: AppStyle.colorMain),
-        color: AppStyle.colorMain,
-      ),
-      height: preferredSize.height,
-      alignment: Alignment.center,
-      child: child,
-    );
-  }
-}
-/*
-class HomePages extends StatelessWidget {
-  //final String status;
-  //HomePage({Key key, @required this.status}) : super(key: key);
-
-/*  void didChangeDepedencies(){
-    super.didChangeDepedencies();
-    
-  }
-  */
-
-  @override
-  Widget build(BuildContext context) {
-    void submit() {
-      Provider.of<AuthProvider>(context, listen: false).logOut();
-    }
-
-    void delete() {
-      Provider.of<PostProvider>(context, listen: false).deletePost(22);
-    }
-
-    void getdata() {
-      Provider.of<PostProvider>(context, listen: false).getAllPost();
-      Provider.of<PostProvider>(context, listen: false).getIdPost(4);
-    }
-
-    var allPost = Provider.of<PostProvider>(context).allPost ?? '';
-    var idPost = Provider.of<PostProvider>(context).idPost ?? null;
-
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            RaisedButton(
-              onPressed: submit,
-              child: Text('Logout'),
-            ),
-            RaisedButton(
-              onPressed: getdata,
-              child: Text('get'),
-            ),
-            RaisedButton(
-              onPressed: delete,
-              child: Text('delete'),
-            ),
-            SizedBox(
-              height: 100.0,
-              child: ListView.builder(
-                  itemCount: allPost.length,
-                  itemBuilder: (context, i) {
-                    return Text('${allPost[i].title}');
-                  }),
-            ),
-            (idPost == null)
-                ? Text('aw')
-                : SizedBox(
-                    height: 100.0,
-                    child: ListView.builder(
-                        itemCount: idPost.komentar.length,
-                        itemBuilder: (context, i) {
-                          return Text('${idPost.komentar[i].name}');
-                        }),
-                  ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 }
-
-*/

@@ -33,22 +33,59 @@ class _DetailPageState extends State<DetailPage> {
     var detailPost = Provider.of<PostProvider>(context).idPost ?? null;
     return Scaffold(
       body: NestedScrollView(
+        physics: const BouncingScrollPhysics(),
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
-              title: Text('Diskusi'),
-              backgroundColor: AppStyle.colorMain,
+              leading: IconButton(
+                icon: Container(
+                  height: 35,
+                  width: 35,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10.0),
+                    ),
+                    
+                  ),
+                  child: Icon(Icons.keyboard_arrow_left,
+                      color: AppStyle.colorMain,size: 35,),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              stretch: true,
+              title: Text('Diskusi',style: TextStyle(color: AppStyle.colorMain)),
+              backgroundColor: Colors.white,
               expandedHeight: MediaQuery.of(context).size.height / 3,
               floating: false,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
-                background: Hero(
-                  tag: 'fullscreen$id',
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: new DecorationImage(
-                        fit: BoxFit.cover,
-                        image: new CachedNetworkImageProvider(image),
+                stretchModes: <StretchMode>[
+                  StretchMode.zoomBackground,
+                  StretchMode.blurBackground,
+                  StretchMode.fadeTitle,
+                ],
+                background: InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        opaque: false,
+                        pageBuilder: (BuildContext context, _, __) =>
+                            FullScreen(
+                          index: id,
+                          image: image,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Hero(
+                    tag: 'fullscreen$id',
+                    child: Container(
+                      decoration: BoxDecoration(
+                        image: new DecorationImage(
+                          fit: BoxFit.cover,
+                          image: new CachedNetworkImageProvider(image),
+                        ),
                       ),
                     ),
                   ),
@@ -128,7 +165,8 @@ class _DetailPageState extends State<DetailPage> {
                       ),
                       InkWell(
                         onTap: () {
-                          Provider.of<PostProvider>(context, listen: false).getIdPost(id);
+                          Provider.of<PostProvider>(context, listen: false)
+                              .getIdPost(id);
                           Navigator.of(context).push(
                             PageRouteBuilder(
                               opaque: false,
@@ -149,6 +187,31 @@ class _DetailPageState extends State<DetailPage> {
                       )
                     ],
                   ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FullScreen extends StatelessWidget {
+  final int index;
+  final String image;
+  FullScreen({Key key, @required this.index, this.image}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pop(context);
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white.withOpacity(0.85),
+        body: Center(
+          child: Hero(
+            tag: 'fullscreen$index',
+            child: CachedNetworkImage(
+              imageUrl: image,
+            ),
           ),
         ),
       ),

@@ -51,138 +51,143 @@ class _KomentarScreenState extends State<KomentarScreen> {
     return Scaffold(
       backgroundColor: Colors.white.withOpacity(0.0),
       body: SafeArea(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: BoxDecoration(
-            color: AppStyle.colorBg,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20.0),
-              topRight: Radius.circular(20.0),
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+          },
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              color: AppStyle.colorBg,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20.0),
+                topRight: Radius.circular(20.0),
+              ),
             ),
-          ),
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                flex: 8,
-                child: (detailPostNew == null)
-                    ? Center(
-                        child: SizedBox(
-                          height: 50.0,
-                          width: 50.0,
-                          child: CircularProgressIndicator(),
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: _controller,
-                        itemCount: detailPostNew.komentar.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                CircleAvatar(
-                                  radius: 20,
-                                  foregroundColor: Colors.grey,
-                                  backgroundImage: CachedNetworkImageProvider(
-                                      detailPostNew.komentar[index].image),
-                                ),
-                                FittedBox(
-                                  fit: BoxFit.fitWidth,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFE2E2E2),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10.0),
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  flex: 8,
+                  child: (detailPostNew == null)
+                      ? Center(
+                          child: SizedBox(
+                            height: 50.0,
+                            width: 50.0,
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : ListView.builder(
+                          controller: _controller,
+                          itemCount: detailPostNew.komentar.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  CircleAvatar(
+                                    radius: 20,
+                                    foregroundColor: Colors.grey,
+                                    backgroundImage: CachedNetworkImageProvider(
+                                        detailPostNew.komentar[index].image),
+                                  ),
+                                  FittedBox(
+                                    fit: BoxFit.fitWidth,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFE2E2E2),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(10.0),
+                                        ),
                                       ),
-                                    ),
-                                    margin: EdgeInsets.only(left: 10.0),
-                                    width: MediaQuery.of(context).size.width *
-                                        13 /
-                                        16,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text(
-                                            '${detailPostNew.komentar[index].name}',
-                                            style: AppStyle.textName,
-                                          ),
-                                          SizedBox(height: 10.0),
-                                          Text(
-                                            '${detailPostNew.komentar[index].komentar}',
-                                            style:
-                                                AppStyle.textSubHeadlineBlack,
-                                          ),
-                                        ],
+                                      margin: EdgeInsets.only(left: 10.0),
+                                      width: MediaQuery.of(context).size.width *
+                                          13 /
+                                          16,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Text(
+                                              '${detailPostNew.komentar[index].name}',
+                                              style: AppStyle.textName,
+                                            ),
+                                            SizedBox(height: 10.0),
+                                            Text(
+                                              '${detailPostNew.komentar[index].komentar}',
+                                              style:
+                                                  AppStyle.textSubHeadlineBlack,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 70.0,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      offset: Offset(0.0, -0.5),
-                      blurRadius: 15.0,
-                    )
-                  ],
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10.0, vertical: 5.0),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 8,
-                        child: Container(
-                          child: TextField(
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 8,
-                            maxLength: 1000,
-                            controller: komentarController,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Komentar..',
+                Container(
+                  width: double.infinity,
+                  height: 70.0,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        offset: Offset(0.0, -0.5),
+                        blurRadius: 15.0,
+                      )
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 5.0),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          flex: 8,
+                          child: Container(
+                            child: TextField(
+                              keyboardType: TextInputType.multiline,
+                              maxLines: 8,
+                              maxLength: 1000,
+                              controller: komentarController,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Komentar..',
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      (statusKomentar != 'loading')
-                          ? IconButton(
-                              icon: Icon(Icons.send),
-                              onPressed: () {
-                                submit('${detailPost.post[0].id}');
-                              },
-                            )
-                          : Center(
-                              child: SizedBox(
-                                height: 30.0,
-                                width: 30.0,
-                                child: new CircularProgressIndicator(),
-                              ),
-                            )
-                    ],
+                        (statusKomentar != 'loading')
+                            ? IconButton(
+                                icon: Icon(Icons.send),
+                                onPressed: () {
+                                  submit('${detailPost.post[0].id}');
+                                },
+                              )
+                            : Center(
+                                child: SizedBox(
+                                  height: 30.0,
+                                  width: 30.0,
+                                  child: new CircularProgressIndicator(),
+                                ),
+                              )
+                      ],
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),
