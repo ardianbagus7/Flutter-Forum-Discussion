@@ -9,7 +9,7 @@ class Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController nrpController =
-        TextEditingController(text: "1203181011");
+        TextEditingController(text: "ardianbagus7@gmail.com");
     final TextEditingController passwordController =
         TextEditingController(text: "ketupat");
 

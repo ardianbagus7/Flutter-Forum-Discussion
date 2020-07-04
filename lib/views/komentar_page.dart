@@ -24,7 +24,7 @@ class KomentarScreen extends StatefulWidget {
       : super(key: key);
   @override
   _KomentarScreenState createState() => _KomentarScreenState(
-      detailPost: detailPost, token: token, idUser: idUser,role: role);
+      detailPost: detailPost, token: token, idUser: idUser, role: role);
 }
 
 class _KomentarScreenState extends State<KomentarScreen> {
@@ -137,83 +137,8 @@ class _KomentarScreenState extends State<KomentarScreen> {
                                               Colors.grey.withOpacity(0.5),
                                           onLongPress: () {
                                             print('long pres $index');
-                                            showModalBottomSheet(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft:
-                                                      Radius.circular(10.0),
-                                                  topRight:
-                                                      Radius.circular(10.0),
-                                                ),
-                                              ),
-                                              elevation: 10.0,
-                                              context: context,
-                                              backgroundColor: AppStyle.colorBg,
-                                              builder: (builder) {
-                                                return (detailPostNew
-                                                                .komentar[index]
-                                                                .userId ==
-                                                            idUser ||
-                                                        role == 6)
-                                                    ? Column(
-                                                        children: <Widget>[
-                                                          SizedBox(
-                                                              height: 10.0),
-                                                          ListTile(
-                                                            leading: Icon(
-                                                              Icons.warning,
-                                                            ),
-                                                            title: Text(
-                                                              'Laporkan thread',
-                                                              style: AppStyle
-                                                                  .textSubHeadingAbu,
-                                                            ),
-                                                          ),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .symmetric(
-                                                                    horizontal:
-                                                                        18.0),
-                                                            child: Divider(
-                                                              thickness: 2,
-                                                            ),
-                                                          ),
-                                                          ListTile(
-                                                            leading: Icon(
-                                                              Icons
-                                                                  .delete_outline,
-                                                            ),
-                                                            title: Text(
-                                                              'Hapus Komentar',
-                                                              style: AppStyle
-                                                                  .textSubHeadingAbu,
-                                                            ),
-                                                            onTap: () {
-                                                              //detailPostNew.komentar[index].
-                                                              showDeleteKomentar(
-                                                                  context,
-                                                                  detailPost
-                                                                      .post[0]
-                                                                      .id,
-                                                                  detailPostNew
-                                                                      .komentar[
-                                                                          index]
-                                                                      .id,
-                                                                  token,
-                                                                  role);
-                                                            },
-                                                          ),
-                                                        ],
-                                                      )
-                                                    : Column(
-                                                        children: <Widget>[
-                                                          SizedBox(
-                                                              height: 10.0),
-                                                        ],
-                                                      );
-                                              },
-                                            );
+                                            longTapKomen(
+                                                context, detailPostNew, index);
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -302,6 +227,62 @@ class _KomentarScreenState extends State<KomentarScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Future longTapKomen(BuildContext context, detailPostNew, int index) {
+    return showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.0),
+          topRight: Radius.circular(10.0),
+        ),
+      ),
+      elevation: 10.0,
+      context: context,
+      backgroundColor: AppStyle.colorBg,
+      builder: (builder) {
+        return (detailPostNew.komentar[index].userId == idUser || role == 6)
+            ? Column(
+                children: <Widget>[
+                  SizedBox(height: 10.0),
+                  ListTile(
+                    leading: Icon(
+                      Icons.warning,
+                    ),
+                    title: Text(
+                      'Laporkan thread',
+                      style: AppStyle.textSubHeadingAbu,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                    child: Divider(
+                      thickness: 2,
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.delete_outline,
+                    ),
+                    title: Text(
+                      'Hapus Komentar',
+                      style: AppStyle.textSubHeadingAbu,
+                    ),
+                    onTap: () {
+                      //detailPostNew.komentar[index].
+                      showDeleteKomentar(context, detailPost.post[0].id,
+                          detailPostNew.komentar[index].id, token, role);
+                    },
+                  ),
+                ],
+              )
+            : Column(
+                children: <Widget>[
+                  SizedBox(height: 10.0),
+                ],
+              );
+      },
     );
   }
 }

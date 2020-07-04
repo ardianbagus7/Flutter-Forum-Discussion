@@ -472,136 +472,144 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   SafeArea mainPage(String name, String nameSplit, String profil, List kategori,
       allPost, filterPost, int role, idUser) {
     return SafeArea(
-      child: CustomScrollView(
-        controller: scrollControl,
-        physics: const BouncingScrollPhysics(),
-        slivers: <Widget>[
-          SliverAppBar(
-            expandedHeight: 150.0,
-            floating: false,
-            pinned: true,
-            backgroundColor: AppStyle.colorBg,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: EdgeInsetsDirectional.only(
-                  start: 0, bottom: 10, end: 0, top: 0),
-              title: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: InkWell(
-                    onTap: null,
-                    child: Container(
-                      height: 38.0,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.1),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
-                        ),
-                      ),
-                      child: TextField(
-                        controller: searchController,
-                        style: AppStyle.textSearchPutih,
-                        maxLines: 1,
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Colors.grey,
+      child: RefreshIndicator(
+        child: CustomScrollView(
+          controller: scrollControl,
+          physics: const BouncingScrollPhysics(),
+          slivers: <Widget>[
+            SliverAppBar(
+              expandedHeight: 150.0,
+              floating: false,
+              pinned: true,
+              backgroundColor: AppStyle.colorBg,
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: EdgeInsetsDirectional.only(
+                    start: 0, bottom: 10, end: 0, top: 0),
+                title: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                    child: InkWell(
+                      onTap: null,
+                      child: Container(
+                        height: 38.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.1),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10.0),
                           ),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: BorderSide.none),
-                          hintStyle: TextStyle(color: Colors.grey),
-                          hintText: 'Cari diskusi...',
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 10),
                         ),
-                        textInputAction: TextInputAction.search,
-                        onSubmitted: (newValue) {
-                          Navigator.of(context).push(
-                            PageRouteBuilder(
-                              opaque: false,
-                              pageBuilder: (BuildContext context, _, __) =>
-                                  SearchPage(search: newValue),
+                        child: TextField(
+                          controller: searchController,
+                          style: AppStyle.textSearchPutih,
+                          maxLines: 1,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Colors.grey,
                             ),
-                          );
-                        },
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                borderSide: BorderSide.none),
+                            hintStyle: TextStyle(color: Colors.grey),
+                            hintText: 'Cari diskusi...',
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10.0, horizontal: 10),
+                          ),
+                          textInputAction: TextInputAction.search,
+                          onSubmitted: (newValue) {
+                            Navigator.of(context).push(
+                              PageRouteBuilder(
+                                opaque: false,
+                                pageBuilder: (BuildContext context, _, __) =>
+                                    SearchPage(search: newValue),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              collapseMode: CollapseMode.parallax,
-              background: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 18.0, vertical: 10.0),
-                child: Column(
-                  children: <Widget>[
-                    SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              'Hai,',
-                              style: AppStyle.textHeadlineTipisBlack,
-                            ),
-                            FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Container(
-                                width: MediaQuery.of(context).size.width *
-                                        13 /
-                                        16 -
-                                    36,
-                                child: Text(
-                                  '$name',
-                                  style: AppStyle.textHeadlineBlack,
-                                ),
+                collapseMode: CollapseMode.parallax,
+                background: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18.0, vertical: 10.0),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                'Hai,',
+                                style: AppStyle.textHeadlineTipisBlack,
                               ),
-                            )
-                          ],
-                        ),
-                        Hero(
-                          tag: 'profil',
-                          child: CircleAvatar(
-                            radius: 25,
-                            backgroundImage: CachedNetworkImageProvider(profil),
+                              FittedBox(
+                                fit: BoxFit.fitWidth,
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width *
+                                          13 /
+                                          16 -
+                                      36,
+                                  child: Text(
+                                    '$name',
+                                    style: AppStyle.textHeadlineBlack,
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          Hero(
+                            tag: 'profil',
+                            child: CircleAvatar(
+                              radius: 25,
+                              backgroundImage:
+                                  CachedNetworkImageProvider(profil),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 18.0, top: 20.0),
-              child: Text('Kategori', style: AppStyle.textList),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 18.0, top: 20.0),
+                child: Text('Kategori', style: AppStyle.textList),
+              ),
             ),
-          ),
-          SliverStickyHeader(
-            header: kategoriListView(kategori),
-            sliver: (allPost == null && status == 0 ||
-                    filterPost == null && status != 0)
-                ? SliverToBoxAdapter(
-                    child: Center(
-                      child: SizedBox(
-                        height: 50.0,
-                        width: 50.0,
-                        child: CircularProgressIndicator(),
+            SliverStickyHeader(
+              header: kategoriListView(kategori),
+              sliver: (allPost == null && status == 0 ||
+                      filterPost == null && status != 0)
+                  ? SliverToBoxAdapter(
+                      child: Center(
+                        child: SizedBox(
+                          height: 50.0,
+                          width: 50.0,
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
-                    ),
-                  )
-                : (status != 0)
-                    ? listAllPost(filterPost, name, role, idUser)
-                    : listAllPost(allPost, name, role, idUser),
-          ),
-          SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
+                    )
+                  : (status != 0)
+                      ? listAllPost(filterPost, name, role, idUser)
+                      : listAllPost(allPost, name, role, idUser),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
+        ),
+        onRefresh: () async {
+          bool _status = await Provider.of<PostProvider>(context, listen: false)
+              .getAllPost();
+          return _status;
+        },
       ),
     );
   }

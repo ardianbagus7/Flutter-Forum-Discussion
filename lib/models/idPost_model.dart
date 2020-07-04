@@ -47,7 +47,7 @@ class Komentar {
     final int userId;
     final String image;
     final String name;
-    final int nrp;
+    final String nrp;
     final String komentar;
     final DateTime createdAt;
 

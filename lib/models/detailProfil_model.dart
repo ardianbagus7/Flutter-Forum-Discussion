@@ -86,7 +86,7 @@ class User {
 
     final int id;
     final String name;
-    final int nrp;
+    final String nrp;
     final String image;
     final DateTime createdAt;
     final DateTime updatedAt;

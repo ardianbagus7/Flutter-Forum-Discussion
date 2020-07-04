@@ -32,7 +32,7 @@ class PostProvider with ChangeNotifier {
     this.authProvider = authProvider;
   }
 
-  Future<void> getAllPost() async {
+  Future<bool> getAllPost() async {
     try {
       //Jika tidak ada exceptions thrown dari API service
       isLoading = true;
@@ -43,15 +43,18 @@ class PostProvider with ChangeNotifier {
       isLoading = false;
       print('loading $isLoading');
       notifyListeners();
+      return true;
     } on AuthException {
       //Token expired, redirect login
       isLoading = false;
       notifyListeners();
       await authProvider.logOut(true);
+      return false;
     } catch (exception) {
       isLoading = false;
       notifyListeners();
       print(exception);
+      return false;
     }
   }
 
