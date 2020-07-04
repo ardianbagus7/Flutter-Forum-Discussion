@@ -2,12 +2,15 @@ import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/utils/ClipPathHome.dart';
 import 'package:discussion_app/utils/ClipShadowPath.dart';
+import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/views/create_post.dart';
 import 'package:discussion_app/views/detail_page.dart';
+import 'package:discussion_app/views/editPost_page.dart';
 import 'package:discussion_app/views/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
@@ -24,7 +27,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   ScrollController scrollControl;
   double scrollOffset;
   bool statusScroll = false;
-
+  bool isLoading = false;
+  var allPost;
   AnimationController _colorAnimationController;
   AnimationController _textAnimationController;
   Animation _iconColorTween, _opacityTween;
@@ -35,6 +39,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    super.initState();
     _colorAnimationController =
         AnimationController(vsync: this, duration: Duration(seconds: 0));
 
@@ -48,12 +53,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _transTween = Tween(begin: Offset(0, 40), end: Offset(0, 0))
         .animate(_textAnimationController);
 
-    Provider.of<PostProvider>(context, listen: false).getAllPost();
-    Provider.of<PostProvider>(context, listen: false).getDetailProfil();
+    Future.microtask(() {
+      Provider.of<PostProvider>(context, listen: false).getAllPost();
+      Provider.of<PostProvider>(context, listen: false).getDetailProfil();
+    });
 
     bottomNavBarIndex = 0;
     pageController = PageController(initialPage: bottomNavBarIndex);
-    super.initState();
   }
 
   bool _scrollListener(ScrollNotification scrollInfo) {
@@ -80,12 +86,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     Provider.of<PostProvider>(context, listen: false).getAllPost();
   }
 
-  void didChangeDepedencies() {
-    super.didChangeDependencies();
-
-    tokenProvider = Provider.of<AuthProvider>(context).token;
-  }
-
   @override
   Widget build(BuildContext context) {
     List kategori = [
@@ -96,13 +96,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       'Beasiswa',
       'Keluh kesah'
     ];
-    var allPost = Provider.of<PostProvider>(context).allPost ?? null;
+    allPost = Provider.of<PostProvider>(context).allPost ?? null;
     String name = Provider.of<AuthProvider>(context).name;
     List nameSplit = name.split(' ');
     String profil = Provider.of<AuthProvider>(context).profil;
     var filterPost = Provider.of<PostProvider>(context).filterPost ?? null;
     var detailProfil = Provider.of<PostProvider>(context).detailProfil ?? null;
     tokenProvider = Provider.of<AuthProvider>(context).token;
+    int role = Provider.of<AuthProvider>(context).role;
+    int idUser = Provider.of<AuthProvider>(context).idUser;
+    isLoading = Provider.of<PostProvider>(context).isLoading ?? null;
     return Scaffold(
       backgroundColor: AppStyle.colorBg,
       body: GestureDetector(
@@ -123,7 +126,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   if (index == 0) {
                     Provider.of<PostProvider>(context, listen: false)
                         .getAllPost();
-                  } else if (index == 1) {
+                  }
+                  if (index == 1) {
                     Provider.of<PostProvider>(context, listen: false)
                         .getDetailProfil();
                   }
@@ -131,11 +135,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               },
               children: <Widget>[
                 // HALAMAN HOME PAGE / MAIN PAGE
-                mainPage(
-                    name, nameSplit[0], profil, kategori, allPost, filterPost),
+                mainPage(name, nameSplit[0], profil, kategori, allPost,
+                    filterPost, role, idUser),
 
                 //HALAMAN PROFIL
-                profilPage(detailProfil, name, profil)
+                profilPage(detailProfil, name, profil, role, idUser)
               ],
             ),
             Align(
@@ -158,186 +162,220 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  NotificationListener profilPage(detailProfil, String name, String profil) {
+  NotificationListener profilPage(
+      detailProfil, String name, String profil, role, idUser) {
     return NotificationListener<ScrollNotification>(
-        onNotification: _scrollListener,
-        child: (detailProfil == null)
-            ? Center(
-                child: SizedBox(
-                  height: 50.0,
-                  width: 50.0,
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            : Container(
-                height: double.infinity,
-                child: Stack(
-                  children: <Widget>[
-                    SafeArea(
-                      child: CustomScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        slivers: <Widget>[
-                          SliverToBoxAdapter(
-                            child: Stack(
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 18.0),
-                                  child: Container(
-                                    margin: EdgeInsets.only(top: 100),
-                                    height: 250,
-                                    decoration: BoxDecoration(
-                                      color: AppStyle.colorWhite,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(10.0)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          offset: Offset(0.0, 2),
-                                          blurRadius: 15.0,
-                                        )
-                                      ],
-                                    ),
+      onNotification: _scrollListener,
+      child: (detailProfil == null)
+          ? Center(
+              child: SizedBox(
+                height: 50.0,
+                width: 50.0,
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : Container(
+              height: double.infinity,
+              child: Stack(
+                children: <Widget>[
+                  SafeArea(
+                    child: CustomScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      slivers: <Widget>[
+                        SliverToBoxAdapter(
+                          child: Stack(
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 18.0),
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 100),
+                                  height: 330,
+                                  decoration: BoxDecoration(
+                                    color: AppStyle.colorWhite,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10.0)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        offset: Offset(0.0, 2),
+                                        blurRadius: 15.0,
+                                      )
+                                    ],
                                   ),
                                 ),
-                                Column(
-                                  children: <Widget>[
-                                    SizedBox(height: 20),
-                                    Center(
+                              ),
+                              Column(
+                                children: <Widget>[
+                                  SizedBox(height: 20),
+                                  Center(
+                                    child: CircleAvatar(
+                                      radius: 75,
+                                      backgroundColor: AppStyle.colorMain3,
                                       child: CircleAvatar(
-                                        radius: 75,
-                                        backgroundColor: AppStyle.colorMain3,
-                                        child: CircleAvatar(
-                                          radius: 70,
-                                          backgroundImage:
-                                              CachedNetworkImageProvider(
-                                                  profil),
-                                        ),
+                                        radius: 70,
+                                        backgroundImage:
+                                            CachedNetworkImageProvider(profil),
                                       ),
                                     ),
-                                    SizedBox(height: 5),
-                                    Center(
-                                      child: Text(
-                                        '$name',
-                                        style: AppStyle.textHeadlineProfil,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    SizedBox(height: 5),
-                                    Center(
-                                      child: Text(
-                                        'Angkatan ${detailProfil.user.angkatan}',
-                                        style: AppStyle.textSubHeadlineBlack,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    SizedBox(height: 5),
-                                    Center(
-                                      child: Text(
-                                        '${detailProfil.user.nrp}',
-                                        style: AppStyle.textSubHeadlineBlack,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 34.0),
-                                      child: InkWell(
-                                        onTap: () {
-                                          /*Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => EditProfil(
-                                                image: profil,
-                                                name: name,
-                                                angkatan:
-                                                    detailProfil.user.angkatan,
-                                              ),
-                                            ),
-                                          ); */
-                                          submit();
-                                        },
-                                        child: Container(
-                                          height: 50,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: AppStyle.colorMain,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10.0)),
-                                          ),
-                                          child: Center(
-                                              child: Text(
-                                            'Edit Profil',
-                                            style:
-                                                AppStyle.textSubHeading2Putih,
-                                          )),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          SliverToBoxAdapter(child: SizedBox(height: 10)),
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 18.0),
-                              child: Divider(
-                                thickness: 2,
-                              ),
-                            ),
-                          ),
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 18.0),
-                              child: Text('Thread', style: AppStyle.textList),
-                            ),
-                          ),
-                          listAllPost(detailProfil.post)
-                        ],
-                      ),
-                    ),
-                    Container(
-                      height: 83,
-                      child: AnimatedBuilder(
-                        animation: _colorAnimationController,
-                        builder: (context, child) => Opacity(
-                          opacity: _opacityTween.value,
-                          child: AppBar(
-                            backgroundColor: AppStyle.colorBg,
-                            centerTitle: true,
-                            title: Transform.translate(
-                              offset: _transTween.value,
-                              child: Text(
-                                '$name',
-                                style: AppStyle.textSubHeadlineBlack,
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            iconTheme: IconThemeData(
-                              color: _iconColorTween.value,
-                            ),
-                            actions: <Widget>[
-                              Transform.translate(
-                                offset: _transTween.value,
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.settings,
                                   ),
-                                  onPressed: () {},
-                                ),
+                                  SizedBox(height: 5),
+                                  Center(
+                                    child: Text(
+                                      '$name',
+                                      style: AppStyle.textHeadlineProfil,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Center(
+                                    child: Text(
+                                      '$role',
+                                      style: AppStyle.textSubHeadlineBlack,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Center(
+                                    child: Text(
+                                      'Angkatan ${detailProfil.user.angkatan}',
+                                      style: AppStyle.textSubHeadlineBlack,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Center(
+                                    child: Text(
+                                      '${detailProfil.user.nrp}',
+                                      style: AppStyle.textSubHeadlineBlack,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 34.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => EditProfil(
+                                              image: profil,
+                                              name: name,
+                                              angkatan:
+                                                  detailProfil.user.angkatan,
+                                              token: tokenProvider,
+                                            ),
+                                          ),
+                                        );
+                                        // submit();
+                                      },
+                                      child: Container(
+                                        height: 50,
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: AppStyle.colorMain,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10.0)),
+                                        ),
+                                        child: Center(
+                                            child: Text(
+                                          'Edit Profil',
+                                          style: AppStyle.textSubHeading2Putih,
+                                        )),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 34.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        submit();
+                                      },
+                                      child: Container(
+                                        height: 50,
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: AppStyle.colorMain,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10.0)),
+                                        ),
+                                        child: Center(
+                                            child: Text(
+                                          'Logout',
+                                          style: AppStyle.textSubHeading2Putih,
+                                        )),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
+                        SliverToBoxAdapter(child: SizedBox(height: 10)),
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 18.0),
+                            child: Divider(
+                              thickness: 2,
+                            ),
+                          ),
+                        ),
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 18.0),
+                            child: Text('Thread', style: AppStyle.textList),
+                          ),
+                        ),
+                        listAllPost(detailProfil.post, name, role, idUser),
+                        SliverToBoxAdapter(child: SizedBox(height: 100)),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    height: 83,
+                    child: AnimatedBuilder(
+                      animation: _colorAnimationController,
+                      builder: (context, child) => Opacity(
+                        opacity: _opacityTween.value,
+                        child: AppBar(
+                          backgroundColor: AppStyle.colorBg,
+                          centerTitle: true,
+                          title: Transform.translate(
+                            offset: _transTween.value,
+                            child: Text(
+                              '$name',
+                              style: AppStyle.textSubHeadlineBlack,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          iconTheme: IconThemeData(
+                            color: _iconColorTween.value,
+                          ),
+                          actions: <Widget>[
+                            /* Transform.translate(
+                              offset: _transTween.value,
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.settings,
+                                ),
+                                onPressed: () {},
+                              ),
+                            ), */
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ));
+                  ),
+                ],
+              ),
+            ),
+    );
   }
 
   Align createPostButton(BuildContext context) {
@@ -357,8 +395,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               size: 36,
             ),
           ),
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            String _create = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => CreatePost(
@@ -366,6 +404,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
             );
+            setState(() {
+              print(_create);
+              if (_create == 'ok') {
+                getdata();
+                _create = "";
+              }
+            });
           },
         ),
       ),
@@ -398,6 +443,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             onTap: (index) {
               setState(() {
                 bottomNavBarIndex = index;
+
                 pageController.jumpToPage(index);
               });
             },
@@ -424,7 +470,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   SafeArea mainPage(String name, String nameSplit, String profil, List kategori,
-      allPost, filterPost) {
+      allPost, filterPost, int role, idUser) {
     return SafeArea(
       child: CustomScrollView(
         controller: scrollControl,
@@ -551,235 +597,218 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   )
                 : (status != 0)
-                    ? filterKategoriPost(filterPost)
-                    : listAllPost(allPost),
+                    ? listAllPost(filterPost, name, role, idUser)
+                    : listAllPost(allPost, name, role, idUser),
           ),
+          SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
   }
 
-  SliverList filterKategoriPost(filterPost) {
+  SliverList listAllPost(allPost, name, role, idUser) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailPage(
-                    id: filterPost[index].id,
-                    image: filterPost[index].postImage,
-                    index: index,
-                    token: tokenProvider,
+          child: Material(
+            color: Colors.white.withOpacity(0.0),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              radius: 500,
+              splashColor: AppStyle.colorMain,
+              highlightColor: Colors.grey.withOpacity(0.5),
+              onLongPress: () {
+                print('long pres $index');
+                showModalBottomSheet(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10.0),
+                      topRight: Radius.circular(10.0),
+                    ),
                   ),
-                ),
-              );
-            },
-            child: Container(
-              margin: EdgeInsets.only(top: 10.0),
-              width: double.infinity,
-              height: 100.0,
-              child: Row(
-                children: <Widget>[
-                  Hero(
-                    tag: 'fullscreen${filterPost[index].id}',
-                    child: Container(
-                      width: 100,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
-                        ),
-                        image: new DecorationImage(
-                          fit: BoxFit.cover,
-                          image: new CachedNetworkImageProvider(
-                              filterPost[index].postImage),
+                  elevation: 10.0,
+                  context: context,
+                  backgroundColor: AppStyle.colorBg,
+                  builder: (builder) {
+                    return (allPost[index].userId == idUser || role == 6)
+                        ? Column(
+                            children: <Widget>[
+                              SizedBox(height: 10.0),
+                              ListTile(
+                                leading: Icon(
+                                  Icons.warning,
+                                ),
+                                title: Text(
+                                  'Laporkan thread',
+                                  style: AppStyle.textSubHeadingAbu,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 18.0),
+                                child: Divider(
+                                  thickness: 2,
+                                ),
+                              ),
+                              ListTile(
+                                  leading: Icon(
+                                    Icons.edit,
+                                  ),
+                                  title: Text(
+                                    'Edit thread',
+                                    style: AppStyle.textSubHeadingAbu,
+                                  ),
+                                  onTap: () async {
+                                    String _statusEdit = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditPost(
+                                          token: tokenProvider,
+                                          postId: allPost[index].id,
+                                          idPost: allPost[index],
+                                        ),
+                                      ),
+                                    );
+                                    setState(() {
+                                      print(_statusEdit);
+                                      if (_statusEdit == 'ok') {
+                                        getdata();
+                                        _statusEdit = "";
+                                      }
+                                    });
+                                  }),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 18.0),
+                                child: Divider(
+                                  thickness: 2,
+                                ),
+                              ),
+                              ListTile(
+                                leading: Icon(
+                                  Icons.delete_outline,
+                                ),
+                                title: Text(
+                                  'Hapus thread',
+                                  style: AppStyle.textSubHeadingAbu,
+                                ),
+                                onTap: () async {
+                                  String _status = await showDelete(context,
+                                      allPost[index].id, tokenProvider, role);
+                                  setState(() {
+                                    print(_status);
+                                    if (_status == 'ok') {
+                                      getdata();
+                                      _status = "";
+                                    }
+                                  });
+                                },
+                              ),
+                            ],
+                          )
+                        : Column(
+                            children: <Widget>[
+                              SizedBox(height: 10.0),
+                              ListTile(
+                                leading: Icon(
+                                  Icons.warning,
+                                ),
+                                title: Text(
+                                  'Laporkan thread',
+                                  style: AppStyle.textSubHeadingAbu,
+                                ),
+                              ),
+                            ],
+                          );
+                  },
+                );
+              },
+              onTap: () async {
+                SchedulerBinding.instance.addPostFrameCallback((_) {
+                  Provider.of<PostProvider>(context, listen: false)
+                      .getIdPost(allPost[index].id, tokenProvider);
+                });
+                String _status = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailPage(
+                      id: allPost[index].id,
+                      image: allPost[index].postImage,
+                      index: index,
+                      token: tokenProvider,
+                      name: name,
+                      role: role,
+                      idUser: idUser,
+                    ),
+                  ),
+                );
+                setState(() {
+                  print(_status);
+                  if (_status == 'ok') {
+                    getdata();
+                    _status = "";
+                  }
+                });
+              },
+              child: Container(
+                margin: EdgeInsets.symmetric(vertical: 5.0),
+                width: double.infinity,
+                height: 100.0,
+                child: Row(
+                  children: <Widget>[
+                    Hero(
+                      tag: 'fullscreen${allPost[index].id}',
+                      child: Container(
+                        width: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10.0),
+                          ),
+                          image: new DecorationImage(
+                            fit: BoxFit.cover,
+                            image: new CachedNetworkImageProvider(
+                                allPost[index].postImage),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  FittedBox(
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            '${filterPost[index].name}',
-                            style: AppStyle.textBody1,
-                          ),
-                          Container(
-                            height: 50.0,
-                            width: MediaQuery.of(context).size.width * 6 / 10,
-                            child: Text(
-                              '${filterPost[index].title}',
-                              style: AppStyle.textRegular,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
+                    FittedBox(
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              '${allPost[index].name}',
+                              style: AppStyle.textBody1,
                             ),
-                          ),
-                          Text(
-                            '${filterPost[index].kategori}',
-                            style: AppStyle.textCaption,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }, childCount: filterPost.length),
-    );
-  }
-
-  SliverList listAllPost(allPost) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailPage(
-                    id: allPost[index].id,
-                    image: allPost[index].postImage,
-                    index: index,
-                    token: tokenProvider,
-                  ),
-                ),
-              );
-            },
-            child: Container(
-              margin: EdgeInsets.only(top: 10.0),
-              width: double.infinity,
-              height: 100.0,
-              child: Row(
-                children: <Widget>[
-                  Hero(
-                    tag: 'fullscreen${allPost[index].id}',
-                    child: Container(
-                      width: 100,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
-                        ),
-                        image: new DecorationImage(
-                          fit: BoxFit.cover,
-                          image: new CachedNetworkImageProvider(
-                              allPost[index].postImage),
-                        ),
-                      ),
-                    ),
-                  ),
-                  FittedBox(
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            '${allPost[index].name}',
-                            style: AppStyle.textBody1,
-                          ),
-                          Container(
-                            height: 50.0,
-                            width: MediaQuery.of(context).size.width * 6 / 10,
-                            child: Text(
-                              '${allPost[index].title}',
-                              style: AppStyle.textRegular,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
+                            Container(
+                              height: 50.0,
+                              width: MediaQuery.of(context).size.width * 6 / 10,
+                              child: Text(
+                                '${allPost[index].title}',
+                                style: AppStyle.textRegular,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
                             ),
-                          ),
-                          Text(
-                            '${allPost[index].kategori}',
-                            style: AppStyle.textCaption,
-                          ),
-                        ],
+                            Text(
+                              '${allPost[index].kategori}',
+                              style: AppStyle.textCaption,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         );
       }, childCount: allPost.length),
-    );
-  }
-
-  Padding createPost(String profil) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18.0),
-      child: Container(
-        margin: EdgeInsets.only(top: 185.0),
-        width: double.infinity,
-        height: 80.0,
-        decoration: AppStyle.decorationCard,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Row(
-            children: <Widget>[
-              Hero(
-                tag: 'profil',
-                child: CircleAvatar(
-                  radius: 20,
-                  backgroundImage: CachedNetworkImageProvider(profil),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: SizedBox(),
-              ),
-              Expanded(
-                flex: 20,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/create-post');
-                  },
-                  child: Container(
-                    height: 50.0,
-                    decoration: BoxDecoration(
-                      color: AppStyle.colorWhite,
-                      border: Border.all(color: Colors.black.withOpacity(0.2)),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(20.0),
-                      ),
-                    ),
-                    child: Center(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Expanded(
-                            child: SizedBox(),
-                          ),
-                          Expanded(
-                            flex: 10,
-                            child: Text(
-                              'Mulai diskusi',
-                              style: AppStyle.textSubHeadingAbu,
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
     );
   }
 

@@ -34,6 +34,7 @@ class IdPost {
 
 class Komentar {
     Komentar({
+        this.id,
         this.userId,
         this.image,
         this.name,
@@ -42,6 +43,7 @@ class Komentar {
         this.createdAt,
     });
 
+    final int id;
     final int userId;
     final String image;
     final String name;
@@ -50,6 +52,7 @@ class Komentar {
     final DateTime createdAt;
 
     factory Komentar.fromJson(Map<String, dynamic> json) => Komentar(
+        id: json["id"] == null ? null : json["id"],
         userId: json["user_id"] == null ? null : json["user_id"],
         image: json["image"] == null ? null : json["image"],
         name: json["name"] == null ? null : json["name"],
@@ -59,6 +62,7 @@ class Komentar {
     );
 
     Map<String, dynamic> toJson() => {
+        "id": id == null ? null : id,
         "user_id": userId == null ? null : userId,
         "image": image == null ? null : image,
         "name": name == null ? null : name,
@@ -75,6 +79,7 @@ class Post {
         this.kategori,
         this.description,
         this.postImage,
+        this.userId,
         this.name,
         this.userImage,
         this.createdAt,
@@ -85,6 +90,7 @@ class Post {
     final String kategori;
     final String description;
     final String postImage;
+    final int userId;
     final String name;
     final String userImage;
     final DateTime createdAt;
@@ -95,6 +101,7 @@ class Post {
         kategori: json["kategori"] == null ? null : json["kategori"],
         description: json["description"] == null ? null : json["description"],
         postImage: json["post_image"] == null ? null : json["post_image"],
+        userId: json["userId"] == null ? null : json["userId"],
         name: json["name"] == null ? null : json["name"],
         userImage: json["user_image"] == null ? null : json["user_image"],
         createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
@@ -106,6 +113,7 @@ class Post {
         "kategori": kategori == null ? null : kategori,
         "description": description == null ? null : description,
         "post_image": postImage == null ? null : postImage,
+        "userId": userId == null ? null : userId,
         "name": name == null ? null : name,
         "user_image": userImage == null ? null : userImage,
         "created_at": createdAt == null ? null : createdAt.toIso8601String(),

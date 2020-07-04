@@ -34,6 +34,7 @@ class Post {
         this.title,
         this.kategori,
         this.postImage,
+        this.userId,
         this.name,
         this.userImage,
         this.createdAt,
@@ -43,6 +44,7 @@ class Post {
     final String title;
     final String kategori;
     final String postImage;
+    final int userId;
     final String name;
     final String userImage;
     final DateTime createdAt;
@@ -52,6 +54,7 @@ class Post {
         title: json["title"] == null ? null : json["title"],
         kategori: json["kategori"] == null ? null : json["kategori"],
         postImage: json["post_image"] == null ? null : json["post_image"],
+        userId: json["userId"] == null ? null : json["userId"],
         name: json["name"] == null ? null : json["name"],
         userImage: json["user_image"] == null ? null : json["user_image"],
         createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
@@ -62,6 +65,7 @@ class Post {
         "title": title == null ? null : title,
         "kategori": kategori == null ? null : kategori,
         "post_image": postImage == null ? null : postImage,
+        "userId": userId == null ? null : userId,
         "name": name == null ? null : name,
         "user_image": userImage == null ? null : userImage,
         "created_at": createdAt == null ? null : createdAt.toIso8601String(),

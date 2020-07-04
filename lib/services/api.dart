@@ -57,7 +57,7 @@ class ApiService {
     return allPostFromJson(response.body);
   }
 
-  Future<IdPost> getIdPost(int id,String tokenProvider) async {
+  Future<IdPost> getIdPost(int id, String tokenProvider) async {
     final url = "$api/post/$id";
 
     Map<String, String> headers = {
@@ -66,14 +66,14 @@ class ApiService {
     };
 
     final response = await http.get(url, headers: headers);
-
+    print(response.body);
     validateResponseStatus(response.statusCode, 200);
     print('sukses get id post');
     return idPostFromJson(response.body);
   }
 
-  Future<bool> createPost(
-      String title, String description, String kategori, File image, String tokenProvider) async {
+  Future<bool> createPost(String title, String description, String kategori,
+      File image, String tokenProvider) async {
     final url = '$api/post';
     var request = http.MultipartRequest("POST", Uri.parse(url));
     request.fields['title'] = title;
@@ -97,17 +97,41 @@ class ApiService {
     return true;
   }
 
-  Future<bool> deletePost(int id) async {
+  Future<bool> editPost(int id, String title, String description,
+      String kategori, File image, String tokenProvider) async {
+    final url = '$api/post/$id';
+    var request = http.MultipartRequest("POST", Uri.parse(url));
+    request.fields['_method'] = 'PATCH';
+    request.fields['title'] = title;
+    request.fields['description'] = description;
+    request.fields['kategori'] = kategori;
+
+    if (image != null) {
+      var pic = await http.MultipartFile.fromPath('image', image.path);
+      request.files.add(pic);
+    } else {}
+    request.headers['Accept'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $tokenProvider';
+
+    var response = await request.send();
+
+    var responseData = await response.stream.toBytes();
+    var responseString = String.fromCharCodes(responseData);
+    print(responseString);
+    validateResponseStatus(response.statusCode, 200);
+
+    return true;
+  }
+
+  Future<bool> deletePost(int id, String tokenNew, int role) async {
     final url = '$api/post/$id';
 
     Map<String, String> headers = {
       'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $tokenNew'
     };
 
-    Map<String, String> body = {
-      '_method': 'DELETE',
-    };
+    Map<String, String> body = {'_method': 'DELETE', 'role': '$role'};
 
     final response = await http.post(url, headers: headers, body: body);
 
@@ -154,7 +178,10 @@ class ApiService {
     return searchPostFromJson(response.body);
   }
 
-  Future<bool> createKomentar(String postId, String komentar,String tokenProvider) async {
+  //* KOMENTAR
+
+  Future<bool> createKomentar(
+      String postId, String komentar, String tokenProvider) async {
     final url = '$api/komentar';
 
     Map<String, String> headers = {
@@ -174,6 +201,25 @@ class ApiService {
     return true;
   }
 
+  Future<bool> deleteKomentar(int id, String tokenNew, int role) async {
+    final url = '$api/komentar/$id';
+    print(url);
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    Map<String, String> body = {'_method': 'DELETE', 'role': '$role'};
+
+    final response = await http.post(url, headers: headers, body: body);
+    print(response.body);
+    validateResponseStatus(response.statusCode, 200);
+
+    return true;
+  }
+
+  //* PROFIL
+
   Future<UserDetail> getDetailProfil() async {
     final url = "$api/user/detail";
 
@@ -191,7 +237,7 @@ class ApiService {
     return userDetailFromJson(response.body);
   }
 
-  Future<bool> editProfil(String nama, String angkatan, File image) async {
+  Future<bool> editProfil(String nama, String angkatan, File image, String tokenNew) async {
     final url = '$api/user/profil';
     var request = http.MultipartRequest("POST", Uri.parse(url));
     request.fields['name'] = nama;
@@ -203,7 +249,7 @@ class ApiService {
     } else {}
 
     request.headers['Accept'] = 'application/json';
-    request.headers['Authorization'] = 'Bearer $token';
+    request.headers['Authorization'] = 'Bearer $tokenNew';
 
     var response = await request.send();
 

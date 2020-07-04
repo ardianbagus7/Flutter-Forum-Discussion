@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
@@ -49,9 +48,9 @@ class _CreatePostState extends State<CreatePost> {
     void submit() async {
       bool status = await Provider.of<PostProvider>(context, listen: false)
           .createPost(titleController.text, descriptionController.text,
-              kategori[statusKategori], _image,token);
+              kategori[statusKategori], _image, token);
       if (status) {
-        Navigator.of(context).pop();
+         Navigator.pop(context,'ok');
       } else {
         setState(() {
           statusCreate = 'menunggu';
@@ -60,49 +59,44 @@ class _CreatePostState extends State<CreatePost> {
       }
     }
 
-    final authProvider = Provider.of<AuthProvider>(context);
-
-    return ChangeNotifierProvider(
-      create: (context) => PostProvider(authProvider),
-      child: Scaffold(
-        appBar: appBar(submit),
-        body: GestureDetector(
-          onTap: () {
-            FocusScope.of(context).requestFocus(new FocusNode());
-          },
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                SizedBox(height: 20.0),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: Stack(
-                    children: <Widget>[
-                      Container(
-                        decoration: AppStyle.decorationCard,
-                        margin: EdgeInsets.only(top: 100),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(height: 80.0),
-                              kategoriField(context),
-                              SizedBox(height: 20.0),
-                              judulField(),
-                              deskripsiField(),
-                              SizedBox(height: 20.0),
-                              //submitPost(submit),
-                            ],
-                          ),
+    return Scaffold(
+      appBar: appBar(submit),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 20.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      decoration: AppStyle.decorationCard,
+                      margin: EdgeInsets.only(top: 100),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Column(
+                          children: <Widget>[
+                            SizedBox(height: 80.0),
+                            kategoriField(context),
+                            SizedBox(height: 20.0),
+                            judulField(),
+                            deskripsiField(),
+                            SizedBox(height: 20.0),
+                            //submitPost(submit),
+                          ],
                         ),
                       ),
-                      Center(child: imagePost()),
-                    ],
-                  ),
+                    ),
+                    Center(child: imagePost()),
+                  ],
                 ),
-                SizedBox(height: 20.0),
-              ],
-            ),
+              ),
+              SizedBox(height: 20.0),
+            ],
           ),
         ),
       ),
@@ -355,7 +349,7 @@ class _CreatePostState extends State<CreatePost> {
           color: AppStyle.colorMain,
           size: 35,
         ),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () => Navigator.pop(context),
       ),
       title: Text('Mulai Diskusi', style: AppStyle.textSubHeadlineBlack),
       actions: <Widget>[

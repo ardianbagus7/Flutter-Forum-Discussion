@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PostProvider with ChangeNotifier {
   bool _initialized = false;
-
+  bool isLoading = false;
   // VARIABEL HASIL
   var allPost;
   var idPost;
@@ -20,6 +20,7 @@ class PostProvider with ChangeNotifier {
   String statusDelete = 'menunggu';
   String statusKomentar = 'menunggu';
   String statusEditProfil = 'menunggu';
+  String statusEditPost = 'menunggu';
 
   bool get initialized => _initialized;
 
@@ -34,18 +35,22 @@ class PostProvider with ChangeNotifier {
   Future<void> getAllPost() async {
     try {
       //Jika tidak ada exceptions thrown dari API service
+      isLoading = true;
+      print('loading $isLoading');
+      notifyListeners();
       final data = await apiService.getAllPost();
       allPost = data.posts;
-      print('sukses get all post');
-      print(authProvider.token);
-      SharedPreferences storage = await SharedPreferences.getInstance();
-      String storageToken = storage.getString('token');
-      print(storageToken);
+      isLoading = false;
+      print('loading $isLoading');
       notifyListeners();
     } on AuthException {
       //Token expired, redirect login
+      isLoading = false;
+      notifyListeners();
       await authProvider.logOut(true);
     } catch (exception) {
+      isLoading = false;
+      notifyListeners();
       print(exception);
     }
   }
@@ -53,17 +58,26 @@ class PostProvider with ChangeNotifier {
   Future<bool> getIdPost(int id, String tokenProvider) async {
     try {
       idPost = null;
+      isLoading = true;
+      print('loading $isLoading');
       notifyListeners();
       final data = await apiService.getIdPost(id, tokenProvider);
       idPost = data;
-      print('token id post : $tokenProvider');
+      isLoading = false;
+      print('loading $isLoading');
       notifyListeners();
       return true;
     } on AuthException {
       //Token expired, redirect login
+      isLoading = false;
+      print('loading $isLoading');
+      notifyListeners();
       await authProvider.logOut(true);
       return false;
     } catch (exception) {
+      isLoading = false;
+      print('loading $isLoading');
+      notifyListeners();
       print(exception);
       return false;
     }
@@ -98,22 +112,56 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deletePost(int id) async {
+  Future<bool> editPost(int id, String title, String description,
+      String kategori, File image, String tokenProvider) async {
+    try {
+      statusEditPost = 'loading';
+      notifyListeners();
+      final data = await apiService.editPost(
+          id, title, description, kategori, image, tokenProvider);
+      if (data) {
+        statusEditPost = 'sukses';
+      }
+      statusEditPost = 'menunggu';
+
+      print('sukses edit post');
+      notifyListeners();
+      return true;
+    } on AuthException {
+      statusEditPost = 'menunggu';
+      notifyListeners();
+      //Token expired, redirect login
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      statusEditPost = 'menunggu';
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> deletePost(int id, String token, int role) async {
     try {
       statusDelete = 'loading';
       notifyListeners();
-      final data = await apiService.deletePost(id);
+      final data = await apiService.deletePost(id, token, role);
       if (data) {
         statusDelete = 'sukses';
       }
+      print('delete sukses');
       notifyListeners();
+      return true;
     } on AuthException {
       statusCreate = 'gagal';
+      print('delete gagal');
       //Token expired, redirect login
       await authProvider.logOut(true);
+      return false;
     } catch (exception) {
       statusCreate = 'gagal';
       print(exception);
+      return false;
     }
   }
 
@@ -148,6 +196,7 @@ class PostProvider with ChangeNotifier {
     }
   }
 
+  //* KOMENTAR
   Future<bool> createKomentar(
       String postId, String komentar, String tokenProvider) async {
     try {
@@ -176,6 +225,30 @@ class PostProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> deleteKomentar(int id, String token, int role) async {
+    try {
+      statusDelete = 'loading';
+      notifyListeners();
+      final data = await apiService.deleteKomentar(id, token, role);
+      if (data) {
+        statusDelete = 'sukses';
+      }
+      notifyListeners();
+      print('delete sukses');
+      return true;
+    } on AuthException {
+      statusCreate = 'gagal';
+      print('expired');
+      //Token expired, redirect login
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      statusCreate = 'gagal';
+      print(exception);
+      return false;
+    }
+  }
+
   // PROFIL PROVIDER
   Future<void> getDetailProfil() async {
     try {
@@ -192,11 +265,12 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> editProfil(String nama, String angkatan, File image) async {
+  Future<bool> editProfil(
+      String nama, String angkatan, File image, String tokenNew) async {
     try {
       statusEditProfil = 'loading';
       notifyListeners();
-      final data = await apiService.editProfil(nama, angkatan, image);
+      final data = await apiService.editProfil(nama, angkatan, image, tokenNew);
       if (data) {
         statusEditProfil = 'sukses';
       }

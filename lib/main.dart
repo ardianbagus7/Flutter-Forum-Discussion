@@ -1,6 +1,5 @@
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
-import 'package:discussion_app/views/create_post.dart';
 import 'package:discussion_app/views/home_page.dart';
 import 'package:discussion_app/views/loading.dart';
 import 'package:discussion_app/views/login_page.dart';

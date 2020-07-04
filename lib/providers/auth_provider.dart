@@ -10,6 +10,7 @@ class AuthProvider with ChangeNotifier {
   Status _status = Status.Uninitialized;
   String _token;
   String _name;
+  int _idUser;
   String _angkatan;
   int _role;
   String _profil;
@@ -17,6 +18,7 @@ class AuthProvider with ChangeNotifier {
   String _password;
   NotificationText _notification;
 
+  int get idUser => _idUser;
   Status get status => _status;
   String get token => _token;
   String get name => _name;
@@ -37,7 +39,9 @@ class AuthProvider with ChangeNotifier {
     String profil = await getProfil();
     int role = await getRole();
     String angkatan = await getAngkatan();
+    int idUser = await getIdUser();
     if (token != null) {
+      _idUser = idUser;
       _nrp = nrp;
       _password = password;
       _token = token;
@@ -77,6 +81,7 @@ class AuthProvider with ChangeNotifier {
       _profil = apiResponse.user.image;
       _role = apiResponse.user.role;
       _angkatan = apiResponse.user.angkatan;
+      _idUser = apiResponse.user.id;
       await storeUserData(apiResponse, nrp, password);
       notifyListeners();
       print('token auth login : $token');
@@ -99,6 +104,7 @@ class AuthProvider with ChangeNotifier {
 
   storeUserData(apiResponse, nrp, password) async {
     SharedPreferences storage = await SharedPreferences.getInstance();
+    await storage.setInt('id', apiResponse.user.id);
     await storage.setString('nrp', nrp);
     await storage.setString('password', password);
     await storage.setString('token', apiResponse.token);
@@ -106,6 +112,12 @@ class AuthProvider with ChangeNotifier {
     await storage.setString('profil', apiResponse.user.image);
     await storage.setString('angkatan', apiResponse.user.angkatan);
     await storage.setInt('role', apiResponse.user.role);
+  }
+
+  Future<int> getIdUser() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    int idUser = storage.getInt('id');
+    return idUser;
   }
 
   Future<String> getNrp() async {
@@ -153,18 +165,30 @@ class AuthProvider with ChangeNotifier {
   logOut([bool tokenExpired = false]) async {
     _status = Status.Unauthenticated;
     if (tokenExpired == true) {
-     // signin(_nrp, _password);
+      await reLogin();
       _notification =
           NotificationText('Waktu sesi habis. Harap masuk lagi.', type: 'info');
+    } else {
+      SharedPreferences storage = await SharedPreferences.getInstance();
+      await storage.clear();
+      _token = null;
+      print('logout token : $token');
+      notifyListeners();
     }
+  }
+
+  Future updateData(String namaBaru, String angkatanBaru) async {
     SharedPreferences storage = await SharedPreferences.getInstance();
-    await storage.clear();
-    _token = null;
-    print('logout token : $token');
+    await storage.setString('name', namaBaru);
+    await storage.setString('angkatan', angkatanBaru);
+    _name = namaBaru;
+    _angkatan = angkatanBaru;
     notifyListeners();
   }
 
   Future reLogin() async {
-    signin(_nrp, _password);
+    String _nrpRelog = await getNrp();
+    String _passwordRelog = await getPassword();
+    signin(_nrpRelog, _passwordRelog);
   }
 }
