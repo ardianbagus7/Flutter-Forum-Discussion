@@ -15,6 +15,9 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:discussion_app/views/editProfil_page.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:otp_text_field/otp_field.dart';
+import 'package:otp_text_field/style.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -36,6 +39,36 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   String tokenProvider;
   int status = 0;
   final TextEditingController searchController = TextEditingController();
+
+  //* SIDE BAR
+  bool sidebaropen = false;
+  double yOffset = 0;
+  double xOffset = 0;
+  double pageScale = 1;
+
+  //* VERIFIKASI
+  bool loadingVerifikasi = false;
+  String statusVerifikasi;
+  String pinVerifikasi;
+  TextEditingController nrpController = TextEditingController();
+  int statusRole = 1;
+  List role = [
+    'Guest',
+    'Mahasiswa Aktif',
+    'Fungsionaris',
+    'Alumni',
+    'Dosen',
+  ];
+  bool loadingGetVerifikasi = false;
+  String statusGetVerifikasi;
+
+  void setSidebarState() {
+    setState(() {
+      xOffset = sidebaropen ? MediaQuery.of(context).size.width * 10 / 16 : 0;
+      yOffset = sidebaropen ? MediaQuery.of(context).size.width * 4 / 16 : 0;
+      pageScale = sidebaropen ? 0.8 : 1;
+    });
+  }
 
   @override
   void initState() {
@@ -106,57 +139,161 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     int role = Provider.of<AuthProvider>(context).role;
     int idUser = Provider.of<AuthProvider>(context).idUser;
     isLoading = Provider.of<PostProvider>(context).isLoading ?? null;
+
     return Scaffold(
       backgroundColor: AppStyle.colorBg,
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
         },
-        child: Stack(
-          children: <Widget>[
-            Container(
-              color: AppStyle.colorBg,
-            ),
-            PageView(
-              controller: pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  bottomNavBarIndex = index;
-
-                  if (index == 0) {
-                    Provider.of<PostProvider>(context, listen: false)
-                        .getAllPost();
-                  }
-                  if (index == 1) {
-                    Provider.of<PostProvider>(context, listen: false)
-                        .getDetailProfil();
-                  }
-                });
-              },
-              children: <Widget>[
-                // HALAMAN HOME PAGE / MAIN PAGE
-                mainPage(name, nameSplit[0], profil, kategori, allPost,
-                    filterPost, role, idUser),
-
-                //HALAMAN PROFIL
-                profilPage(detailProfil, name, profil, role, idUser)
-              ],
-            ),
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 18.0, vertical: 10.0),
-                child: SafeArea(
-                  child: Row(
-                    children: <Widget>[],
+        child: Container(
+          color: AppStyle.colorMain,
+          child: Stack(
+            children: <Widget>[
+              //* SIDE BAR
+              SafeArea(
+                child: Container(
+                  width: double.infinity,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        GestureDetector(
+                          onTap: () {
+                            sidebaropen = false;
+                            setSidebarState();
+                          },
+                          child: AnimatedContainer(
+                            duration: Duration(milliseconds: 500),
+                            height: yOffset,
+                            //child: Text('Aplikasi diskusi'),
+                          ),
+                        ),
+                        Container(
+                          child: Expanded(
+                            child: ListView(
+                              children: <Widget>[
+                                (role == 6)
+                                    ? ListTile(
+                                        leading: Icon(MdiIcons.accountStar,
+                                            color: Colors.white),
+                                        title: Text('Admin panel',
+                                            style:
+                                                AppStyle.textSubHeadingPutih),
+                                        onTap: () {},
+                                      )
+                                    : SizedBox(),
+                                ListTile(
+                                  leading: Icon(MdiIcons.accountSettings,
+                                      color: Colors.white),
+                                  title: Text('Pengaturan akun',
+                                      style: AppStyle.textSubHeadingPutih),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditProfil(
+                                          image: profil,
+                                          name: name,
+                                          angkatan: detailProfil.user.angkatan,
+                                          token: tokenProvider,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                ListTile(
+                                  leading: Icon(MdiIcons.accountTieVoice,
+                                      color: Colors.white),
+                                  title: Text('Kontak developer',
+                                      style: AppStyle.textSubHeadingPutih),
+                                ),
+                                ListTile(
+                                  leading: Icon(MdiIcons.thumbsUpDown,
+                                      color: Colors.white),
+                                  title: Text('Saran dan masukan',
+                                      style: AppStyle.textSubHeadingPutih),
+                                ),
+                                ListTile(
+                                  leading: Icon(MdiIcons.bugCheck,
+                                      color: Colors.white),
+                                  title: Text('Laporkan bug',
+                                      style: AppStyle.textSubHeadingPutih),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        ListTile(
+                          leading: Icon(MdiIcons.logout, color: Colors.white),
+                          title: Text('Logout',
+                              style: AppStyle.textSubHeadingPutih),
+                          onTap: () {
+                            submit();
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            customNavBar(),
-            createPostButton(context)
-          ],
+              //* SIDE BAR
+              AnimatedContainer(
+                curve: Curves.easeInOut,
+                duration: Duration(milliseconds: 500),
+                transform: Matrix4.translationValues(xOffset, yOffset, 1.0)
+                  ..scale(pageScale),
+                decoration: BoxDecoration(
+                  color: AppStyle.colorBg,
+                  borderRadius: sidebaropen
+                      ? BorderRadius.circular(20)
+                      : BorderRadius.circular(0),
+                ),
+                child: PageView(
+                  controller: pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      bottomNavBarIndex = index;
+
+                      if (index == 0) {
+                        Provider.of<PostProvider>(context, listen: false)
+                            .getAllPost();
+                      }
+                      if (index == 1) {
+                        Provider.of<PostProvider>(context, listen: false)
+                            .getDetailProfil();
+                      }
+                    });
+                  },
+                  children: <Widget>[
+                    // HALAMAN HOME PAGE / MAIN PAGE
+                    mainPage(name, nameSplit[0], profil, kategori, allPost,
+                        filterPost, role, idUser),
+
+                    //HALAMAN PROFIL
+                    profilPage(detailProfil, name, profil, role, idUser)
+                  ],
+                ),
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18.0, vertical: 10.0),
+                  child: SafeArea(
+                    child: Row(
+                      children: <Widget>[],
+                    ),
+                  ),
+                ),
+              ),
+              customNavBar(),
+              createPostButton(context)
+            ],
+          ),
         ),
       ),
     );
@@ -190,7 +327,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     horizontal: 18.0),
                                 child: Container(
                                   margin: EdgeInsets.only(top: 100),
-                                  height: 330,
+                                  height: (role == 0) ? 280 : 240,
                                   decoration: BoxDecoration(
                                     color: AppStyle.colorWhite,
                                     borderRadius:
@@ -252,65 +389,41 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     ),
                                   ),
                                   SizedBox(height: 10),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 34.0),
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => EditProfil(
-                                              image: profil,
-                                              name: name,
-                                              angkatan:
-                                                  detailProfil.user.angkatan,
-                                              token: tokenProvider,
+                                  (role == 0)
+                                      ? Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 34.0),
+                                          child: InkWell(
+                                            onTap: () {
+                                              //* VERIFIKASI
+                                              verifikasiAkun();
+                                              setState(() {
+                                                statusVerifikasi = '';
+                                                pinVerifikasi = '';
+                                                statusGetVerifikasi = '';
+                                                nrpController =
+                                                    TextEditingController(
+                                                        text: '');
+                                              });
+                                            },
+                                            child: Container(
+                                              height: 50,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                color: AppStyle.colorMain,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10.0)),
+                                              ),
+                                              child: Center(
+                                                  child: Text(
+                                                'Verifikasi akun',
+                                                style: AppStyle
+                                                    .textSubHeading2Putih,
+                                              )),
                                             ),
                                           ),
-                                        );
-                                        // submit();
-                                      },
-                                      child: Container(
-                                        height: 50,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: AppStyle.colorMain,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10.0)),
-                                        ),
-                                        child: Center(
-                                            child: Text(
-                                          'Edit Profil',
-                                          style: AppStyle.textSubHeading2Putih,
-                                        )),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 10),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 34.0),
-                                    child: InkWell(
-                                      onTap: () {
-                                        submit();
-                                      },
-                                      child: Container(
-                                        height: 50,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: AppStyle.colorMain,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10.0)),
-                                        ),
-                                        child: Center(
-                                            child: Text(
-                                          'Logout',
-                                          style: AppStyle.textSubHeading2Putih,
-                                        )),
-                                      ),
-                                    ),
-                                  ),
+                                        )
+                                      : SizedBox(),
                                 ],
                               ),
                             ],
@@ -378,10 +491,278 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  Future verifikasiAkun() {
+    return showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.0),
+          topRight: Radius.circular(10.0),
+        ),
+      ),
+      elevation: 10.0,
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      builder: (context) {
+        return StatefulBuilder(builder: (BuildContext context,
+            StateSetter setModalState /*You can rename this!*/) {
+          return GestureDetector(
+            onTap: () {
+              FocusScope.of(context).requestFocus(new FocusNode());
+            },
+            child: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(height: 20),
+                      (statusVerifikasi == 'true')
+                          ? Text(
+                              'Verifikasi NRP',
+                              style: AppStyle.textSubHeadingAbu,
+                            )
+                          : Text(
+                              'Invitation Key',
+                              style: AppStyle.textSubHeadingAbu,
+                            ),
+                      SizedBox(height: 20),
+                      (statusVerifikasi == 'true')
+                          ? SizedBox()
+                          : (loadingVerifikasi)
+                              ? Center(child: CircularProgressIndicator())
+                              : OTPTextField(
+                                  length: 6,
+                                  width: MediaQuery.of(context).size.width,
+                                  fieldWidth: 40,
+                                  style: TextStyle(fontSize: 17),
+                                  textFieldAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  fieldStyle: FieldStyle.underline,
+                                  onCompleted: (pin) async {
+                                    print("Completed: " + pin);
+                                    setModalState(() {
+                                      loadingVerifikasi = true;
+                                    });
+                                    String _status =
+                                        await Provider.of<PostProvider>(context,
+                                                listen: false)
+                                            .getCekVerifikasi(pin);
+
+                                    setModalState(() {
+                                      if (_status == 'true') {
+                                        print('valid');
+                                        pinVerifikasi = pin;
+                                        statusVerifikasi = 'true';
+                                        loadingVerifikasi = false;
+                                      } else if (_status == 'false') {
+                                        print('tidak valid');
+                                        pinVerifikasi = pin;
+                                        statusVerifikasi = 'false';
+                                        loadingVerifikasi = false;
+                                      } else if (_status == 'gagal') {
+                                        print('gagal load');
+                                        pinVerifikasi = pin;
+                                        statusVerifikasi = 'gagal';
+                                        loadingVerifikasi = false;
+                                      }
+                                      print(statusVerifikasi);
+                                      print(pinVerifikasi);
+                                    });
+                                  },
+                                ),
+                      SizedBox(height: 10),
+                      (statusVerifikasi == 'true')
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18.0),
+                                  child: Text('NRP',
+                                      style: AppStyle.textSubHeadingAbu),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(10),
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    controller: nrpController,
+                                    maxLength: 10,
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: AppStyle.colorBg,
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide.none),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 10, bottom: 10, left: 13),
+                                  child: Container(
+                                    height: 30.0,
+                                    child: ListView.builder(
+                                      itemCount: role.length,
+                                      scrollDirection: Axis.horizontal,
+                                      itemBuilder: (_, i) {
+                                        return (i == 0)
+                                            ? SizedBox()
+                                            : FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    setModalState(() {
+                                                      statusRole = i;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 10.0,
+                                                            vertical: 2.0),
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 5.0),
+                                                    decoration: (i ==
+                                                            statusRole)
+                                                        ? BoxDecoration(
+                                                            color: AppStyle
+                                                                .colorMain,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .all(
+                                                              Radius.circular(
+                                                                  50.0),
+                                                            ),
+                                                          )
+                                                        : BoxDecoration(
+                                                            color: AppStyle
+                                                                .colorWhite,
+                                                            border: Border.all(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        0.5)),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .all(
+                                                              Radius.circular(
+                                                                  50.0),
+                                                            ),
+                                                          ),
+                                                    child: Text(
+                                                      '${role[i]}',
+                                                      style: (statusRole == i)
+                                                          ? AppStyle
+                                                              .textSubHeadingPutih
+                                                          : AppStyle
+                                                              .textSubHeadingAbu,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18.0, vertical: 5.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text(
+                                          'Pastikan data anda benar dan sesuai',
+                                          style: AppStyle.textCaption),
+                                      (loadingGetVerifikasi)
+                                          ? Center(
+                                              child:
+                                                  CircularProgressIndicator())
+                                          : InkWell(
+                                              onTap: () async {
+                                                setModalState(() {
+                                                  loadingGetVerifikasi = true;
+                                                });
+                                                String _status = await Provider
+                                                        .of<PostProvider>(
+                                                            context,
+                                                            listen: false)
+                                                    .getVerifikasi(
+                                                        pinVerifikasi,
+                                                        statusRole,
+                                                        nrpController.text,
+                                                        tokenProvider);
+                                                if (_status == 'true') {
+                                                  statusGetVerifikasi = 'true';
+                                                  loadingGetVerifikasi = false;
+                                                  Navigator.pop(context);
+                                                  Provider.of<AuthProvider>(
+                                                          context,
+                                                          listen: false)
+                                                      .reLogin();
+                                                } else if (_status == 'nrp') {
+                                                  setModalState(() {
+                                                    loadingGetVerifikasi =
+                                                        false;
+                                                    statusGetVerifikasi =
+                                                        'nrp';
+                                                  });
+                                                } else {
+                                                  setModalState(() {
+                                                    loadingGetVerifikasi =
+                                                        false;
+                                                    statusGetVerifikasi =
+                                                        'false';
+                                                  });
+                                                }
+                                              },
+                                              child: CircleAvatar(
+                                                radius: 20,
+                                                child: Icon(
+                                                    Icons.arrow_forward_ios),
+                                              ),
+                                            )
+                                    ],
+                                  ),
+                                ),
+                                (statusGetVerifikasi == 'false')
+                                    ? Text('Gagal upload data, server down')
+                                    : (statusGetVerifikasi == 'nrp')
+                                        ? Text('NRP sudah terdaftar')
+                                        : SizedBox(),
+                              ],
+                            )
+                          : (statusVerifikasi == 'false')
+                              ? Container(child: Text('tidak valid'))
+                              : (statusVerifikasi == 'gagal')
+                                  ? Container(child: Text('Gagal load'))
+                                  : SizedBox(),
+                      SizedBox(height: 10),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+
   Align createPostButton(BuildContext context) {
     return Align(
       alignment: Alignment.bottomCenter,
-      child: Container(
+      child: AnimatedContainer(
+        curve: Curves.easeInOut,
+        duration: Duration(milliseconds: 500),
+        transform: Matrix4.translationValues(xOffset, yOffset, 1.0)
+          ..scale(pageScale),
         height: 66,
         width: 66,
         margin: EdgeInsets.only(bottom: 30),
@@ -420,49 +801,55 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Align customNavBar() {
     return Align(
       alignment: Alignment.bottomCenter,
-      child: ClipShadowPath(
-        shadow: Shadow(
-          blurRadius: 15,
-          offset: Offset(0, -2),
-          color: Colors.black.withOpacity(0.25),
-        ),
-        clipper: CustomClipPathNavbar(),
-        child: Container(
-          height: 60,
-          decoration: BoxDecoration(
-            color: AppStyle.colorWhite,
+      child: AnimatedContainer(
+        curve: Curves.easeInOut,
+        duration: Duration(milliseconds: 500),
+        transform: Matrix4.translationValues(xOffset, yOffset, 1.0)
+          ..scale(pageScale),
+        child: ClipShadowPath(
+          shadow: Shadow(
+            blurRadius: 15,
+            offset: Offset(0, -2),
+            color: Colors.black.withOpacity(0.25),
           ),
-          child: BottomNavigationBar(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            selectedItemColor: AppStyle.colorMain,
-            unselectedItemColor: Color(0xFFE5E5E5),
-            currentIndex: bottomNavBarIndex,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            onTap: (index) {
-              setState(() {
-                bottomNavBarIndex = index;
+          clipper: CustomClipPathNavbar(),
+          child: Container(
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppStyle.colorWhite,
+            ),
+            child: BottomNavigationBar(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              selectedItemColor: AppStyle.colorMain,
+              unselectedItemColor: Color(0xFFE5E5E5),
+              currentIndex: bottomNavBarIndex,
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              onTap: (index) {
+                setState(() {
+                  bottomNavBarIndex = index;
 
-                pageController.jumpToPage(index);
-              });
-            },
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home,
-                  size: 30,
+                  pageController.jumpToPage(index);
+                });
+              },
+              items: [
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.home,
+                    size: 30,
+                  ),
+                  title: Text(''),
                 ),
-                title: Text(''),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.account_circle,
-                  size: 30,
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.account_circle,
+                    size: 30,
+                  ),
+                  title: Text(''),
                 ),
-                title: Text(''),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -478,7 +865,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           physics: const BouncingScrollPhysics(),
           slivers: <Widget>[
             SliverAppBar(
-              expandedHeight: 150.0,
+              expandedHeight: 180.0,
               floating: false,
               pinned: true,
               backgroundColor: AppStyle.colorBg,
@@ -535,7 +922,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 18.0, vertical: 10.0),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+                      GestureDetector(
+                        onTap: () {
+                          //ganti state sidebar
+                          sidebaropen = !sidebaropen;
+                          setSidebarState();
+                        },
+                        child: Icon(Icons.menu,
+                            size: 30, color: AppStyle.colorMain),
+                      ),
                       SizedBox(height: 15),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

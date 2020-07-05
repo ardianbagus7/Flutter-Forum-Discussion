@@ -35,6 +35,8 @@ dev_dependencies:
   image_picker: ^0.6.7+2
   flutter_sticky_header: "^0.4.2"
   custom_refresh_indicator: ^0.8.0+1
+  material_design_icons_flutter: ^4.0.5345
+  otp_text_field: ^1.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

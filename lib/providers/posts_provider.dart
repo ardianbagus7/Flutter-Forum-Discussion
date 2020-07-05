@@ -307,4 +307,46 @@ class PostProvider with ChangeNotifier {
       print(exception);
     }
   }
+
+  //* CEK VERIFIKASI
+  Future<String> getCekVerifikasi(String key) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      int _statuscek = await apiService.cekVerifikasi(key);
+      if (_statuscek == 200) {
+        return 'true';
+      } else if (_statuscek == 204) {
+        return 'false';
+      }
+      return 'false';
+    } on AuthException {
+      //Token expired, redirect login
+      await authProvider.logOut(true);
+      return 'gagal';
+    } catch (exception) {
+      print(exception);
+      return 'gagal';
+    }
+  }
+
+  Future<String> getVerifikasi(
+      String key, int role, String nrp, String token) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      int _statuscek = await apiService.verifikasi(key, role, nrp, token);
+      if (_statuscek == 200) {
+        return 'true';
+      } else if(_statuscek == 500){
+        return 'nrp';
+      }
+      return 'false';
+    } on AuthException {
+      //Token expired, redirect login
+      await authProvider.logOut(true);
+      return 'gagal';
+    } catch (exception) {
+      print(exception);
+      return 'gagal';
+    }
+  }
 }

@@ -237,7 +237,8 @@ class ApiService {
     return userDetailFromJson(response.body);
   }
 
-  Future<bool> editProfil(String nama, String angkatan, File image, String tokenNew) async {
+  Future<bool> editProfil(
+      String nama, String angkatan, File image, String tokenNew) async {
     final url = '$api/user/profil';
     var request = http.MultipartRequest("POST", Uri.parse(url));
     request.fields['name'] = nama;
@@ -276,5 +277,42 @@ class ApiService {
     print('token api detail profil : $token');
 
     return true;
+  }
+
+  //* VERIFIKASI
+  Future<int> cekVerifikasi(String key) async {
+    final url = '$api/user/verifikasi/cek';
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+    };
+
+    Map<String, String> body = {
+      'key': '$key',
+    };
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    return response.statusCode;
+  }
+
+  Future<int> verifikasi(
+      String key, int role, String nrp, String tokenNew) async {
+    final url = '$api/user/verifikasi';
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    Map<String, String> body = {
+      'role': '$role',
+      'nrp': '$nrp',
+      'key': '$key',
+    };
+
+    final response = await http.post(url, headers: headers, body: body);
+    print(response.statusCode);
+    return response.statusCode;
   }
 }

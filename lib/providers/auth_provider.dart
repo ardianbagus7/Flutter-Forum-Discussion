@@ -52,7 +52,7 @@ class AuthProvider with ChangeNotifier {
       _profil = profil;
       _role = role;
       _angkatan = angkatan;
-      signin(_nrp, _password);
+      signin(_email, _password);
       _status = Status.Authenticated;
     } else {
       _status = Status.Unauthenticated;
@@ -202,4 +202,7 @@ class AuthProvider with ChangeNotifier {
     String _passwordRelog = await getPassword();
     signin(_emailRelog, _passwordRelog);
   }
+
+  
+  
 }
