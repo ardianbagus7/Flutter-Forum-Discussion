@@ -208,7 +208,11 @@ class _KomentarScreenState extends State<KomentarScreen> {
                             ? IconButton(
                                 icon: Icon(Icons.send),
                                 onPressed: () {
-                                  submit('${detailPost.post[0].id}');
+                                  if (role == 0) {
+                                    showVerifikasi(context);
+                                  } else {
+                                    submit('${detailPost.post[0].id}');
+                                  }
                                 },
                               )
                             : Center(

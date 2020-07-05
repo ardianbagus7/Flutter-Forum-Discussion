@@ -1,4 +1,5 @@
 import 'package:discussion_app/models/auth_model.dart';
+import 'package:discussion_app/models/signin_model.dart';
 import 'package:discussion_app/widgets/notification_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,7 @@ class AuthProvider with ChangeNotifier {
   String _profil;
   String _nrp;
   String _password;
+  String _roleName;
   NotificationText _notification;
 
   int get idUser => _idUser;
@@ -25,9 +27,21 @@ class AuthProvider with ChangeNotifier {
   String get name => _name;
   String get profil => _profil;
   int get role => _role;
+  String get roleName => _roleName;
   String get angkatan => _angkatan;
 
   NotificationText get notification => _notification;
+
+  //* ROLE
+  List fixRole = [
+    'Guest',
+    'Mahasiswa Aktif',
+    'Fungsionaris',
+    'Alumni',
+    'Dosen',
+    'Admin',
+    'Moderator'
+  ];
 
   // URL ENDPOINT API USER
   final String api = "http://192.168.43.47/api/v1/user";
@@ -40,6 +54,7 @@ class AuthProvider with ChangeNotifier {
     String name = await getName();
     String profil = await getProfil();
     int role = await getRole();
+    String roleName = await getRoleName();
     String angkatan = await getAngkatan();
     int idUser = await getIdUser();
     if (token != null) {
@@ -52,6 +67,7 @@ class AuthProvider with ChangeNotifier {
       _profil = profil;
       _role = role;
       _angkatan = angkatan;
+      _roleName = roleName;
       signin(_email, _password);
       _status = Status.Authenticated;
     } else {
@@ -86,9 +102,9 @@ class AuthProvider with ChangeNotifier {
       _role = apiResponse.user.role;
       _angkatan = apiResponse.user.angkatan;
       _idUser = apiResponse.user.id;
+      _roleName  = fixRole[apiResponse.user.role];
       await storeUserData(apiResponse, email, password);
       notifyListeners();
-      print('token auth login : $token');
       print('login sukses');
       return true;
     }
@@ -96,6 +112,57 @@ class AuthProvider with ChangeNotifier {
     if (response.statusCode == 404) {
       _status = Status.Unauthenticated;
       _notification = NotificationText('Nrp atau password salah');
+      notifyListeners();
+      return false;
+    }
+
+    _status = Status.Unauthenticated;
+    _notification = NotificationText('Server sedang bermasalah.');
+    notifyListeners();
+    return false;
+  }
+
+  Future<bool> signup(
+      {@required String email,
+      String password,
+      String angkatan,
+      String nama}) async {
+    _status = Status.Authenticating;
+    _notification = null;
+    notifyListeners();
+    final url = "$api/register";
+
+    Map<String, String> body = {
+      'email': email,
+      'password': password,
+      'angkatan': angkatan,
+      'name': nama
+    };
+
+    Map<String, String> headers = {'Accept': 'application/json'};
+    print(_status);
+
+    final response = await http.post(url, body: body, headers: headers);
+    print(response.body);
+    if (response.statusCode == 201) {
+      var apiResponse = signInFromJson(response.body);
+      _status = Status.Authenticated;
+      _email = apiResponse.user.email;
+      _token = apiResponse.token;
+      _name = apiResponse.user.name;
+      _profil = apiResponse.user.image;
+      _role = apiResponse.user.role;
+      _angkatan = apiResponse.user.angkatan;
+      _idUser = apiResponse.user.id;
+      await storeUserData(apiResponse, email, password);
+      notifyListeners();
+      print('login sukses');
+      return true;
+    }
+
+    if (response.statusCode == 404) {
+      _status = Status.Unauthenticated;
+      _notification = NotificationText('Email sudah ada');
       notifyListeners();
       return false;
     }
@@ -117,6 +184,7 @@ class AuthProvider with ChangeNotifier {
     await storage.setString('profil', apiResponse.user.image);
     await storage.setString('angkatan', apiResponse.user.angkatan);
     await storage.setInt('role', apiResponse.user.role);
+    await storage.setString('roleName', fixRole[apiResponse.user.role]);
   }
 
   Future<int> getIdUser() async {
@@ -167,6 +235,12 @@ class AuthProvider with ChangeNotifier {
     return role;
   }
 
+   Future<String> getRoleName() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    String role = storage.getString('roleName');
+    return role;
+  }
+
   Future<String> getAngkatan() async {
     SharedPreferences storage = await SharedPreferences.getInstance();
     String angkatan = storage.getString('angkatan');
@@ -202,7 +276,4 @@ class AuthProvider with ChangeNotifier {
     String _passwordRelog = await getPassword();
     signin(_emailRelog, _passwordRelog);
   }
-
-  
-  
 }

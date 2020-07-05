@@ -53,7 +53,7 @@ class _RouterState extends State<Router> {
           case Status.Uninitialized:
             return Loading();
           case Status.Unauthenticated:
-            return Login(status: user.status.toString());
+            return LandingPage(status: user.status.toString());
           case Status.Authenticated:
             return MultiProvider(
               providers: [
@@ -63,7 +63,7 @@ class _RouterState extends State<Router> {
               child: HomePage(),
             );
           default:
-            return Login(status: user.status.toString());
+            return LandingPage(status: user.status.toString());
         }
       },
     );

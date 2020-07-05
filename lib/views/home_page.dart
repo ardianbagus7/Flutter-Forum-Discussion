@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   String pinVerifikasi;
   TextEditingController nrpController = TextEditingController();
   int statusRole = 1;
-  List role = [
+  List listRole = [
     'Guest',
     'Mahasiswa Aktif',
     'Fungsionaris',
@@ -61,6 +61,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   ];
   bool loadingGetVerifikasi = false;
   String statusGetVerifikasi;
+  String roleName;
 
   void setSidebarState() {
     setState(() {
@@ -139,6 +140,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     int role = Provider.of<AuthProvider>(context).role;
     int idUser = Provider.of<AuthProvider>(context).idUser;
     isLoading = Provider.of<PostProvider>(context).isLoading ?? null;
+    roleName = Provider.of<AuthProvider>(context).roleName;
 
     return Scaffold(
       backgroundColor: AppStyle.colorBg,
@@ -291,7 +293,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
               customNavBar(),
-              createPostButton(context)
+              createPostButton(context,role)
             ],
           ),
         ),
@@ -367,7 +369,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   SizedBox(height: 5),
                                   Center(
                                     child: Text(
-                                      '$role',
+                                      '$roleName',
                                       style: AppStyle.textSubHeadlineBlack,
                                       textAlign: TextAlign.center,
                                     ),
@@ -607,7 +609,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   child: Container(
                                     height: 30.0,
                                     child: ListView.builder(
-                                      itemCount: role.length,
+                                      itemCount: listRole.length,
                                       scrollDirection: Axis.horizontal,
                                       itemBuilder: (_, i) {
                                         return (i == 0)
@@ -656,7 +658,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                             ),
                                                           ),
                                                     child: Text(
-                                                      '${role[i]}',
+                                                      '${listRole[i]}',
                                                       style: (statusRole == i)
                                                           ? AppStyle
                                                               .textSubHeadingPutih
@@ -710,8 +712,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   setModalState(() {
                                                     loadingGetVerifikasi =
                                                         false;
-                                                    statusGetVerifikasi =
-                                                        'nrp';
+                                                    statusGetVerifikasi = 'nrp';
                                                   });
                                                 } else {
                                                   setModalState(() {
@@ -723,6 +724,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 }
                                               },
                                               child: CircleAvatar(
+                                                backgroundColor:
+                                                    AppStyle.colorMain,
                                                 radius: 20,
                                                 child: Icon(
                                                     Icons.arrow_forward_ios),
@@ -755,7 +758,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Align createPostButton(BuildContext context) {
+  Align createPostButton(BuildContext context,int role) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: AnimatedContainer(
@@ -777,21 +780,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ),
           ),
           onPressed: () async {
-            String _create = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CreatePost(
-                  token: tokenProvider,
+            if (role == 0) {
+              showVerifikasi(context);
+            } else {
+              String _create = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreatePost(
+                    token: tokenProvider,
+                  ),
                 ),
-              ),
-            );
-            setState(() {
-              print(_create);
-              if (_create == 'ok') {
-                getdata();
-                _create = "";
-              }
-            });
+              );
+              setState(() {
+                print(_create);
+                if (_create == 'ok') {
+                  getdata();
+                  _create = "";
+                }
+              });
+            }
           },
         ),
       ),

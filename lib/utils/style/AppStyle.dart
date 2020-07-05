@@ -155,6 +155,15 @@ class AppStyle {
     fontWeight: FontWeight.w500,
   );
 
+  static TextStyle textCaption2tipis = GoogleFonts.poppins(
+    textStyle: TextStyle(
+      color: Color(0xFF646464),
+    ),
+    fontSize: 15,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.w400,
+  );
+
   static BoxDecoration decorationCard = BoxDecoration(
     color: AppStyle.colorWhite,
     borderRadius: BorderRadius.all(

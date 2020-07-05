@@ -37,6 +37,7 @@ dev_dependencies:
   custom_refresh_indicator: ^0.8.0+1
   material_design_icons_flutter: ^4.0.5345
   otp_text_field: ^1.0.1
+  simple_animations: ^2.2.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
