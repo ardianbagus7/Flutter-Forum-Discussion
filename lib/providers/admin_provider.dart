@@ -12,8 +12,18 @@ class AdminProvider with ChangeNotifier {
   List<Datum> allUser = List<Datum>();
   //List<Datum> allUser = List<Datum>();
 
+  //* role
+  List fixRole = [
+    'Guest',
+    'Mahasiswa Aktif',
+    'Fungsionaris',
+    'Alumni',
+    'Dosen',
+    'Admin',
+    'Developer'
+  ];
+
   //PAGINATION
-  int pageAllUser = 1;
   String nextPageUser;
   bool isLoadingMore;
 
@@ -29,10 +39,9 @@ class AdminProvider with ChangeNotifier {
 
   Future<bool> getAllUser(String token) async {
     try {
-      pageAllUser = 1;
       //Jika tidak ada exceptions thrown dari API service
       notifyListeners();
-      final data = await apiService.getAllUser(token, pageAllUser);
+      final data = await apiService.getAllUser(token);
       print('data : ${data.user.data.length}');
       List<Datum> _listUser = data.user.data;
       allUser = _listUser;
@@ -70,14 +79,13 @@ class AdminProvider with ChangeNotifier {
 
         List<Datum> _allUserNew = [..._userSekarang, ..._listUser];
         allUser = _allUserNew;
+
+        isLoadingMore = false;
         notifyListeners();
         print('sukses tambah allUser more');
-      }else{
+      } else {
         print('sudah habis gan');
       }
-
-      isLoadingMore = false;
-      notifyListeners();
       return true;
     } on AuthException {
       //Token expired, redirect login
@@ -135,6 +143,46 @@ class AdminProvider with ChangeNotifier {
     } catch (exception) {
       isLoading = false;
       notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getDeleteUser(String token, int id) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+
+      bool _status = await apiService.deleteUser(id, token);
+      if (_status) {
+        return true;
+      } else {
+        return false;
+      }
+    } on AuthException {
+      //Token expired, redirect login
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getEditRole(int id, int role, String token) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+
+      bool _status = await apiService.editAdminRole(id, role, token);
+      if (_status) {
+        return true;
+      } else {
+        return false;
+      }
+    } on AuthException {
+      //Token expired, redirect login
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
       print(exception);
       return false;
     }

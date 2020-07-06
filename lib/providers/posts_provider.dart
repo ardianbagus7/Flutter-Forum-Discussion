@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:discussion_app/models/AllPosts_model.dart';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/services/api.dart';
 import 'package:discussion_app/utils/exceptions.dart';
@@ -14,7 +15,10 @@ class PostProvider with ChangeNotifier {
   var filterPost;
   var searchPost;
   var detailProfil;
-  //* ADMIN
+  //* PAGINATE
+  String nextPagePosts;
+  bool isLoadingMore;
+  List<Datum> allPosts = List<Datum>();
 
   String statusCreate = 'menunggu';
   String statusDelete = 'menunggu';
@@ -32,16 +36,19 @@ class PostProvider with ChangeNotifier {
     this.authProvider = authProvider;
   }
 
-  Future<bool> getAllPost() async {
+  Future<bool> getAllPosts() async {
     try {
       //Jika tidak ada exceptions thrown dari API service
       isLoading = true;
       print('loading $isLoading');
       notifyListeners();
-      final data = await apiService.getAllPost();
-      allPost = data.posts;
+      final _data = await apiService.getAllPosts();
+
+      List<Datum> _listPost = _data.posts.data;
+      allPosts = _listPost;
+      print('allposts : ${allPosts.length}');
+      nextPagePosts = _data.posts.nextPageUrl;
       isLoading = false;
-      print('loading $isLoading');
       notifyListeners();
       return true;
     } on AuthException {
@@ -52,6 +59,44 @@ class PostProvider with ChangeNotifier {
       return false;
     } catch (exception) {
       isLoading = false;
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getAllPostMore() async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      String _url = nextPagePosts;
+      if (_url != null) {
+        isLoadingMore = true;
+        final _data = await apiService.getAllPostsMore(_url);
+
+        //* LIST POST LAMA
+        List<Datum> _listPostSekarang = allPosts;
+        //* LIST POST BARU
+        List<Datum> _listPosts = _data.posts.data;
+        //* GABUNGAN POST LAMA DAN BARU
+        List<Datum> _allPostNew = [..._listPostSekarang, ..._listPosts];
+        allPosts = _allPostNew;
+
+        nextPagePosts = _data.posts.nextPageUrl;
+
+        isLoadingMore = false;
+        notifyListeners();
+      } else {
+        print('sudah habis gan');
+      }
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+      isLoadingMore = false;
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      isLoadingMore = false;
       notifyListeners();
       print(exception);
       return false;

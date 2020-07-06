@@ -1,3 +1,4 @@
+import 'package:discussion_app/models/AllPosts_model.dart';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/services/role.dart';
@@ -30,6 +31,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   //* PAGE VIEW
   int bottomNavBarIndex;
   PageController pageController;
+
+  //*PAGINATE ALL POSTS
+  List<Datum> allPosts;
+  bool isLoadingMore;
 
   //*
   ScrollController scrollControl;
@@ -93,8 +98,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         .animate(_textAnimationController);
 
     Future.microtask(() {
-      Provider.of<PostProvider>(context, listen: false).getAllPost();
-      Provider.of<PostProvider>(context, listen: false).getDetailProfil();
+      Provider.of<PostProvider>(context, listen: false).getAllPosts();
+      //Provider.of<PostProvider>(context, listen: false).getDetailProfil();
     });
 
     bottomNavBarIndex = 0;
@@ -122,7 +127,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void getdata() {
-    Provider.of<PostProvider>(context, listen: false).getAllPost();
+    Provider.of<PostProvider>(context, listen: false).getAllPosts();
   }
 
   @override
@@ -135,7 +140,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       'Beasiswa',
       'Keluh kesah'
     ];
-    allPost = Provider.of<PostProvider>(context).allPost ?? null;
     String name = Provider.of<AuthProvider>(context).name;
     List nameSplit = name.split(' ');
     String profil = Provider.of<AuthProvider>(context).profil;
@@ -146,6 +150,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     int idUser = Provider.of<AuthProvider>(context).idUser;
     isLoading = Provider.of<PostProvider>(context).isLoading ?? null;
     roleName = Provider.of<AuthProvider>(context).roleName;
+    //* ALL POSTS
+    allPosts = Provider.of<PostProvider>(context).allPosts ?? null;
+    isLoadingMore = Provider.of<PostProvider>(context).isLoadingMore ?? false;
 
     return Scaffold(
       backgroundColor: AppStyle.colorBg,
@@ -276,7 +283,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
                       if (index == 0) {
                         Provider.of<PostProvider>(context, listen: false)
-                            .getAllPost();
+                            .getAllPosts();
                       }
                       if (index == 1) {
                         Provider.of<PostProvider>(context, listen: false)
@@ -458,7 +465,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         SliverToBoxAdapter(
                           child: Padding(
                             padding: const EdgeInsets.only(left: 18.0),
-                            child: Text('Thread', style: AppStyle.textList),
+                            child: Text('Thread terbaru', style: AppStyle.textList),
                           ),
                         ),
                         listAllPost(detailProfil.post, name, role, idUser),
@@ -881,151 +888,176 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       allPost, filterPost, int role, idUser) {
     return SafeArea(
       child: RefreshIndicator(
-        child: CustomScrollView(
-          controller: scrollControl,
-          physics: const BouncingScrollPhysics(),
-          slivers: <Widget>[
-            SliverAppBar(
-              expandedHeight: 180.0,
-              floating: false,
-              pinned: true,
-              backgroundColor: AppStyle.colorBg,
-              flexibleSpace: FlexibleSpaceBar(
-                titlePadding: EdgeInsetsDirectional.only(
-                    start: 0, bottom: 10, end: 0, top: 0),
-                title: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                    child: InkWell(
-                      onTap: null,
-                      child: Container(
-                        height: 38.0,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.1),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10.0),
-                          ),
-                        ),
-                        child: TextField(
-                          controller: searchController,
-                          style: AppStyle.textSearchPutih,
-                          maxLines: 1,
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: Colors.grey,
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (ScrollNotification scrollInfo) {
+            if (!isLoadingMore &&
+                scrollInfo.metrics.pixels ==
+                    scrollInfo.metrics.maxScrollExtent) {
+              // start loading data
+              setState(() {
+                isLoadingMore = true;
+              });
+              //load data
+              Provider.of<PostProvider>(context, listen: false)
+                  .getAllPostMore();
+            }
+            return true;
+          },
+          child: CustomScrollView(
+            controller: scrollControl,
+            physics: const BouncingScrollPhysics(),
+            slivers: <Widget>[
+              SliverAppBar(
+                expandedHeight: 180.0,
+                floating: false,
+                pinned: true,
+                backgroundColor: AppStyle.colorBg,
+                flexibleSpace: FlexibleSpaceBar(
+                  titlePadding: EdgeInsetsDirectional.only(
+                      start: 0, bottom: 10, end: 0, top: 0),
+                  title: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                      child: InkWell(
+                        onTap: null,
+                        child: Container(
+                          height: 38.0,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.1),
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
                             ),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide.none),
-                            hintStyle: TextStyle(color: Colors.grey),
-                            hintText: 'Cari diskusi...',
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 10),
                           ),
-                          textInputAction: TextInputAction.search,
-                          onSubmitted: (newValue) {
-                            Navigator.of(context).push(
-                              PageRouteBuilder(
-                                opaque: false,
-                                pageBuilder: (BuildContext context, _, __) =>
-                                    SearchPage(search: newValue),
+                          child: TextField(
+                            controller: searchController,
+                            style: AppStyle.textSearchPutih,
+                            maxLines: 1,
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color: Colors.grey,
                               ),
-                            );
-                          },
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide.none),
+                              hintStyle: TextStyle(color: Colors.grey),
+                              hintText: 'Cari diskusi...',
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 10.0, horizontal: 10),
+                            ),
+                            textInputAction: TextInputAction.search,
+                            onSubmitted: (newValue) {
+                              Navigator.of(context).push(
+                                PageRouteBuilder(
+                                  opaque: false,
+                                  pageBuilder: (BuildContext context, _, __) =>
+                                      SearchPage(search: newValue),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                collapseMode: CollapseMode.parallax,
-                background: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 18.0, vertical: 10.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      GestureDetector(
-                        onTap: () {
-                          //ganti state sidebar
-                          sidebaropen = !sidebaropen;
-                          setSidebarState();
-                        },
-                        child: Icon(Icons.menu,
-                            size: 30, color: AppStyle.colorMain),
-                      ),
-                      SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                'Hai,',
-                                style: AppStyle.textHeadlineTipisBlack,
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width *
-                                        13 /
-                                        16 -
-                                    36,
-                                height: 30,
-                                child: Text(
-                                  '$name',
-                                  style: AppStyle.textHeadlineBlack,
-                                  overflow: TextOverflow.ellipsis,
+                  collapseMode: CollapseMode.parallax,
+                  background: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18.0, vertical: 10.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        GestureDetector(
+                          onTap: () {
+                            //ganti state sidebar
+                            sidebaropen = !sidebaropen;
+                            setSidebarState();
+                          },
+                          child: Icon(Icons.menu,
+                              size: 30, color: AppStyle.colorMain),
+                        ),
+                        SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  'Hai,',
+                                  style: AppStyle.textHeadlineTipisBlack,
                                 ),
-                              )
-                            ],
-                          ),
-                          Hero(
-                            tag: 'profil',
-                            child: CircleAvatar(
-                              radius: 25,
-                              backgroundImage:
-                                  CachedNetworkImageProvider(profil),
+                                Container(
+                                  width: MediaQuery.of(context).size.width *
+                                          13 /
+                                          16 -
+                                      36,
+                                  height: 30,
+                                  child: Text(
+                                    '$name',
+                                    style: AppStyle.textHeadlineBlack,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                )
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                            Hero(
+                              tag: 'profil',
+                              child: CircleAvatar(
+                                radius: 25,
+                                backgroundImage:
+                                    CachedNetworkImageProvider(profil),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 18.0, top: 20.0),
-                child: Text('Kategori', style: AppStyle.textList),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 18.0, top: 20.0),
+                  child: Text('Kategori', style: AppStyle.textList),
+                ),
               ),
-            ),
-            SliverStickyHeader(
-              header: kategoriListView(kategori),
-              sliver: (allPost == null && status == 0 ||
-                      filterPost == null && status != 0)
-                  ? SliverToBoxAdapter(
-                      child: Center(
-                        child: SizedBox(
-                          height: 50.0,
-                          width: 50.0,
-                          child: CircularProgressIndicator(),
+              SliverStickyHeader(
+                header: kategoriListView(kategori),
+                sliver: (allPosts == null && status == 0 ||
+                        filterPost == null && status != 0)
+                    ? SliverToBoxAdapter(
+                        child: Center(
+                          child: SizedBox(
+                            height: 50.0,
+                            width: 50.0,
+                            child: CircularProgressIndicator(),
+                          ),
                         ),
-                      ),
-                    )
-                  : (status != 0)
-                      ? listAllPost(filterPost, name, role, idUser)
-                      : listAllPost(allPost, name, role, idUser),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
+                      )
+                    : (status != 0)
+                        ? listAllPost(filterPost, name, role, idUser)
+                        : listAllPost(allPosts, name, role, idUser),
+              ),
+              SliverToBoxAdapter(
+                child: Container(
+                  height: isLoadingMore ? 50.0 : 0,
+                  color: Colors.transparent,
+                  child: Center(
+                    child: new CircularProgressIndicator(),
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(child: SizedBox(height: 150)),
+            ],
+          ),
         ),
         onRefresh: () async {
           bool _status = await Provider.of<PostProvider>(context, listen: false)
-              .getAllPost();
+              .getAllPosts();
           return _status;
         },
       ),

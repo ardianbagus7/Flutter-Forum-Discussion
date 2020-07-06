@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:discussion_app/models/AllPosts_model.dart';
 import 'package:discussion_app/models/allKey_model.dart';
 import 'package:discussion_app/models/allUser_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,6 +58,36 @@ class ApiService {
     print('token storage : $storageToken');
 
     return allPostFromJson(response.body);
+  }
+
+  Future<AllPosts> getAllPosts() async {
+    final url = "$api/post";
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+    print('sukses get all posts');
+    return allPostsFromJson(response.body);
+  }
+
+  Future<AllPosts> getAllPostsMore(String url) async {
+    print(url);
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    return allPostsFromJson(response.body);
   }
 
   Future<IdPost> getIdPost(int id, String tokenProvider) async {
@@ -348,8 +379,8 @@ class ApiService {
     return true;
   }
 
-  Future<AllUser> getAllUser(String tokenNew, int page) async {
-    final url = "$api/user?page=$page";
+  Future<AllUser> getAllUser(String tokenNew) async {
+    final url = "$api/user";
     print(url);
     Map<String, String> headers = {
       'Accept': 'application/json',
@@ -363,7 +394,7 @@ class ApiService {
     return allUserFromJson(response.body);
   }
 
-  Future<AllUser> getAllUserMore(String url,String tokenNew) async {
+  Future<AllUser> getAllUserMore(String url, String tokenNew) async {
     print(url);
     Map<String, String> headers = {
       'Accept': 'application/json',
@@ -375,5 +406,40 @@ class ApiService {
     validateResponseStatus(response.statusCode, 200);
     print('sukses get all user more');
     return allUserFromJson(response.body);
+  }
+
+  Future<bool> deleteUser(int id, String tokenNew) async {
+    final url = '$api/user/$id';
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.post(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    return true;
+  }
+
+  Future<bool> editAdminRole(int id, int role, String tokenNew) async {
+    final url = '$api/user/admin/role';
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    Map<String, String> body = {
+      'id': '$id',
+      'role': '$role',
+    };
+
+    final response = await http.post(url,body:body, headers: headers);
+    print(response.body);
+    validateResponseStatus(response.statusCode, 200);
+
+    return true;
   }
 }
