@@ -1,9 +1,11 @@
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
+import 'package:discussion_app/services/role.dart';
 import 'package:discussion_app/utils/ClipPathHome.dart';
 import 'package:discussion_app/utils/ClipShadowPath.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
+import 'package:discussion_app/views/adminPanel_page.dart';
 import 'package:discussion_app/views/create_post.dart';
 import 'package:discussion_app/views/detail_page.dart';
 import 'package:discussion_app/views/editPost_page.dart';
@@ -25,8 +27,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  //* PAGE VIEW
   int bottomNavBarIndex;
   PageController pageController;
+
+  //*
   ScrollController scrollControl;
   double scrollOffset;
   bool statusScroll = false;
@@ -178,14 +183,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           child: Expanded(
                             child: ListView(
                               children: <Widget>[
-                                (role == 6)
+                                (role == Role.developer || role == Role.admin)
                                     ? ListTile(
                                         leading: Icon(MdiIcons.accountStar,
                                             color: Colors.white),
                                         title: Text('Admin panel',
                                             style:
                                                 AppStyle.textSubHeadingPutih),
-                                        onTap: () {},
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => AdminPanel(
+                                                token: tokenProvider,
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       )
                                     : SizedBox(),
                                 ListTile(
@@ -293,7 +307,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
               customNavBar(),
-              createPostButton(context,role)
+              createPostButton(context, role)
             ],
           ),
         ),
@@ -758,7 +772,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Align createPostButton(BuildContext context,int role) {
+  Align createPostButton(BuildContext context, int role) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: AnimatedContainer(
@@ -954,17 +968,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 'Hai,',
                                 style: AppStyle.textHeadlineTipisBlack,
                               ),
-                              FittedBox(
-                                fit: BoxFit.fitWidth,
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width *
-                                          13 /
-                                          16 -
-                                      36,
-                                  child: Text(
-                                    '$name',
-                                    style: AppStyle.textHeadlineBlack,
-                                  ),
+                              Container(
+                                width: MediaQuery.of(context).size.width *
+                                        13 /
+                                        16 -
+                                    36,
+                                height: 30,
+                                child: Text(
+                                  '$name',
+                                  style: AppStyle.textHeadlineBlack,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               )
                             ],
@@ -1044,7 +1057,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   context: context,
                   backgroundColor: AppStyle.colorBg,
                   builder: (builder) {
-                    return (allPost[index].userId == idUser || role == 6)
+                    return (allPost[index].userId == idUser ||
+                            role == Role.developer ||
+                            role == Role.admin)
                         ? Column(
                             children: <Widget>[
                               SizedBox(height: 10.0),

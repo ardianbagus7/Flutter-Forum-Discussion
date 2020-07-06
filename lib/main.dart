@@ -1,3 +1,4 @@
+import 'package:discussion_app/providers/admin_provider.dart';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/views/home_page.dart';
@@ -19,6 +20,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => PostProvider(authProvider)),
+        ChangeNotifierProvider(
+            create: (context) => AdminProvider(authProvider)),
       ],
       child: MaterialApp(
         initialRoute: '/',

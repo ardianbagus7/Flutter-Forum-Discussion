@@ -4,7 +4,6 @@ import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/services/api.dart';
 import 'package:discussion_app/utils/exceptions.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PostProvider with ChangeNotifier {
   bool _initialized = false;
@@ -15,6 +14,7 @@ class PostProvider with ChangeNotifier {
   var filterPost;
   var searchPost;
   var detailProfil;
+  //* ADMIN
 
   String statusCreate = 'menunggu';
   String statusDelete = 'menunggu';
@@ -336,7 +336,7 @@ class PostProvider with ChangeNotifier {
       int _statuscek = await apiService.verifikasi(key, role, nrp, token);
       if (_statuscek == 200) {
         return 'true';
-      } else if(_statuscek == 500){
+      } else if (_statuscek == 500) {
         return 'nrp';
       }
       return 'false';

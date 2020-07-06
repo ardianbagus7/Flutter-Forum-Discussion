@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:discussion_app/providers/posts_provider.dart';
+import 'package:discussion_app/services/role.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:flutter/material.dart';
@@ -246,7 +247,7 @@ class _KomentarScreenState extends State<KomentarScreen> {
       context: context,
       backgroundColor: AppStyle.colorBg,
       builder: (builder) {
-        return (detailPostNew.komentar[index].userId == idUser || role == 6)
+        return (detailPostNew.komentar[index].userId == idUser || role == Role.developer || role == Role.admin)
             ? Column(
                 children: <Widget>[
                   SizedBox(height: 10.0),

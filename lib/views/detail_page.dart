@@ -5,7 +5,6 @@ import 'package:discussion_app/views/editPost_page.dart';
 import 'package:discussion_app/views/komentar_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 class DetailPage extends StatefulWidget {

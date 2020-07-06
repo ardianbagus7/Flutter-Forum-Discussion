@@ -22,6 +22,7 @@ class AuthProvider with ChangeNotifier {
   NotificationText _notification;
 
   int get idUser => _idUser;
+  String get nrp => _nrp;
   Status get status => _status;
   String get token => _token;
   String get name => _name;
@@ -40,7 +41,7 @@ class AuthProvider with ChangeNotifier {
     'Alumni',
     'Dosen',
     'Admin',
-    'Moderator'
+    'Developer'
   ];
 
   // URL ENDPOINT API USER

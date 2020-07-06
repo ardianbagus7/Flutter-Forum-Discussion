@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:discussion_app/models/allKey_model.dart';
+import 'package:discussion_app/models/allUser_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:discussion_app/models/allPost_model.dart';
 import 'package:discussion_app/models/detailProfil_model.dart';
@@ -314,5 +316,64 @@ class ApiService {
     final response = await http.post(url, headers: headers, body: body);
     print(response.statusCode);
     return response.statusCode;
+  }
+
+  //* ADMIN API
+
+  Future<AllKey> getAllKey(String tokenNew) async {
+    final url = "$api/user/key/all";
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    return allKeyFromJson(response.body);
+  }
+
+  Future<bool> getGenerateKey(String tokenNew) async {
+    final url = "$api/user/key";
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    return true;
+  }
+
+  Future<AllUser> getAllUser(String tokenNew, int page) async {
+    final url = "$api/user?page=$page";
+    print(url);
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+    print('sukses get all user');
+    return allUserFromJson(response.body);
+  }
+
+  Future<AllUser> getAllUserMore(String url,String tokenNew) async {
+    print(url);
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+    print('sukses get all user more');
+    return allUserFromJson(response.body);
   }
 }
