@@ -103,7 +103,7 @@ class AuthProvider with ChangeNotifier {
       _role = apiResponse.user.role;
       _angkatan = apiResponse.user.angkatan;
       _idUser = apiResponse.user.id;
-      _roleName  = fixRole[apiResponse.user.role];
+      _roleName = fixRole[apiResponse.user.role];
       await storeUserData(apiResponse, email, password);
       notifyListeners();
       print('login sukses');
@@ -236,7 +236,7 @@ class AuthProvider with ChangeNotifier {
     return role;
   }
 
-   Future<String> getRoleName() async {
+  Future<String> getRoleName() async {
     SharedPreferences storage = await SharedPreferences.getInstance();
     String role = storage.getString('roleName');
     return role;
@@ -275,6 +275,33 @@ class AuthProvider with ChangeNotifier {
   Future reLogin() async {
     String _emailRelog = await getEmail();
     String _passwordRelog = await getPassword();
-    signin(_emailRelog, _passwordRelog);
+
+    final url = "$api/signin";
+
+    Map<String, String> body = {
+      'email': _emailRelog,
+      'password': _passwordRelog,
+    };
+
+    Map<String, String> headers = {'Accept': 'application/json'};
+    print(_status);
+
+    final response = await http.post(url, body: body, headers: headers);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      var apiResponse = loginFromJson(response.body);
+      _status = Status.Authenticated;
+      _email = apiResponse.user.email;
+      _token = apiResponse.token;
+      _name = apiResponse.user.name;
+      _profil = apiResponse.user.image;
+      _role = apiResponse.user.role;
+      _angkatan = apiResponse.user.angkatan;
+      _idUser = apiResponse.user.id;
+      _roleName = fixRole[apiResponse.user.role];
+      await storeUserData(apiResponse, _emailRelog, _passwordRelog);
+      notifyListeners();
+      print('login sukses');
+    }
   }
 }

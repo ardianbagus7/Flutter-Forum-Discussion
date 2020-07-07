@@ -67,10 +67,7 @@ class _EditProfilState extends State<EditProfil> {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           Provider.of<AuthProvider>(context, listen: false)
               .updateData(titleController.text, descriptionController.text);
-          Provider.of<AuthProvider>(context, listen: false).reLogin();
-          Navigator.of(context).popUntil(
-            ModalRoute.withName('/'),
-          );
+          Navigator.of(context).pop('ok');
         });
       } else {
         setState(() {

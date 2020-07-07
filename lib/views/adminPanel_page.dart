@@ -44,9 +44,25 @@ class _AdminPanelState extends State<AdminPanel> {
     'Admin',
     'Developer'
   ];
+  List kategoriRole = [
+    'Semua',
+    'Guest',
+    'Mahasiswa Aktif',
+    'Fungsionaris',
+    'Alumni',
+    'Dosen',
+    'Admin',
+    'Developer'
+  ];
   int statusRole = 0;
   bool isEditRole = false;
   bool loadingEditRole = false;
+  int status = 0;
+
+  //* GET ALL USER DATA
+  void getAllUser() {
+    Provider.of<AdminProvider>(context, listen: false).getAllUser(token);
+  }
 
   //*
   @override
@@ -520,6 +536,61 @@ class _AdminPanelState extends State<AdminPanel> {
               ),
             ),
             SliverToBoxAdapter(child: SizedBox(height: 10)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 20, left: 13),
+                child: Container(
+                  height: 30.0,
+                  child: ListView.builder(
+                    itemCount: kategoriRole.length,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (_, i) {
+                      return FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              // filterPost(kategori[i]);
+                              status = i;
+
+                              if (status == 0) {
+                                getAllUser();
+                              }
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 2.0),
+                            margin: EdgeInsets.symmetric(horizontal: 5.0),
+                            decoration: (i == status)
+                                ? BoxDecoration(
+                                    color: AppStyle.colorMain,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(50.0),
+                                    ),
+                                  )
+                                : BoxDecoration(
+                                    color: AppStyle.colorWhite,
+                                    border: Border.all(
+                                        color: Colors.black.withOpacity(0.5)),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(50.0),
+                                    ),
+                                  ),
+                            child: Text(
+                              '${kategoriRole[i]}',
+                              style: (status == i)
+                                  ? AppStyle.textSubHeadingPutih
+                                  : AppStyle.textSubHeadingAbu,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
             (allUser == null)
                 ? SliverToBoxAdapter(
                     child: Center(
@@ -752,16 +823,7 @@ class _AdminPanelState extends State<AdminPanel> {
                                                       ],
                                                     ),
                                                   ),
-                                            (isEditRole)
-                                                ? SizedBox()
-                                                : Padding(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        horizontal: 18.0),
-                                                    child: Divider(
-                                                      thickness: 2,
-                                                    ),
-                                                  ),
+                                            
                                             SizedBox(height: 10)
                                           ],
                                         ),

@@ -222,8 +222,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       color: Colors.white),
                                   title: Text('Pengaturan akun',
                                       style: AppStyle.textSubHeadingPutih),
-                                  onTap: () {
-                                    Navigator.push(
+                                  onTap: () async {
+                                    String _status = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => EditProfil(
@@ -234,6 +234,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         ),
                                       ),
                                     );
+
+                                    if (_status == "ok") {
+                                      Provider.of<AuthProvider>(context,
+                                              listen: false)
+                                          .reLogin();
+                                      setState(() {
+                                        sidebaropen = false;
+                                        setSidebarState();
+                                      });
+                                    }
                                   },
                                 ),
                                 ListTile(
