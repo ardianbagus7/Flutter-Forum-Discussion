@@ -73,6 +73,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   String statusGetVerifikasi;
   String roleName;
 
+  //*FEEDBACK
+  TextEditingController feedbackController = TextEditingController();
+  String statusFeedback;
+  bool loadingFeedback = false;
+
   void setSidebarState() {
     setState(() {
       xOffset = sidebaropen ? MediaQuery.of(context).size.width * 10 / 16 : 0;
@@ -153,6 +158,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     //* ALL POSTS
     allPosts = Provider.of<PostProvider>(context).allPosts ?? null;
     isLoadingMore = Provider.of<PostProvider>(context).isLoadingMore ?? false;
+    //* FEEDBACK
+    statusFeedback =
+        Provider.of<PostProvider>(context).statusFeedback ?? 'menunggu';
 
     return Scaffold(
       backgroundColor: AppStyle.colorBg,
@@ -239,6 +247,152 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       color: Colors.white),
                                   title: Text('Saran dan masukan',
                                       style: AppStyle.textSubHeadingPutih),
+                                  onTap: () {
+                                    sidebaropen = false;
+                                    feedbackController =
+                                        TextEditingController(text: '');
+                                    setSidebarState();
+                                    //* FEEDBACK
+                                    showModalBottomSheet(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10.0),
+                                            topRight: Radius.circular(10.0),
+                                          ),
+                                        ),
+                                        elevation: 10.0,
+                                        context: context,
+                                        backgroundColor: Colors.white,
+                                        isScrollControlled: true,
+                                        builder: (context) {
+                                          return StatefulBuilder(builder:
+                                              (BuildContext context,
+                                                  StateSetter setModalState) {
+                                            return Container(
+                                              padding: EdgeInsets.only(
+                                                  bottom: MediaQuery.of(context)
+                                                      .viewInsets
+                                                      .bottom),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  FocusScope.of(context)
+                                                      .requestFocus(
+                                                          new FocusNode());
+                                                },
+                                                child: SingleChildScrollView(
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      SizedBox(height: 20),
+                                                      Text(
+                                                        'Saran dan Masukan',
+                                                        style: AppStyle
+                                                            .textSubHeadingAbu,
+                                                      ),
+                                                      Container(
+                                                        padding:
+                                                            EdgeInsets.all(10),
+                                                        child: TextField(
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .text,
+                                                          controller:
+                                                              feedbackController,
+                                                          maxLines: 10,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            filled: true,
+                                                            fillColor: AppStyle
+                                                                .colorBg,
+                                                            border: OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                                borderSide:
+                                                                    BorderSide
+                                                                        .none),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal:
+                                                                    18.0,
+                                                                vertical: 5.0),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: <Widget>[
+                                                            Container(
+                                                              width: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width *
+                                                                  13 /
+                                                                  16,
+                                                              child: Text(
+                                                                  'Saran dan masukan anda sangat berguna untuk perkembangan aplikasi ini',
+                                                                  style: AppStyle
+                                                                      .textCaption),
+                                                            ),
+                                                            (loadingFeedback)
+                                                                ? Center(
+                                                                    child:
+                                                                        CircularProgressIndicator())
+                                                                : InkWell(
+                                                                    onTap:
+                                                                        () async {
+                                                                      setModalState(
+                                                                          () {
+                                                                        loadingFeedback =
+                                                                            true;
+                                                                      });
+                                                                      bool _status = await Provider.of<PostProvider>(context, listen: false).createFeedback(
+                                                                          feedbackController
+                                                                              .text,
+                                                                          tokenProvider);
+                                                                      if (_status) {
+                                                                        loadingFeedback =
+                                                                            false;
+                                                                        Navigator.of(context)
+                                                                            .pop();
+                                                                      } else {
+                                                                        setModalState(
+                                                                            () {
+                                                                          loadingFeedback =
+                                                                              false;
+                                                                          showAlert(
+                                                                              context);
+                                                                        });
+                                                                      }
+                                                                    },
+                                                                    child:
+                                                                        CircleAvatar(
+                                                                      backgroundColor:
+                                                                          AppStyle
+                                                                              .colorMain,
+                                                                      radius:
+                                                                          20,
+                                                                      child: Icon(
+                                                                          Icons
+                                                                              .arrow_forward_ios),
+                                                                    ),
+                                                                  )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 20),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          });
+                                        });
+                                  },
                                 ),
                                 ListTile(
                                   leading: Icon(MdiIcons.bugCheck,
@@ -465,7 +619,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         SliverToBoxAdapter(
                           child: Padding(
                             padding: const EdgeInsets.only(left: 18.0),
-                            child: Text('Thread terbaru', style: AppStyle.textList),
+                            child: Text('Thread terbaru',
+                                style: AppStyle.textList),
                           ),
                         ),
                         listAllPost(detailProfil.post, name, role, idUser),

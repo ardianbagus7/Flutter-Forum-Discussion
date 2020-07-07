@@ -25,6 +25,7 @@ class PostProvider with ChangeNotifier {
   String statusKomentar = 'menunggu';
   String statusEditProfil = 'menunggu';
   String statusEditPost = 'menunggu';
+  String statusFeedback = 'menunggu';
 
   bool get initialized => _initialized;
 
@@ -392,6 +393,31 @@ class PostProvider with ChangeNotifier {
     } catch (exception) {
       print(exception);
       return 'gagal';
+    }
+  }
+
+  //* CREATE FEEDBACK
+
+  Future<bool> createFeedback(String deskripsi, String tokenProvider) async {
+    try {
+      notifyListeners();
+      final data = await apiService.createFeedback(deskripsi, tokenProvider);
+      if (data) {
+        return true;
+      } else {
+        return false;
+      }
+    } on AuthException {
+      statusFeedback = 'menunggu';
+      notifyListeners();
+      //Token expired, redirect login
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      statusFeedback = 'menunggu';
+      notifyListeners();
+      print(exception);
+      return false;
     }
   }
 }

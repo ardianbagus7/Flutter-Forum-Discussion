@@ -474,4 +474,23 @@ class ApiService {
     print('sukses get all feedback more');
     return feedbackFromJson(response.body);
   }
+
+  Future<bool> createFeedback(String deskripsi, String tokenProvider) async {
+    final url = '$api/user/admin/feedback';
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenProvider'
+    };
+
+    Map<String, String> body = {
+      'deskripsi': deskripsi,
+    };
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    validateResponseStatus(response.statusCode, 201);
+    print('sukses create feedback');
+    return true;
+  }
 }

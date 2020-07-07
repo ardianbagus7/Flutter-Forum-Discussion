@@ -69,6 +69,7 @@ class _AdminPanelState extends State<AdminPanel> {
     allFeedback = Provider.of<AdminProvider>(context).allFeedback ?? null;
 
     return Scaffold(
+      backgroundColor: AppStyle.colorBg,
       body: Container(
         width: double.infinity,
         child: Stack(
@@ -97,159 +98,7 @@ class _AdminPanelState extends State<AdminPanel> {
                 //* page user
                 pageUser(context),
                 //* page feedback
-                SafeArea(
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: (ScrollNotification scrollInfo) {
-                      if (!isLoadingMore &&
-                          scrollInfo.metrics.pixels ==
-                              scrollInfo.metrics.maxScrollExtent) {
-                        // start loading data
-                        setState(() {
-                          isLoadingMore = true;
-                        });
-                        //load data
-                        Provider.of<AdminProvider>(context, listen: false)
-                            .getAllFeedbackMore(token);
-                      }
-                      return true;
-                    },
-                    child: CustomScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      slivers: <Widget>[
-                        SliverAppBar(
-                          automaticallyImplyLeading: false,
-                          expandedHeight: 65.0,
-                          floating: false,
-                          pinned: true,
-                          backgroundColor: AppStyle.colorBg,
-                          flexibleSpace: FlexibleSpaceBar(
-                            titlePadding: EdgeInsetsDirectional.only(
-                                start: 0, bottom: 10, end: 0, top: 0),
-                            title: SafeArea(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18.0),
-                                child: Text('Daftar feedback',
-                                    style: AppStyle.textHeadlineTipisBlack),
-                              ),
-                            ),
-                            collapseMode: CollapseMode.parallax,
-                          ),
-                        ),
-                        SliverToBoxAdapter(child: SizedBox(height: 20)),
-                        (allFeedback == null)
-                            ? SliverToBoxAdapter(
-                                child: Center(
-                                  child: SizedBox(
-                                    height: 50.0,
-                                    width: 50.0,
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ),
-                              ) //
-                            : SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (BuildContext context, int index) {
-                                    return Column(
-                                      children: <Widget>[
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 18.0),
-                                          child: Container(
-                                              decoration: BoxDecoration(
-                                                color: AppStyle.colorWhite,
-                                                borderRadius: BorderRadius.all(
-                                                  Radius.circular(10.0),
-                                                ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.1),
-                                                    offset: Offset(0.0, 1),
-                                                    blurRadius: 15.0,
-                                                  )
-                                                ],
-                                              ), //'${allFeedback[index].deskripsi}'
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 5),
-                                              width: double.infinity,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 10.0,
-                                                        vertical: 10.0),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      children: <Widget>[
-                                                        CircleAvatar(
-                                                          radius: 25,
-                                                          backgroundImage:
-                                                              CachedNetworkImageProvider(
-                                                                  allFeedback[
-                                                                          index]
-                                                                      .image),
-                                                        ),
-                                                        SizedBox(width: 10),
-                                                        Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: <Widget>[
-                                                            Text(
-                                                                '${allFeedback[index].name}',
-                                                                style: AppStyle
-                                                                    .textName),
-                                                            Text(
-                                                                '${allFeedback[index].createdAt.day}-${allFeedback[index].createdAt.month}-${allFeedback[index].createdAt.year} ${allFeedback[index].createdAt.hour}:${allFeedback[index].createdAt.minute}:${allFeedback[index].createdAt.second}',
-                                                                style: AppStyle
-                                                                    .textCaption),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(height: 10),
-                                                    Text(
-                                                        '${allFeedback[index].deskripsi}',
-                                                        style: AppStyle
-                                                            .textSubHeadlineBlack),
-                                                  ],
-                                                ),
-                                              )),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                  childCount: allFeedback.length,
-                                ),
-                              ),
-                        SliverToBoxAdapter(
-                          child: Container(
-                            height: isLoadingMore ? 50.0 : 0,
-                            color: Colors.transparent,
-                            child: Center(
-                              child: new CircularProgressIndicator(),
-                            ),
-                          ),
-                        ),
-                        SliverToBoxAdapter(child: SizedBox(height: 100))
-                      ],
-                    ),
-                  ),
-                ),
+                pageFeedback(context),
                 //* page key
                 pageKey(context),
               ],
@@ -302,6 +151,148 @@ class _AdminPanelState extends State<AdminPanel> {
                 ),
               ),
             )
+          ],
+        ),
+      ),
+    );
+  }
+
+  SafeArea pageFeedback(BuildContext context) {
+    return SafeArea(
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+            // start loading data
+            setState(() {
+              isLoadingMore = true;
+            });
+            //load data
+            Provider.of<AdminProvider>(context, listen: false)
+                .getAllFeedbackMore(token);
+          }
+          return true;
+        },
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: <Widget>[
+            SliverAppBar(
+              automaticallyImplyLeading: false,
+              expandedHeight: 65.0,
+              floating: false,
+              pinned: true,
+              backgroundColor: AppStyle.colorBg,
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: EdgeInsetsDirectional.only(
+                    start: 0, bottom: 10, end: 0, top: 0),
+                title: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                    child: Text('Daftar feedback',
+                        style: AppStyle.textHeadlineTipisBlack),
+                  ),
+                ),
+                collapseMode: CollapseMode.parallax,
+              ),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 20)),
+            (allFeedback == null)
+                ? SliverToBoxAdapter(
+                    child: Center(
+                      child: SizedBox(
+                        height: 50.0,
+                        width: 50.0,
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  ) //
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        return Column(
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppStyle.colorWhite,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10.0),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        offset: Offset(0.0, 1),
+                                        blurRadius: 15.0,
+                                      )
+                                    ],
+                                  ), //'${allFeedback[index].deskripsi}'
+                                  margin: EdgeInsets.symmetric(vertical: 5),
+                                  width: double.infinity,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 10.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            CircleAvatar(
+                                              radius: 25,
+                                              backgroundImage:
+                                                  CachedNetworkImageProvider(
+                                                      allFeedback[index].image),
+                                            ),
+                                            SizedBox(width: 10),
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text(
+                                                    '${allFeedback[index].name}',
+                                                    style: AppStyle.textName),
+                                                Text(
+                                                    '${allFeedback[index].createdAt.day}-${allFeedback[index].createdAt.month}-${allFeedback[index].createdAt.year} ${allFeedback[index].createdAt.hour}:${allFeedback[index].createdAt.minute}:${allFeedback[index].createdAt.second}',
+                                                    style:
+                                                        AppStyle.textCaption),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text('${allFeedback[index].deskripsi}',
+                                            style:
+                                                AppStyle.textSubHeadlineBlack),
+                                      ],
+                                    ),
+                                  )),
+                            ),
+                          ],
+                        );
+                      },
+                      childCount: allFeedback.length,
+                    ),
+                  ),
+            SliverToBoxAdapter(
+              child: Container(
+                height: isLoadingMore ? 50.0 : 0,
+                color: Colors.transparent,
+                child: Center(
+                  child: new CircularProgressIndicator(),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 100))
           ],
         ),
       ),
