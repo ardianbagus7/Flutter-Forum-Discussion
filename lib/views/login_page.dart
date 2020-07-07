@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/utils/ClipPathHome.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
@@ -21,6 +23,7 @@ class _LandingPageState extends State<LandingPage> {
   bool isLoading = false;
 
   //* PAGE 1 (GET STARTED)
+  double yHeightLandingFirst = 1000;
   double yHeightLanding;
   double yOffsetButton = 0;
 
@@ -30,6 +33,7 @@ class _LandingPageState extends State<LandingPage> {
 
   //* NAVIGASI
   bool navigasiLanding = true;
+  bool navigasiGetStarted = false;
 
   //* void NAVIGASI
   void landing() {
@@ -79,10 +83,15 @@ class _LandingPageState extends State<LandingPage> {
 
   //* INIT STATE
   @override
-  /*void initState() {
+  void initState() {
     super.initState();
-   heightLanding = MediaQuery.of(context).size.width *13 / 16;
-  }*/
+    Timer(Duration(milliseconds: 1000), () {
+      setState(() {
+        navigasiGetStarted = true;
+        yHeightLandingFirst = MediaQuery.of(context).size.height * 13 / 16;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,49 +115,53 @@ class _LandingPageState extends State<LandingPage> {
                       width: MediaQuery.of(context).size.width,
                       height: (!navigasiLanding)
                           ? yHeightLanding
-                          : MediaQuery.of(context).size.height * 13 / 16,
+                          : yHeightLandingFirst,
                       color: AppStyle.colorMain,
                     ),
                   ),
 
                   //*Button get started
 
-                  (!navigasiLanding)
+                  (!navigasiGetStarted)
                       ? SizedBox()
-                      : Center(
-                          child: AnimatedContainer(
-                            margin: EdgeInsets.only(
-                                top: MediaQuery.of(context).size.height *
-                                    14 /
-                                    16),
-                            duration: Duration(milliseconds: 500),
-                            height: 50,
-                            width: 250,
-                            curve: Curves.easeInOut,
-                            transform:
-                                Matrix4.translationValues(0, yOffsetButton, 0),
-                            decoration: BoxDecoration(
-                              color: AppStyle.colorWhite,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20.0),
+                      : FadeInUp(
+                          1.5,
+                          Center(
+                            child: AnimatedContainer(
+                              margin: EdgeInsets.only(
+                                  top: MediaQuery.of(context).size.height *
+                                      14 /
+                                      16),
+                              duration: Duration(milliseconds: 500),
+                              height: 50,
+                              width: 250,
+                              curve: Curves.easeInOut,
+                              transform: Matrix4.translationValues(
+                                  0, yOffsetButton, 0),
+                              decoration: BoxDecoration(
+                                color: AppStyle.colorWhite,
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20.0),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    offset: Offset(0.0, 2),
+                                    blurRadius: 15.0,
+                                  )
+                                ],
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  offset: Offset(0.0, 2),
-                                  blurRadius: 15.0,
-                                )
-                              ],
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  navigasiLanding = !navigasiLanding;
-                                  landing();
-                                });
-                              },
-                              child: Center(
-                                child: Text('Get started'),
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    navigasiGetStarted = false;
+                                    navigasiLanding = !navigasiLanding;
+                                    landing();
+                                  });
+                                },
+                                child: Center(
+                                  child: Text('Get started',style: AppStyle.textBody1),
+                                ),
                               ),
                             ),
                           ),

@@ -1,4 +1,5 @@
 import 'package:discussion_app/models/allUser_model.dart';
+import 'package:discussion_app/models/feedback_model.dart';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/services/api.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ class AdminProvider with ChangeNotifier {
   // VARIABEL HASIL
   var allKey;
   List<Datum> allUser = List<Datum>();
+  List<DatumFeedback> allFeedback = List<DatumFeedback>();
   //List<Datum> allUser = List<Datum>();
 
   //* role
@@ -26,7 +28,9 @@ class AdminProvider with ChangeNotifier {
   //PAGINATION
   String nextPageUser;
   bool isLoadingMore;
+  String nextPageFeedback;
 
+  //*
   ApiService apiService;
   AuthProvider authProvider;
 
@@ -183,6 +187,72 @@ class AdminProvider with ChangeNotifier {
       await authProvider.logOut(true);
       return false;
     } catch (exception) {
+      print(exception);
+      return false;
+    }
+  }
+
+  //* FEEDBACK
+
+  Future<bool> getAllFeedback(String token) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      notifyListeners();
+      final data = await apiService.getAllFeedback(token);
+      print('data : ${data.feedback.data.length}');
+      List<DatumFeedback> _listFeedback = data.feedback.data;
+      allFeedback = _listFeedback;
+      nextPageFeedback = data.feedback.nextPageUrl;
+      notifyListeners();
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getAllFeedbackMore(String token) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      //pageAllUser++;
+      String _url = nextPageFeedback;
+      if (_url != null) {
+        isLoadingMore = true;
+        final data = await apiService.getAllFeedbackMore(_url, token);
+
+        print('data : ${data.feedback.data.length}');
+
+        List<DatumFeedback> _listFeedback = data.feedback.data;
+        List<DatumFeedback> _feedbackSekarang = allFeedback;
+
+        nextPageFeedback = data.feedback.nextPageUrl;
+
+        List<DatumFeedback> _allFeedbackNew = [..._feedbackSekarang, ..._listFeedback];
+        allFeedback = _allFeedbackNew;
+
+        isLoadingMore = false;
+        notifyListeners();
+        print('sukses tambah allFeedback more');
+      } else {
+        print('sudah habis gan');
+      }
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+      isLoadingMore = false;
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      isLoadingMore = false;
+      notifyListeners();
       print(exception);
       return false;
     }

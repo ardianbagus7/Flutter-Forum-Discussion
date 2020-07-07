@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:discussion_app/models/AllPosts_model.dart';
 import 'package:discussion_app/models/allKey_model.dart';
 import 'package:discussion_app/models/allUser_model.dart';
+import 'package:discussion_app/models/feedback_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:discussion_app/models/allPost_model.dart';
 import 'package:discussion_app/models/detailProfil_model.dart';
@@ -436,10 +437,41 @@ class ApiService {
       'role': '$role',
     };
 
-    final response = await http.post(url,body:body, headers: headers);
+    final response = await http.post(url, body: body, headers: headers);
     print(response.body);
     validateResponseStatus(response.statusCode, 200);
 
     return true;
+  }
+
+  //* FEEDBACK
+
+  Future<Feedback> getAllFeedback(String tokenNew) async {
+    final url = "$api/user/admin/feedback";
+    print(url);
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+    print('sukses get all feedback');
+    return feedbackFromJson(response.body);
+  }
+
+  Future<Feedback> getAllFeedbackMore(String url, String tokenNew) async {
+    print(url);
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+    print('sukses get all feedback more');
+    return feedbackFromJson(response.body);
   }
 }
