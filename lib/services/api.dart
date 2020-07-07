@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:discussion_app/models/filterUser_model.dart';
+import 'package:discussion_app/models/searchUser_model.dart';
 import 'package:discussion_app/models/AllPosts_model.dart';
 import 'package:discussion_app/models/allKey_model.dart';
 import 'package:discussion_app/models/allUser_model.dart';
@@ -93,7 +95,7 @@ class ApiService {
 
   Future<IdPost> getIdPost(int id, String tokenProvider) async {
     final url = "$api/post/$id";
-
+    
     Map<String, String> headers = {
       'Accept': 'application/json',
       'Authorization': 'Bearer $tokenProvider'
@@ -492,5 +494,55 @@ class ApiService {
     validateResponseStatus(response.statusCode, 201);
     print('sukses create feedback');
     return true;
+  }
+
+  //* FILTER USER
+
+  Future<FilterUser> filterUser(int role, String tokenNew) async {
+    final url = '$api/user/admin/role?role=$role';
+    print(url);
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    return filterUserFromJson(response.body);
+  }
+
+  Future<FilterUser> getAllFilterUserMore(
+      int role, String url, String tokenNew) async {
+    String _url = url + '&role=$role';
+    print(_url);
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(_url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+    print('sukses get all user more');
+    return filterUserFromJson(response.body);
+  }
+
+  //* SEARCH USER
+
+  Future<SearchUser> searchUser(String param, String tokenNew) async {
+    final url = '$api/user/admin/search?search=$param';
+    print(url);
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+    print(response.body);
+    validateResponseStatus(response.statusCode, 200);
+
+    return searchUserFromJson(response.body);
   }
 }

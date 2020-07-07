@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Animation<Offset> _transTween;
   String tokenProvider;
   int status = 0;
-  final TextEditingController searchController = TextEditingController();
+  TextEditingController searchController = TextEditingController();
 
   //* SIDE BAR
   bool sidebaropen = false;
@@ -1093,33 +1093,59 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               Radius.circular(10.0),
                             ),
                           ),
-                          child: TextField(
-                            controller: searchController,
-                            style: AppStyle.textSearchPutih,
-                            maxLines: 1,
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: Colors.grey,
-                              ),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide.none),
-                              hintStyle: TextStyle(color: Colors.grey),
-                              hintText: 'Cari diskusi...',
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 10.0, horizontal: 10),
-                            ),
-                            textInputAction: TextInputAction.search,
-                            onSubmitted: (newValue) {
-                              Navigator.of(context).push(
-                                PageRouteBuilder(
-                                  opaque: false,
-                                  pageBuilder: (BuildContext context, _, __) =>
-                                      SearchPage(search: newValue),
+                          child: Stack(
+                            children: <Widget>[
+                              TextField(
+                                controller: searchController,
+                                style: AppStyle.textSearchPutih,
+                                maxLines: 1,
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: Colors.grey,
+                                  ),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      borderSide: BorderSide.none),
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                  hintText: 'Cari diskusi...',
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 10),
                                 ),
-                              );
-                            },
+                                textInputAction: TextInputAction.search,
+                                onSubmitted: (newValue) {
+                                  Navigator.of(context).push(
+                                    PageRouteBuilder(
+                                      opaque: false,
+                                      pageBuilder:
+                                          (BuildContext context, _, __) =>
+                                              SearchPage(
+                                                  search: newValue,
+                                                  idUser: idUser,
+                                                  role: role,
+                                                  name: name,
+                                                  token: tokenProvider),
+                                    ),
+                                  );
+                                },
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      searchController =
+                                          TextEditingController(text: '');
+                                    });
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.only(right: 10),
+                                    child: Icon(Icons.cancel,
+                                        color: Colors.grey.withOpacity(0.5)),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),

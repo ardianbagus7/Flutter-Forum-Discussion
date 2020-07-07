@@ -4,6 +4,8 @@ import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/services/api.dart';
 import 'package:flutter/material.dart';
 import 'package:discussion_app/utils/exceptions.dart';
+import 'package:discussion_app/models/filterUser_model.dart';
+import 'package:discussion_app/models/searchUser_model.dart';
 
 class AdminProvider with ChangeNotifier {
   bool isLoading = false;
@@ -12,6 +14,9 @@ class AdminProvider with ChangeNotifier {
   var allKey;
   List<Datum> allUser = List<Datum>();
   List<DatumFeedback> allFeedback = List<DatumFeedback>();
+  List<DatumFilterUser> allFilterUser = List<DatumFilterUser>();
+  List<DatumSearch> allSearchUser = List<DatumSearch>();
+
   //List<Datum> allUser = List<Datum>();
 
   //* role
@@ -29,6 +34,7 @@ class AdminProvider with ChangeNotifier {
   String nextPageUser;
   bool isLoadingMore;
   String nextPageFeedback;
+  String nextPageFilterUser;
 
   //*
   ApiService apiService;
@@ -234,7 +240,10 @@ class AdminProvider with ChangeNotifier {
 
         nextPageFeedback = data.feedback.nextPageUrl;
 
-        List<DatumFeedback> _allFeedbackNew = [..._feedbackSekarang, ..._listFeedback];
+        List<DatumFeedback> _allFeedbackNew = [
+          ..._feedbackSekarang,
+          ..._listFeedback
+        ];
         allFeedback = _allFeedbackNew;
 
         isLoadingMore = false;
@@ -257,4 +266,99 @@ class AdminProvider with ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> getAllFilterUser(int role, String token) async {
+    try {
+      allFilterUser = null;
+      //Jika tidak ada exceptions thrown dari API service
+      notifyListeners();
+      final data = await apiService.filterUser(role, token);
+      print('data : ${data.admin.data.length}');
+      List<DatumFilterUser> _listUser = data.admin.data;
+      allFilterUser = _listUser;
+      nextPageFilterUser = data.admin.nextPageUrl;
+      notifyListeners();
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getAllFilterUserMore(int role, String token) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      //pageAllUser++;
+      String _url = nextPageFilterUser;
+      if (_url != null) {
+        isLoadingMore = true;
+        final data =
+            await apiService.getAllFilterUserMore(role - 1, _url, token);
+
+        print('data : ${data.admin.data.length}');
+
+        List<DatumFilterUser> _listFilterUser = data.admin.data;
+        List<DatumFilterUser> _filterUserSekarang = allFilterUser;
+
+        nextPageFilterUser = data.admin.nextPageUrl;
+
+        List<DatumFilterUser> _allFilterUserNew = [
+          ..._filterUserSekarang,
+          ..._listFilterUser
+        ];
+        allFilterUser = _allFilterUserNew;
+
+        isLoadingMore = false;
+        notifyListeners();
+        print('sukses tambah allFilterUser more');
+      } else {
+        print('sudah habis gan');
+      }
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+      isLoadingMore = false;
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      isLoadingMore = false;
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getSearchUser(String param, String token) async {
+    try {
+      allSearchUser = null;
+      //Jika tidak ada exceptions thrown dari API service
+      notifyListeners();
+      final data = await apiService.searchUser(param, token);
+      print('data : ${data.admin.length}');
+      List<DatumSearch> _listUser = data.admin;
+      allSearchUser = _listUser;
+
+      notifyListeners();
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+  //*
 }
