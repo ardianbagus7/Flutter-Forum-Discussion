@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:discussion_app/models/allUser_model.dart';
 import 'package:discussion_app/models/bug_model.dart';
 import 'package:discussion_app/models/feedback_model.dart';
+import 'package:discussion_app/models/formVerif_model.dart';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/services/api.dart';
 import 'package:flutter/material.dart';
@@ -20,10 +21,11 @@ class AdminProvider with ChangeNotifier {
   List<DatumFilterUser> allFilterUser = List<DatumFilterUser>();
   List<DatumSearch> allSearchUser = List<DatumSearch>();
   List<DatumBug> allBug = List<DatumBug>();
+  List<DatumForm> allForm = List<DatumForm>();
 
   //* Status
   String statusCreateBug = 'menunggu';
-
+  String statusCreateForm = 'menunggu';
   //* role
   List fixRole = [
     'Guest',
@@ -41,6 +43,7 @@ class AdminProvider with ChangeNotifier {
   String nextPageFeedback;
   String nextPageFilterUser;
   String nextPageBug;
+  String nextPageForm;
 
   //*
   ApiService apiService;
@@ -421,14 +424,13 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> getAllBugMore( String token) async {
+  Future<bool> getAllBugMore(String token) async {
     try {
       //Jika tidak ada exceptions thrown dari API service
       String _url = nextPageBug;
       if (_url != null) {
         isLoadingMore = true;
-        final data =
-            await apiService.getAllBugMore(_url, token);
+        final data = await apiService.getAllBugMore(_url, token);
 
         print('data : ${data.posts.data.length}');
 
@@ -437,12 +439,100 @@ class AdminProvider with ChangeNotifier {
 
         nextPageBug = data.posts.nextPageUrl;
 
-        List<DatumBug> _allBugNew = [
-          ..._listBugSekarang,
-          ..._listBugUser
-        ];
+        List<DatumBug> _allBugNew = [..._listBugSekarang, ..._listBugUser];
 
         allBug = _allBugNew;
+
+        isLoadingMore = false;
+        notifyListeners();
+        print('sukses tambah allBug more');
+      } else {
+        print('sudah habis gan');
+      }
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+      isLoadingMore = false;
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      isLoadingMore = false;
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  //* FORM VERIFICATION
+
+  Future<bool> createForm(String nrp, File image, String tokenProvider) async {
+    try {
+      statusCreateForm = 'loading';
+      notifyListeners();
+      final data = await apiService.createForm(nrp, image, tokenProvider);
+      if (data) {
+        statusCreateForm = 'sukses';
+        return true;
+      } else {
+        statusCreateForm = 'menunggu';
+        return false;
+      }
+    } on AuthException {
+      statusCreateForm = 'menunggu';
+      notifyListeners();
+      //Token expired, redirect login
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      statusCreateForm = 'menunggu';
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getAllForm(String token) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      final data = await apiService.getAllForm(token);
+      print('data : ${data.form.data.length}');
+      List<DatumForm> _listForm = data.form.data;
+      allForm = _listForm;
+      nextPageForm = data.form.nextPageUrl;
+      print('Sukses get all form');
+      notifyListeners();
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getAllFormMore(String token) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      String _url = nextPageForm;
+      if (_url != null) {
+        isLoadingMore = true;
+        final data = await apiService.getAllFormMore(_url, token);
+
+        print('data : ${data.form.data.length}');
+
+        List<DatumForm> _listForm = data.form.data;
+        List<DatumForm> _listFormSekarang = allForm;
+
+        nextPageForm = data.form.nextPageUrl;
+
+        List<DatumForm> _allFormNew = [..._listFormSekarang, ..._listForm];
+
+        allForm = _allFormNew;
 
         isLoadingMore = false;
         notifyListeners();

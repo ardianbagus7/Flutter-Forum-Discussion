@@ -66,6 +66,15 @@ class AppStyle {
     fontWeight: FontWeight.w500,
   );
 
+  static TextStyle textSubHeadingMerah = GoogleFonts.poppins(
+    textStyle: TextStyle(
+      color: Colors.red[900],
+    ),
+    fontSize: 16,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.w500,
+  );
+
   static TextStyle textSubHeadingPutih = GoogleFonts.poppins(
     textStyle: TextStyle(
       color: Colors.white,

@@ -8,6 +8,7 @@ import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/views/adminPanel_page.dart';
 import 'package:discussion_app/views/createBug_page.dart';
+import 'package:discussion_app/views/createForm_page.dart';
 import 'package:discussion_app/views/create_post.dart';
 import 'package:discussion_app/views/detail_page.dart';
 import 'package:discussion_app/views/editPost_page.dart';
@@ -297,8 +298,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                             .textSubHeadingAbu,
                                                       ),
                                                       Container(
-                                                        padding:
-                                                            EdgeInsets.symmetric(horizontal:18, vertical:10),
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                horizontal: 18,
+                                                                vertical: 10),
                                                         child: TextField(
                                                           keyboardType:
                                                               TextInputType
@@ -386,7 +389,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                                           20,
                                                                       child: Icon(
                                                                           Icons
-                                                                              .arrow_forward_ios,color: Colors.white),
+                                                                              .arrow_forward_ios,
+                                                                          color:
+                                                                              Colors.white),
                                                                     ),
                                                                   )
                                                           ],
@@ -522,7 +527,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     horizontal: 18.0),
                                 child: Container(
                                   margin: EdgeInsets.only(top: 100),
-                                  height: (role == 0) ? 280 : 240,
+                                  height: (role == 0) ? 330 : 240,
                                   decoration: BoxDecoration(
                                     color: AppStyle.colorWhite,
                                     borderRadius:
@@ -585,38 +590,82 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   ),
                                   SizedBox(height: 10),
                                   (role == 0)
-                                      ? Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 34.0),
-                                          child: InkWell(
-                                            onTap: () {
-                                              //* VERIFIKASI
-                                              verifikasiAkun();
-                                              setState(() {
-                                                statusVerifikasi = '';
-                                                pinVerifikasi = '';
-                                                statusGetVerifikasi = '';
-                                                nrpController =
-                                                    TextEditingController(
-                                                        text: '');
-                                              });
-                                            },
-                                            child: Container(
-                                              height: 50,
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                color: AppStyle.colorMain,
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(10.0)),
+                                      ? Column(
+                                          children: <Widget>[
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 34.0),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  //* VERIFIKASI
+                                                  verifikasiAkun();
+                                                  setState(() {
+                                                    statusVerifikasi = '';
+                                                    pinVerifikasi = '';
+                                                    statusGetVerifikasi = '';
+                                                    nrpController =
+                                                        TextEditingController(
+                                                            text: '');
+                                                  });
+                                                },
+                                                child: Container(
+                                                  height: 50,
+                                                  width: double.infinity,
+                                                  decoration: BoxDecoration(
+                                                    color: AppStyle.colorMain,
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                10.0)),
+                                                  ),
+                                                  child: Center(
+                                                      child: Text(
+                                                    'Verifikasi akun',
+                                                    style: AppStyle
+                                                        .textSubHeading2Putih,
+                                                  )),
+                                                ),
                                               ),
-                                              child: Center(
-                                                  child: Text(
-                                                'Verifikasi akun',
-                                                style: AppStyle
-                                                    .textSubHeading2Putih,
-                                              )),
                                             ),
-                                          ),
+                                            SizedBox(height: 10),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 34.0),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  //* FORM VERIFIKASI
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          CreateForm(
+                                                        token: tokenProvider,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Container(
+                                                  height: 50,
+                                                  width: double.infinity,
+                                                  decoration: BoxDecoration(
+                                                    color: AppStyle.colorMain,
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                10.0)),
+                                                  ),
+                                                  child: Center(
+                                                      child: Text(
+                                                    'Request Invitation Key',
+                                                    style: AppStyle
+                                                        .textSubHeading2Putih,
+                                                  )),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         )
                                       : SizedBox(),
                                 ],
@@ -922,7 +971,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     AppStyle.colorMain,
                                                 radius: 20,
                                                 child: Icon(
-                                                    Icons.arrow_forward_ios,color: Colors.white),
+                                                    Icons.arrow_forward_ios,
+                                                    color: Colors.white),
                                               ),
                                             )
                                     ],

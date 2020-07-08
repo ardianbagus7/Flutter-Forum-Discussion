@@ -1,6 +1,7 @@
 import 'package:discussion_app/models/allUser_model.dart';
 import 'package:discussion_app/models/bug_model.dart';
 import 'package:discussion_app/models/feedback_model.dart';
+import 'package:discussion_app/models/formVerif_model.dart';
 import 'package:discussion_app/providers/admin_provider.dart';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/utils/showAlert.dart';
@@ -18,7 +19,8 @@ class AdminAuthCheck extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(builder: (context, user, child) {
-      if (user.status == Status.Relogin || user.status == Status.Authenticating ||
+      if (user.status == Status.Relogin ||
+          user.status == Status.Authenticating ||
           user.status == Status.Unauthenticated) {
         return Relogin();
       } else {
@@ -55,6 +57,7 @@ class _AdminPanelState extends State<AdminPanel> {
   List<DatumFeedback> allFeedback;
   List<DatumFilterUser> allFilterUser;
   List<DatumBug> allBug;
+  List<DatumForm> allForm;
 
   //* role
   List fixRole = [
@@ -115,7 +118,8 @@ class _AdminPanelState extends State<AdminPanel> {
     isLoading = Provider.of<AdminProvider>(context).isLoading ?? false;
     isLoadingMore = Provider.of<AdminProvider>(context).isLoadingMore ?? false;
     allFeedback = Provider.of<AdminProvider>(context).allFeedback ?? null;
-    allBug = Provider.of<AdminProvider>(context).allBug;
+    allBug = Provider.of<AdminProvider>(context).allBug ?? null;
+    allForm = Provider.of<AdminProvider>(context).allForm ?? null;
 
     return Scaffold(
       backgroundColor: AppStyle.colorBg,
@@ -147,6 +151,10 @@ class _AdminPanelState extends State<AdminPanel> {
                     }
                     if (index == 3) {
                       Provider.of<AdminProvider>(context, listen: false)
+                          .getAllForm(token);
+                    }
+                    if (index == 4) {
+                      Provider.of<AdminProvider>(context, listen: false)
                           .getAllKey(token);
                     }
                   });
@@ -158,6 +166,8 @@ class _AdminPanelState extends State<AdminPanel> {
                   pageBug(context),
                   //* page feedback
                   pageFeedback(context),
+                  //* page form
+                  pageForm(context),
                   //* page key
                   pageKey(context),
                 ],
@@ -202,6 +212,13 @@ class _AdminPanelState extends State<AdminPanel> {
                       BottomNavigationBarItem(
                         icon: Icon(
                           MdiIcons.thumbsUpDown,
+                          size: 30,
+                        ),
+                        title: Text(''),
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(
+                          MdiIcons.formDropdown,
                           size: 30,
                         ),
                         title: Text(''),
@@ -325,8 +342,19 @@ class _AdminPanelState extends State<AdminPanel> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: <Widget>[
-                                                Text('${allBug[index].name}',
-                                                    style: AppStyle.textName),
+                                                Container(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      11 /
+                                                      16,
+                                                  child: Text(
+                                                    '${allBug[index].name}',
+                                                    style: AppStyle.textName,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
                                                 Text(
                                                     '${allBug[index].createdAt.day}-${allBug[index].createdAt.month}-${allBug[index].createdAt.year} ${allBug[index].createdAt.hour}:${allBug[index].createdAt.minute}:${allBug[index].createdAt.second}',
                                                     style:
@@ -503,9 +531,19 @@ class _AdminPanelState extends State<AdminPanel> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: <Widget>[
-                                                Text(
+                                                Container(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      11 /
+                                                      16,
+                                                  child: Text(
                                                     '${allFeedback[index].name}',
-                                                    style: AppStyle.textName),
+                                                    style: AppStyle.textName,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
                                                 Text(
                                                     '${allFeedback[index].createdAt.day}-${allFeedback[index].createdAt.month}-${allFeedback[index].createdAt.year} ${allFeedback[index].createdAt.hour}:${allFeedback[index].createdAt.minute}:${allFeedback[index].createdAt.second}',
                                                     style:
@@ -526,6 +564,214 @@ class _AdminPanelState extends State<AdminPanel> {
                         );
                       },
                       childCount: allFeedback.length,
+                    ),
+                  ),
+            SliverToBoxAdapter(
+              child: Container(
+                height: isLoadingMore ? 50.0 : 0,
+                color: Colors.transparent,
+                child: Center(
+                  child: new CircularProgressIndicator(),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 100))
+          ],
+        ),
+      ),
+    );
+  }
+
+  SafeArea pageForm(BuildContext context) {
+    return SafeArea(
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+            // start loading data
+            setState(() {
+              isLoadingMore = true;
+            });
+            //load data
+            Provider.of<AdminProvider>(context, listen: false)
+                .getAllFormMore(token);
+          }
+          return true;
+        },
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: <Widget>[
+            SliverAppBar(
+              automaticallyImplyLeading: false,
+              expandedHeight: 65.0,
+              floating: false,
+              pinned: true,
+              backgroundColor: AppStyle.colorBg,
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: EdgeInsetsDirectional.only(
+                    start: 0, bottom: 10, end: 0, top: 0),
+                title: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                    child: Text('Daftar Request Invitation Key',
+                        style: AppStyle.textHeadlineTipisBlack),
+                  ),
+                ),
+                collapseMode: CollapseMode.parallax,
+              ),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 20)),
+            (allForm == null)
+                ? SliverToBoxAdapter(
+                    child: Center(
+                      child: SizedBox(
+                        height: 50.0,
+                        width: 50.0,
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  ) //
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        return Column(
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppStyle.colorWhite,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10.0),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        offset: Offset(0.0, 1),
+                                        blurRadius: 15.0,
+                                      )
+                                    ],
+                                  ), //'${allFeedback[index].deskripsi}'
+                                  margin: EdgeInsets.symmetric(vertical: 5),
+                                  width: double.infinity,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 10.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        (allForm[index].role == 0)
+                                            ? Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: Text(
+                                                  'Belum Terverifikasi',
+                                                  style: AppStyle
+                                                      .textSubHeadingMerah,
+                                                ),
+                                              )
+                                            : Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: Text(
+                                                  'Selesai Terverifikasi',
+                                                  style: AppStyle
+                                                      .textSubHeadingAbu,
+                                                ),
+                                              ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            CircleAvatar(
+                                              radius: 25,
+                                              backgroundImage:
+                                                  CachedNetworkImageProvider(
+                                                      allForm[index].userImage),
+                                            ),
+                                            SizedBox(width: 10),
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Container(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      11 /
+                                                      16,
+                                                  child: Text(
+                                                    '${allForm[index].name}',
+                                                    style: AppStyle.textName,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                Text(
+                                                    '${allForm[index].createdAt.day}-${allForm[index].createdAt.month}-${allForm[index].createdAt.year} ${allForm[index].createdAt.hour}:${allForm[index].createdAt.minute}:${allForm[index].createdAt.second}',
+                                                    style:
+                                                        AppStyle.textCaption),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text('${allForm[index].email}',
+                                            style:
+                                                AppStyle.textSubHeadlineBlack),
+                                        Text('${allForm[index].nrp}',
+                                            style:
+                                                AppStyle.textSubHeadlineBlack),
+                                        SizedBox(height: 10),
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              PageRouteBuilder(
+                                                opaque: false,
+                                                pageBuilder:
+                                                    (BuildContext context, _,
+                                                            __) =>
+                                                        FullScreen(
+                                                  index: index,
+                                                  image:
+                                                      allForm[index].verifImage,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Hero(
+                                            tag: 'fullscreenBug$index',
+                                            child: Container(
+                                              height: 200,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                image: new DecorationImage(
+                                                  fit: BoxFit.cover,
+                                                  image:
+                                                      new CachedNetworkImageProvider(
+                                                          allForm[index]
+                                                              .verifImage),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  )),
+                            ),
+                          ],
+                        );
+                      },
+                      childCount: allForm.length,
                     ),
                   ),
             SliverToBoxAdapter(
@@ -1088,8 +1334,9 @@ class _AdminPanelState extends State<AdminPanel> {
                                                     backgroundColor:
                                                         AppStyle.colorMain,
                                                     radius: 20,
-                                                    child: Icon(Icons
-                                                        .arrow_forward_ios,color: Colors.white),
+                                                    child: Icon(
+                                                        Icons.arrow_forward_ios,
+                                                        color: Colors.white),
                                                   ),
                                                 )
                                         ],
@@ -1135,7 +1382,12 @@ class _AdminPanelState extends State<AdminPanel> {
                                 CachedNetworkImageProvider(user[index].image),
                           ),
                           SizedBox(width: 10),
-                          Text('${user[index].name}', style: AppStyle.textName),
+                          Container(
+                            width: MediaQuery.of(context).size.width * 11 / 16,
+                            child: Text('${user[index].name}',
+                                style: AppStyle.textName,
+                                overflow: TextOverflow.ellipsis),
+                          ),
                         ],
                       ),
                       SizedBox(height: 10.0),

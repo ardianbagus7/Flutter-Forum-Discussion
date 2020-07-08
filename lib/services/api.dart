@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:discussion_app/models/bug_model.dart';
 import 'package:discussion_app/models/filterUser_model.dart';
+import 'package:discussion_app/models/formVerif_model.dart';
 import 'package:discussion_app/models/searchUser_model.dart';
 import 'package:discussion_app/models/AllPosts_model.dart';
 import 'package:discussion_app/models/allKey_model.dart';
@@ -189,7 +190,7 @@ class ApiService {
     Map<String, String> body = {
       'kategori': '$kategori',
     };
-    
+
     final response = await http.post(url, headers: headers, body: body);
 
     validateResponseStatus(response.statusCode, 200);
@@ -605,5 +606,61 @@ class ApiService {
     validateResponseStatus(response.statusCode, 200);
     print('sukses get all bug more');
     return bugFromJson(response.body);
+  }
+
+  Future<bool> createForm(String nrp, File image, String tokenProvider) async {
+    final url = '$api/user/admin/form';
+
+    //* BODY
+    var request = http.MultipartRequest("POST", Uri.parse(url));
+    request.fields['nrp'] = nrp;
+
+    if (image != null) {
+      var pic = await http.MultipartFile.fromPath('image', image.path);
+      request.files.add(pic);
+    } else {}
+
+    //* HEADER
+    request.headers['Accept'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $tokenProvider';
+
+    var response = await request.send();
+
+    var responseData = await response.stream.toBytes();
+    var responseString = String.fromCharCodes(responseData);
+    print(responseString);
+    validateResponseStatus(response.statusCode, 201);
+
+    return true;
+  }
+
+  Future<Form> getAllForm(String tokenNew) async {
+    final url = "$api/user/admin/form";
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    return formFromJson(response.body);
+  }
+
+  Future<Form> getAllFormMore(String url, String tokenNew) async {
+    print(url);
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+    print('sukses get all form more');
+    return formFromJson(response.body);
   }
 }
