@@ -2,8 +2,10 @@ import 'package:discussion_app/models/allUser_model.dart';
 import 'package:discussion_app/models/bug_model.dart';
 import 'package:discussion_app/models/feedback_model.dart';
 import 'package:discussion_app/providers/admin_provider.dart';
+import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
+import 'package:discussion_app/views/reLogin_view.dart';
 import 'package:discussion_app/views/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +13,20 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discussion_app/models/filterUser_model.dart';
+
+class AdminAuthCheck extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(builder: (context, user, child) {
+      if (user.status == Status.Relogin || user.status == Status.Authenticating ||
+          user.status == Status.Unauthenticated) {
+        return Relogin();
+      } else {
+        return AdminPanel(token: user.token);
+      }
+    });
+  }
+}
 
 class AdminPanel extends StatefulWidget {
   final String token;
@@ -20,7 +36,7 @@ class AdminPanel extends StatefulWidget {
 }
 
 class _AdminPanelState extends State<AdminPanel> {
-  final String token;
+  String token;
   _AdminPanelState({Key key, @required this.token});
 
   //*Page View
@@ -1073,7 +1089,7 @@ class _AdminPanelState extends State<AdminPanel> {
                                                         AppStyle.colorMain,
                                                     radius: 20,
                                                     child: Icon(Icons
-                                                        .arrow_forward_ios),
+                                                        .arrow_forward_ios,color: Colors.white),
                                                   ),
                                                 )
                                         ],

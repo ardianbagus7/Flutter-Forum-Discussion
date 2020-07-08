@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated }
+enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated, Relogin }
 
 class AuthProvider with ChangeNotifier {
   Status _status = Status.Uninitialized;
@@ -107,6 +107,7 @@ class AuthProvider with ChangeNotifier {
       await storeUserData(apiResponse, email, password);
       notifyListeners();
       print('login sukses');
+      print(_token);
       return true;
     }
 
@@ -273,9 +274,11 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future reLogin() async {
+    _status = Status.Relogin;
+    notifyListeners();
     String _emailRelog = await getEmail();
     String _passwordRelog = await getPassword();
-
+    print('relogin');
     final url = "$api/signin";
 
     Map<String, String> body = {
@@ -300,6 +303,7 @@ class AuthProvider with ChangeNotifier {
       _idUser = apiResponse.user.id;
       _roleName = fixRole[apiResponse.user.role];
       await storeUserData(apiResponse, _emailRelog, _passwordRelog);
+      print(_token);
       notifyListeners();
       print('login sukses');
     }

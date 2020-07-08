@@ -44,7 +44,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     Future.microtask(() {
-      Provider.of<PostProvider>(context, listen: false).getSearchPost(search);
+      Provider.of<PostProvider>(context, listen: false).getSearchPost(search,token);
     });
 
     super.initState();

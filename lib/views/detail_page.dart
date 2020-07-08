@@ -1,11 +1,53 @@
+import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/views/editPost_page.dart';
 import 'package:discussion_app/views/komentar_page.dart';
+import 'package:discussion_app/views/reLogin_view.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
+
+class DetailPostAuthCheck extends StatelessWidget {
+  final int id;
+  final int index;
+  final String image;
+  final String token;
+  final String name;
+  final int role;
+  final int idUser;
+  DetailPostAuthCheck(
+      {Key key,
+      @required this.id,
+      this.image,
+      this.index,
+      this.token,
+      this.name,
+      this.role,
+      this.idUser})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(builder: (context, user, child) {
+      if (user.status == Status.Relogin ||
+          user.status == Status.Authenticating ||
+          user.status == Status.Unauthenticated) {
+        return Relogin();
+      } else {
+        return DetailPage(
+          token: user.token,
+          image: image,
+          index: index,
+          name: name,
+          role: role,
+          id: id,
+          idUser: idUser,
+        );
+      }
+    });
+  }
+}
 
 class DetailPage extends StatefulWidget {
   final int id;
@@ -170,11 +212,11 @@ class _DetailPageState extends State<DetailPage> {
                                       style: AppStyle.textSubHeadingAbu,
                                     ),
                                     onTap: () async {
-                                     String _status = await showDelete(context, detailPost.post[0].id,
-                                          token, role);
-                                    if(_status == 'ok'){
-                                      Navigator.pop(context,'ok');
-                                    }
+                                      String _status = await showDelete(context,
+                                          detailPost.post[0].id, token, role);
+                                      if (_status == 'ok') {
+                                        Navigator.pop(context, 'ok');
+                                      }
                                     },
                                   ),
                                 ],
@@ -330,7 +372,7 @@ class _DetailPageState extends State<DetailPage> {
                             PageRouteBuilder(
                               opaque: false,
                               pageBuilder: (BuildContext context, _, __) =>
-                                  KomentarScreen(
+                                  KomentarAuthCheck(
                                 detailPost: detailPost,
                                 token: token,
                                 name: name,

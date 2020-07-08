@@ -14,7 +14,6 @@ import 'package:discussion_app/views/editPost_page.dart';
 import 'package:discussion_app/views/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
@@ -105,7 +104,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     Future.microtask(() {
       Provider.of<PostProvider>(context, listen: false).getAllPosts();
-      //Provider.of<PostProvider>(context, listen: false).getDetailProfil();
+      Provider.of<PostProvider>(context, listen: false).getDetailProfil();
     });
 
     bottomNavBarIndex = 0;
@@ -210,10 +209,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => AdminPanel(
-                                                token: tokenProvider,
-                                              ),
-                                            ),
+                                                builder: (context) =>
+                                                    AdminAuthCheck()),
                                           );
                                         },
                                       )
@@ -301,7 +298,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                       ),
                                                       Container(
                                                         padding:
-                                                            EdgeInsets.all(10),
+                                                            EdgeInsets.symmetric(horizontal:18, vertical:10),
                                                         child: TextField(
                                                           keyboardType:
                                                               TextInputType
@@ -389,7 +386,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                                           20,
                                                                       child: Icon(
                                                                           Icons
-                                                                              .arrow_forward_ios),
+                                                                              .arrow_forward_ios,color: Colors.white),
                                                                     ),
                                                                   )
                                                           ],
@@ -925,7 +922,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     AppStyle.colorMain,
                                                 radius: 20,
                                                 child: Icon(
-                                                    Icons.arrow_forward_ios),
+                                                    Icons.arrow_forward_ios,color: Colors.white),
                                               ),
                                             )
                                     ],
@@ -988,8 +985,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                 ),
               );
+              if (!mounted) return;
+              print(_create);
               setState(() {
-                print(_create);
                 if (_create == 'ok') {
                   getdata();
                   _create = "";
@@ -1387,14 +1385,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 );
               },
               onTap: () async {
-                SchedulerBinding.instance.addPostFrameCallback((_) {
-                  Provider.of<PostProvider>(context, listen: false)
-                      .getIdPost(allPost[index].id, tokenProvider);
-                });
                 String _status = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DetailPage(
+                    builder: (context) => DetailPostAuthCheck(
                       id: allPost[index].id,
                       image: allPost[index].postImage,
                       index: index,

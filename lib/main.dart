@@ -4,6 +4,7 @@ import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/views/home_page.dart';
 import 'package:discussion_app/views/loading.dart';
 import 'package:discussion_app/views/login_page.dart';
+import 'package:discussion_app/views/reLogin_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -53,6 +54,8 @@ class _RouterState extends State<Router> {
     return Consumer<AuthProvider>(
       builder: (context, user, child) {
         switch (user.status) {
+          case Status.Relogin:
+            return Relogin();
           case Status.Uninitialized:
             return Loading();
           case Status.Unauthenticated:

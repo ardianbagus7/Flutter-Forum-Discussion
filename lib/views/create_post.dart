@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
@@ -16,7 +17,7 @@ class CreatePost extends StatefulWidget {
 }
 
 class _CreatePostState extends State<CreatePost> {
-  final String token;
+  String token;
   _CreatePostState({Key key, @required this.token});
 
   int statusKategori;
@@ -30,6 +31,20 @@ class _CreatePostState extends State<CreatePost> {
   var statusCreate;
   File _image;
   final picker = ImagePicker();
+
+  void submit() async {
+    bool status = await Provider.of<PostProvider>(context, listen: false)
+        .createPost(titleController.text, descriptionController.text,
+            kategori[statusKategori], _image, token);
+    if (status) {
+      Navigator.pop(context, 'ok');
+    } else {
+      setState(() {
+        statusCreate = 'menunggu';
+        showAlert(context);
+      });
+    }
+  }
 
   Future getImage(ImageSource imageSource) async {
     final pickedFile = await picker.getImage(source: imageSource);
@@ -45,62 +60,51 @@ class _CreatePostState extends State<CreatePost> {
   Widget build(BuildContext context) {
     statusCreate = Provider.of<PostProvider>(context).statusCreate;
 
-    void submit() async {
-      bool status = await Provider.of<PostProvider>(context, listen: false)
-          .createPost(titleController.text, descriptionController.text,
-              kategori[statusKategori], _image, token);
-      if (status) {
-         Navigator.pop(context,'ok');
-      } else {
-        setState(() {
-          statusCreate = 'menunggu';
-          showAlert(context);
-        });
-      }
-    }
-
-    return Scaffold(
-      appBar: appBar(submit),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
-        },
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              SizedBox(height: 20.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      decoration: AppStyle.decorationCard,
-                      margin: EdgeInsets.only(top: 100),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(height: 80.0),
-                            kategoriField(context),
-                            SizedBox(height: 20.0),
-                            judulField(),
-                            deskripsiField(),
-                            SizedBox(height: 20.0),
-                            //submitPost(submit),
-                          ],
+    return Consumer<AuthProvider>(builder: (context, user, _) {
+      token = user.token;
+      return Scaffold(
+        appBar: appBar(submit),
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 20.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        decoration: AppStyle.decorationCard,
+                        margin: EdgeInsets.only(top: 100),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(height: 80.0),
+                              kategoriField(context),
+                              SizedBox(height: 20.0),
+                              judulField(),
+                              deskripsiField(),
+                              SizedBox(height: 20.0),
+                              //submitPost(submit),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Center(child: imagePost()),
-                  ],
+                      Center(child: imagePost()),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 20.0),
-            ],
+                SizedBox(height: 20.0),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Container submitPost(void submit()) {

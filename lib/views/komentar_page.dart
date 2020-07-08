@@ -1,13 +1,49 @@
 import 'dart:async';
 
+import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/services/role.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
+import 'package:discussion_app/views/reLogin_view.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
+
+class KomentarAuthCheck extends StatelessWidget {
+  final detailPost;
+  final String token;
+  final String name;
+  final int role;
+  final int idUser;
+  KomentarAuthCheck(
+      {Key key,
+      @required this.detailPost,
+      this.token,
+      this.name,
+      this.role,
+      this.idUser})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(builder: (context, user, child) {
+      if (user.status == Status.Relogin ||
+          user.status == Status.Authenticating ||
+          user.status == Status.Unauthenticated) {
+        return Relogin();
+      } else {
+        return KomentarScreen(
+          token: user.token,
+          name: name,
+          role: role,
+          idUser: idUser,
+          detailPost: detailPost,
+        );
+      }
+    });
+  }
+}
 
 class KomentarScreen extends StatefulWidget {
   final detailPost;
@@ -247,7 +283,9 @@ class _KomentarScreenState extends State<KomentarScreen> {
       context: context,
       backgroundColor: AppStyle.colorBg,
       builder: (builder) {
-        return (detailPostNew.komentar[index].userId == idUser || role == Role.developer || role == Role.admin)
+        return (detailPostNew.komentar[index].userId == idUser ||
+                role == Role.developer ||
+                role == Role.admin)
             ? Column(
                 children: <Widget>[
                   SizedBox(height: 10.0),

@@ -155,12 +155,13 @@ class ApiService {
     var responseData = await response.stream.toBytes();
     var responseString = String.fromCharCodes(responseData);
     print(responseString);
+    print('token edit $tokenProvider');
     validateResponseStatus(response.statusCode, 200);
 
     return true;
   }
 
-  Future<bool> deletePost(int id, String tokenNew, int role) async {
+  Future<bool> deletePost(int id, String tokenNew) async {
     final url = '$api/post/$id';
 
     Map<String, String> headers = {
@@ -168,7 +169,7 @@ class ApiService {
       'Authorization': 'Bearer $tokenNew'
     };
 
-    Map<String, String> body = {'_method': 'DELETE', 'role': '$role'};
+    Map<String, String> body = {'_method': 'DELETE'};
 
     final response = await http.post(url, headers: headers, body: body);
 
@@ -188,7 +189,7 @@ class ApiService {
     Map<String, String> body = {
       'kategori': '$kategori',
     };
-
+    
     final response = await http.post(url, headers: headers, body: body);
 
     validateResponseStatus(response.statusCode, 200);
@@ -196,12 +197,12 @@ class ApiService {
     return filterPostFromJson(response.body);
   }
 
-  Future<SearchPost> searchPost(String title) async {
+  Future<SearchPost> searchPost(String title, String tokenNew) async {
     final url = '$api/post/search';
 
     Map<String, String> headers = {
       'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $tokenNew'
     };
 
     Map<String, String> body = {

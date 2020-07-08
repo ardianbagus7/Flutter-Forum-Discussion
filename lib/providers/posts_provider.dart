@@ -194,7 +194,7 @@ class PostProvider with ChangeNotifier {
     try {
       statusDelete = 'loading';
       notifyListeners();
-      final data = await apiService.deletePost(id, token, role);
+      final data = await apiService.deletePost(id, token);
       if (data) {
         statusDelete = 'sukses';
       }
@@ -230,11 +230,11 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getSearchPost(String title) async {
+  Future<void> getSearchPost(String title, String token) async {
     try {
       searchPost = null;
       notifyListeners();
-      final data = await apiService.searchPost(title);
+      final data = await apiService.searchPost(title, token);
       searchPost = data;
       print('sukses get search post');
       notifyListeners();
