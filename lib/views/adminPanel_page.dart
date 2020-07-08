@@ -1,4 +1,5 @@
 import 'package:discussion_app/models/allUser_model.dart';
+import 'package:discussion_app/models/bug_model.dart';
 import 'package:discussion_app/models/feedback_model.dart';
 import 'package:discussion_app/providers/admin_provider.dart';
 import 'package:discussion_app/utils/showAlert.dart';
@@ -37,6 +38,7 @@ class _AdminPanelState extends State<AdminPanel> {
   bool isLoadingMore;
   List<DatumFeedback> allFeedback;
   List<DatumFilterUser> allFilterUser;
+  List<DatumBug> allBug;
 
   //* role
   List fixRole = [
@@ -62,6 +64,9 @@ class _AdminPanelState extends State<AdminPanel> {
   bool isEditRole = false;
   bool loadingEditRole = false;
   int status = 0;
+
+  //* BLOKIR DEFAULT IMAGE BUG
+  String urlImageBug = 'http://192.168.43.47/bug/default.jpg';
 
   //* GET ALL USER DATA
   void getAllUser() {
@@ -94,6 +99,7 @@ class _AdminPanelState extends State<AdminPanel> {
     isLoading = Provider.of<AdminProvider>(context).isLoading ?? false;
     isLoadingMore = Provider.of<AdminProvider>(context).isLoadingMore ?? false;
     allFeedback = Provider.of<AdminProvider>(context).allFeedback ?? null;
+    allBug = Provider.of<AdminProvider>(context).allBug;
 
     return Scaffold(
       backgroundColor: AppStyle.colorBg,
@@ -117,9 +123,13 @@ class _AdminPanelState extends State<AdminPanel> {
                     }
                     if (index == 1) {
                       Provider.of<AdminProvider>(context, listen: false)
-                          .getAllFeedback(token);
+                          .getAllBug(token);
                     }
                     if (index == 2) {
+                      Provider.of<AdminProvider>(context, listen: false)
+                          .getAllFeedback(token);
+                    }
+                    if (index == 3) {
                       Provider.of<AdminProvider>(context, listen: false)
                           .getAllKey(token);
                     }
@@ -128,6 +138,8 @@ class _AdminPanelState extends State<AdminPanel> {
                 children: <Widget>[
                   //* page user
                   pageUser(context),
+                  //* page bug
+                  pageBug(context),
                   //* page feedback
                   pageFeedback(context),
                   //* page key
@@ -166,6 +178,13 @@ class _AdminPanelState extends State<AdminPanel> {
                       ),
                       BottomNavigationBarItem(
                         icon: Icon(
+                          Icons.bug_report,
+                          size: 30,
+                        ),
+                        title: Text(''),
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(
                           MdiIcons.thumbsUpDown,
                           size: 30,
                         ),
@@ -184,6 +203,184 @@ class _AdminPanelState extends State<AdminPanel> {
               )
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  SafeArea pageBug(BuildContext context) {
+    return SafeArea(
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+            // start loading data
+            setState(() {
+              isLoadingMore = true;
+            });
+            //load data
+            Provider.of<AdminProvider>(context, listen: false)
+                .getAllBugMore(token);
+          }
+          return true;
+        },
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: <Widget>[
+            SliverAppBar(
+              automaticallyImplyLeading: false,
+              expandedHeight: 65.0,
+              floating: false,
+              pinned: true,
+              backgroundColor: AppStyle.colorBg,
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: EdgeInsetsDirectional.only(
+                    start: 0, bottom: 10, end: 0, top: 0),
+                title: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                    child: Text('Daftar Laporan Bug',
+                        style: AppStyle.textHeadlineTipisBlack),
+                  ),
+                ),
+                collapseMode: CollapseMode.parallax,
+              ),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 20)),
+            (allBug == null)
+                ? SliverToBoxAdapter(
+                    child: Center(
+                      child: SizedBox(
+                        height: 50.0,
+                        width: 50.0,
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  ) //
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        return Column(
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppStyle.colorWhite,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10.0),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        offset: Offset(0.0, 1),
+                                        blurRadius: 15.0,
+                                      )
+                                    ],
+                                  ), //'${allFeedback[index].deskripsi}'
+                                  margin: EdgeInsets.symmetric(vertical: 5),
+                                  width: double.infinity,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 10.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            CircleAvatar(
+                                              radius: 25,
+                                              backgroundImage:
+                                                  CachedNetworkImageProvider(
+                                                      allBug[index].userImage),
+                                            ),
+                                            SizedBox(width: 10),
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text('${allBug[index].name}',
+                                                    style: AppStyle.textName),
+                                                Text(
+                                                    '${allBug[index].createdAt.day}-${allBug[index].createdAt.month}-${allBug[index].createdAt.year} ${allBug[index].createdAt.hour}:${allBug[index].createdAt.minute}:${allBug[index].createdAt.second}',
+                                                    style:
+                                                        AppStyle.textCaption),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text('${allBug[index].deskripsi}',
+                                            style:
+                                                AppStyle.textSubHeadlineBlack),
+                                        SizedBox(height: 10),
+                                        (allBug[index].bugImage == urlImageBug)
+                                            ? SizedBox()
+                                            : InkWell(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    PageRouteBuilder(
+                                                      opaque: false,
+                                                      pageBuilder:
+                                                          (BuildContext context,
+                                                                  _, __) =>
+                                                              FullScreen(
+                                                        index: index,
+                                                        image: allBug[index]
+                                                            .bugImage,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Hero(
+                                                  tag: 'fullscreenBug$index',
+                                                  child: Container(
+                                                    height: 300,
+                                                    width: double.infinity,
+                                                    decoration: BoxDecoration(
+                                                      image:
+                                                          new DecorationImage(
+                                                        fit: BoxFit.cover,
+                                                        image:
+                                                            new CachedNetworkImageProvider(
+                                                                allBug[index]
+                                                                    .bugImage),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                      ],
+                                    ),
+                                  )),
+                            ),
+                          ],
+                        );
+                      },
+                      childCount: allBug.length,
+                    ),
+                  ),
+            SliverToBoxAdapter(
+              child: Container(
+                height: isLoadingMore ? 50.0 : 0,
+                color: Colors.transparent,
+                child: Center(
+                  child: new CircularProgressIndicator(),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 100))
+          ],
         ),
       ),
     );
@@ -551,7 +748,8 @@ class _AdminPanelState extends State<AdminPanel> {
                               },
                               child: Container(
                                 margin: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.cancel, color: Colors.grey.withOpacity(0.5)),
+                                child: Icon(Icons.cancel,
+                                    color: Colors.grey.withOpacity(0.5)),
                               ),
                             ),
                           )
@@ -944,6 +1142,31 @@ class _AdminPanelState extends State<AdminPanel> {
           );
         },
         childCount: user.length,
+      ),
+    );
+  }
+}
+
+class FullScreen extends StatelessWidget {
+  final int index;
+  final String image;
+  FullScreen({Key key, @required this.index, this.image}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pop(context);
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white.withOpacity(0.85),
+        body: Center(
+          child: Hero(
+            tag: 'fullscreenBug$index',
+            child: CachedNetworkImage(
+              imageUrl: image,
+            ),
+          ),
+        ),
       ),
     );
   }

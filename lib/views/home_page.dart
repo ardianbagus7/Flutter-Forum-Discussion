@@ -7,6 +7,7 @@ import 'package:discussion_app/utils/ClipShadowPath.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/views/adminPanel_page.dart';
+import 'package:discussion_app/views/createBug_page.dart';
 import 'package:discussion_app/views/create_post.dart';
 import 'package:discussion_app/views/detail_page.dart';
 import 'package:discussion_app/views/editPost_page.dart';
@@ -409,6 +410,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       color: Colors.white),
                                   title: Text('Laporkan bug',
                                       style: AppStyle.textSubHeadingPutih),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => CreateBug(
+                                          token: tokenProvider,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),

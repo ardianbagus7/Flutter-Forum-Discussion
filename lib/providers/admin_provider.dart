@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:discussion_app/models/allUser_model.dart';
+import 'package:discussion_app/models/bug_model.dart';
 import 'package:discussion_app/models/feedback_model.dart';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/services/api.dart';
@@ -16,8 +19,10 @@ class AdminProvider with ChangeNotifier {
   List<DatumFeedback> allFeedback = List<DatumFeedback>();
   List<DatumFilterUser> allFilterUser = List<DatumFilterUser>();
   List<DatumSearch> allSearchUser = List<DatumSearch>();
+  List<DatumBug> allBug = List<DatumBug>();
 
-  //List<Datum> allUser = List<Datum>();
+  //* Status
+  String statusCreateBug = 'menunggu';
 
   //* role
   List fixRole = [
@@ -31,10 +36,11 @@ class AdminProvider with ChangeNotifier {
   ];
 
   //PAGINATION
-  String nextPageUser;
   bool isLoadingMore;
+  String nextPageUser;
   String nextPageFeedback;
   String nextPageFilterUser;
+  String nextPageBug;
 
   //*
   ApiService apiService;
@@ -355,6 +361,104 @@ class AdminProvider with ChangeNotifier {
       await authProvider.logOut(true);
       return false;
     } catch (exception) {
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  //* Bug
+
+  Future<bool> createBug(
+      String deskripsi, File image, String tokenProvider) async {
+    try {
+      statusCreateBug = 'loading';
+      notifyListeners();
+      final data = await apiService.createBug(deskripsi, image, tokenProvider);
+      if (data) {
+        statusCreateBug = 'sukses';
+        return true;
+      } else {
+        statusCreateBug = 'menunggu';
+        return false;
+      }
+    } on AuthException {
+      statusCreateBug = 'menunggu';
+      notifyListeners();
+      //Token expired, redirect login
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      statusCreateBug = 'menunggu';
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getAllBug(String token) async {
+    try {
+      allFilterUser = null;
+      //Jika tidak ada exceptions thrown dari API service
+      notifyListeners();
+      final data = await apiService.getAllBug(token);
+      print('data : ${data.posts.data.length}');
+      List<DatumBug> _listBug = data.posts.data;
+      allBug = _listBug;
+      nextPageBug = data.posts.nextPageUrl;
+      print('Sukses get all bug');
+      notifyListeners();
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getAllBugMore( String token) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      String _url = nextPageBug;
+      if (_url != null) {
+        isLoadingMore = true;
+        final data =
+            await apiService.getAllBugMore(_url, token);
+
+        print('data : ${data.posts.data.length}');
+
+        List<DatumBug> _listBugUser = data.posts.data;
+        List<DatumBug> _listBugSekarang = allBug;
+
+        nextPageBug = data.posts.nextPageUrl;
+
+        List<DatumBug> _allBugNew = [
+          ..._listBugSekarang,
+          ..._listBugUser
+        ];
+
+        allBug = _allBugNew;
+
+        isLoadingMore = false;
+        notifyListeners();
+        print('sukses tambah allBug more');
+      } else {
+        print('sudah habis gan');
+      }
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+      isLoadingMore = false;
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      isLoadingMore = false;
       notifyListeners();
       print(exception);
       return false;

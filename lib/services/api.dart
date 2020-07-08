@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:discussion_app/models/bug_model.dart';
 import 'package:discussion_app/models/filterUser_model.dart';
 import 'package:discussion_app/models/searchUser_model.dart';
 import 'package:discussion_app/models/AllPosts_model.dart';
@@ -95,7 +96,7 @@ class ApiService {
 
   Future<IdPost> getIdPost(int id, String tokenProvider) async {
     final url = "$api/post/$id";
-    
+
     Map<String, String> headers = {
       'Accept': 'application/json',
       'Authorization': 'Bearer $tokenProvider'
@@ -544,5 +545,64 @@ class ApiService {
     validateResponseStatus(response.statusCode, 200);
 
     return searchUserFromJson(response.body);
+  }
+
+  //* Bug
+
+  Future<bool> createBug(
+      String deskripsi, File image, String tokenProvider) async {
+    final url = '$api/user/admin/bug';
+
+    //* BODY
+    var request = http.MultipartRequest("POST", Uri.parse(url));
+    request.fields['deskripsi'] = deskripsi;
+
+    if (image != null) {
+      var pic = await http.MultipartFile.fromPath('image', image.path);
+      request.files.add(pic);
+    } else {}
+
+    //* HEADER
+    request.headers['Accept'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $tokenProvider';
+
+    var response = await request.send();
+
+    var responseData = await response.stream.toBytes();
+    var responseString = String.fromCharCodes(responseData);
+    print(responseString);
+    validateResponseStatus(response.statusCode, 201);
+
+    return true;
+  }
+
+  Future<Bug> getAllBug(String tokenNew) async {
+    final url = "$api/user/admin/bug";
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    return bugFromJson(response.body);
+  }
+
+  Future<Bug> getAllBugMore(String url, String tokenNew) async {
+    print(url);
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+    print('sukses get all bug more');
+    return bugFromJson(response.body);
   }
 }
