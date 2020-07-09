@@ -1,5 +1,6 @@
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
+import 'package:discussion_app/services/role.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/views/editPost_page.dart';
@@ -131,126 +132,105 @@ class _DetailPageState extends State<DetailPage> {
                 onPressed: () => Navigator.of(context).pop(),
               ),
               actions: <Widget>[
-                InkWell(
-                  onTap: () {
-                    showModalBottomSheet(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10.0),
-                          topRight: Radius.circular(10.0),
-                        ),
-                      ),
-                      elevation: 10.0,
-                      context: context,
-                      backgroundColor: AppStyle.colorBg,
-                      builder: (builder) {
-                        return (detailPost.post[0].userId == idUser ||
-                                role == 6)
-                            ? Column(
-                                children: <Widget>[
-                                  SizedBox(height: 10.0),
-                                  ListTile(
-                                    leading: Icon(
-                                      Icons.warning,
-                                    ),
-                                    title: Text(
-                                      'Laporkan thread',
-                                      style: AppStyle.textSubHeadingAbu,
-                                    ),
+                (detailPost == null)
+                    ? SizedBox()
+                    : (detailPost.post[0].userId == idUser ||
+                            role == Role.developer ||
+                            role == Role.admin)
+                        ? InkWell(
+                            onTap: () {
+                              showModalBottomSheet(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10.0),
+                                    topRight: Radius.circular(10.0),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 18.0),
-                                    child: Divider(
-                                      thickness: 2,
-                                    ),
-                                  ),
-                                  ListTile(
-                                      leading: Icon(
-                                        Icons.edit,
-                                      ),
-                                      title: Text(
-                                        'Edit thread',
-                                        style: AppStyle.textSubHeadingAbu,
-                                      ),
-                                      onTap: () async {
-                                        String _status = await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => EditPost(
-                                              token: token,
-                                              postId: id,
-                                              idPost: detailPost.post[0],
-                                            ),
+                                ),
+                                elevation: 10.0,
+                                context: context,
+                                backgroundColor: AppStyle.colorBg,
+                                builder: (builder) {
+                                  return Column(
+                                    children: <Widget>[
+                                      SizedBox(height: 10.0),
+                                      ListTile(
+                                          leading: Icon(
+                                            Icons.edit,
                                           ),
-                                        );
-                                        setState(() {
-                                          print(_status);
+                                          title: Text(
+                                            'Edit thread',
+                                            style: AppStyle.textSubHeadingAbu,
+                                          ),
+                                          onTap: () async {
+                                            String _status =
+                                                await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => EditPost(
+                                                  token: token,
+                                                  postId: id,
+                                                  idPost: detailPost.post[0],
+                                                ),
+                                              ),
+                                            );
+                                            setState(() {
+                                              print(_status);
+                                              if (_status == 'ok') {
+                                                Provider.of<PostProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .getIdPost(
+                                                        detailPost.post[0].id,
+                                                        token);
+                                                _status = "";
+                                              }
+                                            });
+                                          }),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 18.0),
+                                        child: Divider(
+                                          thickness: 2,
+                                        ),
+                                      ),
+                                      ListTile(
+                                        leading: Icon(
+                                          Icons.delete_outline,
+                                        ),
+                                        title: Text(
+                                          'Hapus thread',
+                                          style: AppStyle.textSubHeadingAbu,
+                                        ),
+                                        onTap: () async {
+                                          String _status = await showDelete(
+                                              context,
+                                              detailPost.post[0].id,
+                                              token,
+                                              role);
                                           if (_status == 'ok') {
-                                            Provider.of<PostProvider>(context,
-                                                    listen: false)
-                                                .getIdPost(
-                                                    detailPost.post[0].id,
-                                                    token);
-                                            _status = "";
+                                            Navigator.pop(context, 'ok');
                                           }
-                                        });
-                                      }),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 18.0),
-                                    child: Divider(
-                                      thickness: 2,
-                                    ),
-                                  ),
-                                  ListTile(
-                                    leading: Icon(
-                                      Icons.delete_outline,
-                                    ),
-                                    title: Text(
-                                      'Hapus thread',
-                                      style: AppStyle.textSubHeadingAbu,
-                                    ),
-                                    onTap: () async {
-                                      String _status = await showDelete(context,
-                                          detailPost.post[0].id, token, role);
-                                      if (_status == 'ok') {
-                                        Navigator.pop(context, 'ok');
-                                      }
-                                    },
-                                  ),
-                                ],
-                              )
-                            : Column(
-                                children: <Widget>[
-                                  SizedBox(height: 10.0),
-                                  ListTile(
-                                    leading: Icon(
-                                      Icons.warning,
-                                    ),
-                                    title: Text(
-                                      'Laporkan thread',
-                                      style: AppStyle.textSubHeadingAbu,
-                                    ),
-                                  ),
-                                ],
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
-                      },
-                    );
-                    /*Navigator.push(
+                              /*Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => EditPost(
                             token: token, idPost: detailPost, postId: id),
                       ),
                     ); */
-                  },
-                  child: Icon(
-                    Icons.menu,
-                    color: AppStyle.colorMain,
-                    size: 35,
-                  ),
-                ),
+                            },
+                            child: Icon(
+                              Icons.menu,
+                              color: AppStyle.colorMain,
+                              size: 35,
+                            ),
+                          )
+                        : SizedBox(),
                 SizedBox(width: 20)
               ],
               stretch: true,

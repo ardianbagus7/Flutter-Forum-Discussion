@@ -256,7 +256,7 @@ class _CreateBugState extends State<CreateBug> {
         ),
         onPressed: () => Navigator.pop(context),
       ),
-      title: Text('Mulai Diskusi', style: AppStyle.textSubHeadlineBlack),
+      title: Text('Laporkan Bug', style: AppStyle.textSubHeadlineBlack),
       actions: <Widget>[
         Center(
           child: InkWell(

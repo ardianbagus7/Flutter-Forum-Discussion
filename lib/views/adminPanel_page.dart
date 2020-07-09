@@ -14,6 +14,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discussion_app/models/filterUser_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdminAuthCheck extends StatelessWidget {
   @override
@@ -96,6 +97,15 @@ class _AdminPanelState extends State<AdminPanel> {
   void getAllFilterUser({@required int role}) {
     Provider.of<AdminProvider>(context, listen: false)
         .getAllFilterUser(role, token);
+  }
+
+  //* CALL
+  void customLaunch(command) async {
+    if (await canLaunch(command)) {
+      await launch(command);
+    } else {
+      print('tidak bisa terhubung $command');
+    }
   }
 
   //*
@@ -763,7 +773,49 @@ class _AdminPanelState extends State<AdminPanel> {
                                               ),
                                             ),
                                           ),
-                                        )
+                                        ),
+                                        SizedBox(height: 10),
+                                        (isLoading)
+                                            ? Container(
+                                                width: double.infinity,
+                                                height: 38.0,
+                                                child: Center(
+                                                  child: SizedBox(
+                                                      width: 40,
+                                                      height: 40,
+                                                      child:
+                                                          CircularProgressIndicator()),
+                                                ))
+                                            : ListTile(
+                                                title: Text(
+                                                    'Kirim Invitation key',
+                                                    style: AppStyle
+                                                        .textSubHeadingAbu),
+                                                leading: Icon(MdiIcons.gmail,
+                                                    size: 30,
+                                                    color: AppStyle.colorMain),
+                                                onTap: () async {
+                                                  bool _status = await Provider
+                                                          .of<AdminProvider>(
+                                                              context,
+                                                              listen: false)
+                                                      .generateKey(token);
+                                                  if (_status) {
+                                                    bool _status2 = await Provider
+                                                            .of<AdminProvider>(
+                                                                context,
+                                                                listen: false)
+                                                        .getAllKey(token);
+                                                        print('${allKey[0].key}');
+                                                    if (_status2) {
+                                                      customLaunch(
+                                                          'mailto:${allForm[index].email}?subject=Invitation Key Hima Telkom&body=${allKey[0].key}');
+                                                    }
+                                                  } else {
+                                                    showAlert(context);
+                                                  }
+                                                },
+                                              )
                                       ],
                                     ),
                                   )),

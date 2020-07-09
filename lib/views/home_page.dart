@@ -22,6 +22,7 @@ import 'package:discussion_app/views/editProfil_page.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:otp_text_field/otp_field.dart';
 import 'package:otp_text_field/style.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -85,6 +86,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       yOffset = sidebaropen ? MediaQuery.of(context).size.width * 4 / 16 : 0;
       pageScale = sidebaropen ? 0.8 : 1;
     });
+  }
+
+  //* KONTAK DEVELOPER
+  void customLaunch(command) async {
+    if (await canLaunch(command)) {
+      await launch(command);
+    } else {
+      print('tidak bisa terhubung $command');
+    }
   }
 
   @override
@@ -174,272 +184,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           child: Stack(
             children: <Widget>[
               //* SIDE BAR
-              SafeArea(
-                child: Container(
-                  width: double.infinity,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        GestureDetector(
-                          onTap: () {
-                            sidebaropen = false;
-                            setSidebarState();
-                          },
-                          child: AnimatedContainer(
-                            duration: Duration(milliseconds: 500),
-                            height: yOffset,
-                            //child: Text('Aplikasi diskusi'),
-                          ),
-                        ),
-                        Container(
-                          child: Expanded(
-                            child: ListView(
-                              children: <Widget>[
-                                (role == Role.developer || role == Role.admin)
-                                    ? ListTile(
-                                        leading: Icon(MdiIcons.accountStar,
-                                            color: Colors.white),
-                                        title: Text('Admin panel',
-                                            style:
-                                                AppStyle.textSubHeadingPutih),
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    AdminAuthCheck()),
-                                          );
-                                        },
-                                      )
-                                    : SizedBox(),
-                                ListTile(
-                                  leading: Icon(MdiIcons.accountSettings,
-                                      color: Colors.white),
-                                  title: Text('Pengaturan akun',
-                                      style: AppStyle.textSubHeadingPutih),
-                                  onTap: () async {
-                                    String _status = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => EditProfil(
-                                          image: profil,
-                                          name: name,
-                                          angkatan: detailProfil.user.angkatan,
-                                          token: tokenProvider,
-                                        ),
-                                      ),
-                                    );
-
-                                    if (_status == "ok") {
-                                      Provider.of<AuthProvider>(context,
-                                              listen: false)
-                                          .reLogin();
-                                      setState(() {
-                                        sidebaropen = false;
-                                        setSidebarState();
-                                      });
-                                    }
-                                  },
-                                ),
-                                ListTile(
-                                  leading: Icon(MdiIcons.accountTieVoice,
-                                      color: Colors.white),
-                                  title: Text('Kontak developer',
-                                      style: AppStyle.textSubHeadingPutih),
-                                ),
-                                ListTile(
-                                  leading: Icon(MdiIcons.thumbsUpDown,
-                                      color: Colors.white),
-                                  title: Text('Saran dan masukan',
-                                      style: AppStyle.textSubHeadingPutih),
-                                  onTap: () {
-                                    sidebaropen = false;
-                                    feedbackController =
-                                        TextEditingController(text: '');
-                                    setSidebarState();
-                                    //* FEEDBACK
-                                    showModalBottomSheet(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(10.0),
-                                            topRight: Radius.circular(10.0),
-                                          ),
-                                        ),
-                                        elevation: 10.0,
-                                        context: context,
-                                        backgroundColor: Colors.white,
-                                        isScrollControlled: true,
-                                        builder: (context) {
-                                          return StatefulBuilder(builder:
-                                              (BuildContext context,
-                                                  StateSetter setModalState) {
-                                            return Container(
-                                              padding: EdgeInsets.only(
-                                                  bottom: MediaQuery.of(context)
-                                                      .viewInsets
-                                                      .bottom),
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  FocusScope.of(context)
-                                                      .requestFocus(
-                                                          new FocusNode());
-                                                },
-                                                child: SingleChildScrollView(
-                                                  child: Column(
-                                                    children: <Widget>[
-                                                      SizedBox(height: 20),
-                                                      Text(
-                                                        'Saran dan Masukan',
-                                                        style: AppStyle
-                                                            .textSubHeadingAbu,
-                                                      ),
-                                                      Container(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal: 18,
-                                                                vertical: 10),
-                                                        child: TextField(
-                                                          keyboardType:
-                                                              TextInputType
-                                                                  .text,
-                                                          controller:
-                                                              feedbackController,
-                                                          maxLines: 10,
-                                                          decoration:
-                                                              InputDecoration(
-                                                            filled: true,
-                                                            fillColor: AppStyle
-                                                                .colorBg,
-                                                            border: OutlineInputBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10.0),
-                                                                borderSide:
-                                                                    BorderSide
-                                                                        .none),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                horizontal:
-                                                                    18.0,
-                                                                vertical: 5.0),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: <Widget>[
-                                                            Container(
-                                                              width: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width *
-                                                                  13 /
-                                                                  16,
-                                                              child: Text(
-                                                                  'Saran dan masukan anda sangat berguna untuk perkembangan aplikasi ini',
-                                                                  style: AppStyle
-                                                                      .textCaption),
-                                                            ),
-                                                            (loadingFeedback)
-                                                                ? Center(
-                                                                    child:
-                                                                        CircularProgressIndicator())
-                                                                : InkWell(
-                                                                    onTap:
-                                                                        () async {
-                                                                      setModalState(
-                                                                          () {
-                                                                        loadingFeedback =
-                                                                            true;
-                                                                      });
-                                                                      bool _status = await Provider.of<PostProvider>(context, listen: false).createFeedback(
-                                                                          feedbackController
-                                                                              .text,
-                                                                          tokenProvider);
-                                                                      if (_status) {
-                                                                        loadingFeedback =
-                                                                            false;
-                                                                        Navigator.of(context)
-                                                                            .pop();
-                                                                      } else {
-                                                                        setModalState(
-                                                                            () {
-                                                                          loadingFeedback =
-                                                                              false;
-                                                                          showAlert(
-                                                                              context);
-                                                                        });
-                                                                      }
-                                                                    },
-                                                                    child:
-                                                                        CircleAvatar(
-                                                                      backgroundColor:
-                                                                          AppStyle
-                                                                              .colorMain,
-                                                                      radius:
-                                                                          20,
-                                                                      child: Icon(
-                                                                          Icons
-                                                                              .arrow_forward_ios,
-                                                                          color:
-                                                                              Colors.white),
-                                                                    ),
-                                                                  )
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      SizedBox(height: 20),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          });
-                                        });
-                                  },
-                                ),
-                                ListTile(
-                                  leading: Icon(MdiIcons.bugCheck,
-                                      color: Colors.white),
-                                  title: Text('Laporkan bug',
-                                      style: AppStyle.textSubHeadingPutih),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => CreateBug(
-                                          token: tokenProvider,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: Icon(MdiIcons.logout, color: Colors.white),
-                          title: Text('Logout',
-                              style: AppStyle.textSubHeadingPutih),
-                          onTap: () {
-                            submit();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              sideBar(role, context, profil, name, detailProfil),
               //* SIDE BAR
               AnimatedContainer(
                 curve: Curves.easeInOut,
@@ -478,20 +223,324 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 18.0, vertical: 10.0),
-                  child: SafeArea(
-                    child: Row(
-                      children: <Widget>[],
-                    ),
+              customNavBar(),
+              createPostButton(context, role)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  sideBar(int role, BuildContext context, String profil, String name,
+      detailProfil) {
+    return SafeArea(
+      child: Container(
+        width: double.infinity,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              GestureDetector(
+                onTap: () {
+                  sidebaropen = false;
+                  setSidebarState();
+                },
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 500),
+                  height: yOffset,
+                  //child: Text('Aplikasi diskusi'),
+                ),
+              ),
+              Container(
+                child: Expanded(
+                  child: ListView(
+                    children: <Widget>[
+                      (role == Role.developer || role == Role.admin)
+                          ? ListTile(
+                              leading: Icon(MdiIcons.accountStar,
+                                  color: Colors.white),
+                              title: Text('Admin panel',
+                                  style: AppStyle.textSubHeadingPutih),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AdminAuthCheck()),
+                                );
+                              },
+                            )
+                          : SizedBox(),
+                      ListTile(
+                        leading:
+                            Icon(MdiIcons.accountSettings, color: Colors.white),
+                        title: Text('Pengaturan akun',
+                            style: AppStyle.textSubHeadingPutih),
+                        onTap: () async {
+                          String _status = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditProfil(
+                                image: profil,
+                                name: name,
+                                angkatan: detailProfil.user.angkatan,
+                                token: tokenProvider,
+                              ),
+                            ),
+                          );
+
+                          if (_status == "ok") {
+                            Provider.of<AuthProvider>(context, listen: false)
+                                .reLogin();
+                            setState(() {
+                              sidebaropen = false;
+                              setSidebarState();
+                            });
+                          }
+                        },
+                      ),
+                      ListTile(
+                          leading: Icon(MdiIcons.accountTieVoice,
+                              color: Colors.white),
+                          title: Text('Kontak developer',
+                              style: AppStyle.textSubHeadingPutih),
+                          onTap: () {
+                            showModalBottomSheet(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10.0),
+                                    topRight: Radius.circular(10.0),
+                                  ),
+                                ),
+                                elevation: 10.0,
+                                context: context,
+                                backgroundColor: Colors.white,
+                                isScrollControlled: true,
+                                builder: (context) {
+                                  return SingleChildScrollView(
+                                    child: Column(
+                                      children: <Widget>[
+                                        SizedBox(height: 20),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            IconButton(
+                                              icon: Icon(
+                                                MdiIcons.gmail,
+                                                color: AppStyle.colorMain,
+                                                size: 50,
+                                              ),
+                                              onPressed: () {
+                                                customLaunch(
+                                                    'mailto:ardianbagus7@gmail.com');
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                MdiIcons.linkedin,
+                                                color: AppStyle.colorMain,
+                                                size: 50,
+                                              ),
+                                              onPressed: () {
+                                                customLaunch(
+                                                    'https://www.linkedin.com/in/ardianbagus/');
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                MdiIcons.instagram,
+                                                color: AppStyle.colorMain,
+                                                size: 50,
+                                              ),
+                                              onPressed: () {
+                                                customLaunch(
+                                                    'https://www.instagram.com/ardianbagus_/');
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 30),
+                                      ],
+                                    ),
+                                  );
+                                });
+                          }),
+                      ListTile(
+                        leading:
+                            Icon(MdiIcons.thumbsUpDown, color: Colors.white),
+                        title: Text('Saran dan masukan',
+                            style: AppStyle.textSubHeadingPutih),
+                        onTap: () {
+                          sidebaropen = false;
+                          feedbackController = TextEditingController(text: '');
+                          setSidebarState();
+                          //* FEEDBACK
+                          showModalBottomSheet(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(10.0),
+                                  topRight: Radius.circular(10.0),
+                                ),
+                              ),
+                              elevation: 10.0,
+                              context: context,
+                              backgroundColor: Colors.white,
+                              isScrollControlled: true,
+                              builder: (context) {
+                                return StatefulBuilder(builder:
+                                    (BuildContext context,
+                                        StateSetter setModalState) {
+                                  return Container(
+                                    padding: EdgeInsets.only(
+                                        bottom: MediaQuery.of(context)
+                                            .viewInsets
+                                            .bottom),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        FocusScope.of(context)
+                                            .requestFocus(new FocusNode());
+                                      },
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          children: <Widget>[
+                                            SizedBox(height: 20),
+                                            Text(
+                                              'Saran dan Masukan',
+                                              style: AppStyle.textSubHeadingAbu,
+                                            ),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 18, vertical: 10),
+                                              child: TextField(
+                                                keyboardType:
+                                                    TextInputType.text,
+                                                controller: feedbackController,
+                                                maxLines: 10,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: AppStyle.colorBg,
+                                                  border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                      borderSide:
+                                                          BorderSide.none),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 18.0,
+                                                      vertical: 5.0),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: <Widget>[
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            13 /
+                                                            16,
+                                                    child: Text(
+                                                        'Saran dan masukan anda sangat berguna untuk perkembangan aplikasi ini',
+                                                        style: AppStyle
+                                                            .textCaption),
+                                                  ),
+                                                  (loadingFeedback)
+                                                      ? Center(
+                                                          child:
+                                                              CircularProgressIndicator())
+                                                      : InkWell(
+                                                          onTap: () async {
+                                                            setModalState(() {
+                                                              loadingFeedback =
+                                                                  true;
+                                                            });
+                                                            bool _status = await Provider.of<
+                                                                        PostProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .createFeedback(
+                                                                    feedbackController
+                                                                        .text,
+                                                                    tokenProvider);
+                                                            if (_status) {
+                                                              loadingFeedback =
+                                                                  false;
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            } else {
+                                                              setModalState(() {
+                                                                loadingFeedback =
+                                                                    false;
+                                                                showAlert(
+                                                                    context);
+                                                              });
+                                                            }
+                                                          },
+                                                          child: CircleAvatar(
+                                                            backgroundColor:
+                                                                AppStyle
+                                                                    .colorMain,
+                                                            radius: 20,
+                                                            child: Icon(
+                                                                Icons
+                                                                    .arrow_forward_ios,
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
+                                                        )
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(height: 20),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                });
+                              });
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(MdiIcons.bugCheck, color: Colors.white),
+                        title: Text('Laporkan bug',
+                            style: AppStyle.textSubHeadingPutih),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CreateBug(
+                                token: tokenProvider,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
-              customNavBar(),
-              createPostButton(context, role)
+              ListTile(
+                leading: Icon(MdiIcons.logout, color: Colors.white),
+                title: Text('Logout', style: AppStyle.textSubHeadingPutih),
+                onTap: () {
+                  submit();
+                },
+              ),
             ],
           ),
         ),
@@ -1347,12 +1396,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               SizedBox(height: 10.0),
                               ListTile(
                                 leading: Icon(
-                                  Icons.warning,
+                                  Icons.arrow_forward_ios,
                                 ),
                                 title: Text(
-                                  'Laporkan thread',
+                                  'Lihat lebih detail',
                                   style: AppStyle.textSubHeadingAbu,
                                 ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailPostAuthCheck(
+                                        id: allPost[index].id,
+                                        image: allPost[index].postImage,
+                                        index: index,
+                                        token: tokenProvider,
+                                        name: name,
+                                        role: role,
+                                        idUser: idUser,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -1422,12 +1487,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               SizedBox(height: 10.0),
                               ListTile(
                                 leading: Icon(
-                                  Icons.warning,
+                                  Icons.arrow_forward_ios,
                                 ),
                                 title: Text(
-                                  'Laporkan thread',
+                                  'Lihat lebih detail',
                                   style: AppStyle.textSubHeadingAbu,
                                 ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailPostAuthCheck(
+                                        id: allPost[index].id,
+                                        image: allPost[index].postImage,
+                                        index: index,
+                                        token: tokenProvider,
+                                        name: name,
+                                        role: role,
+                                        idUser: idUser,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           );
