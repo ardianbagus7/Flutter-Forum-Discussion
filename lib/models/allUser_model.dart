@@ -44,7 +44,7 @@ class User {
     final String nextPageUrl;
     final String path;
     final int perPage;
-    final String prevPageUrl;
+    final dynamic prevPageUrl;
     final int to;
 
     factory User.fromJson(Map<String, dynamic> json) => User(
@@ -55,7 +55,7 @@ class User {
         nextPageUrl: json["next_page_url"] == null ? null : json["next_page_url"],
         path: json["path"] == null ? null : json["path"],
         perPage: json["per_page"] == null ? null : json["per_page"],
-        prevPageUrl: json["prev_page_url"] == null ? null : json["prev_page_url"],
+        prevPageUrl: json["prev_page_url"],
         to: json["to"] == null ? null : json["to"],
     );
 
@@ -67,7 +67,7 @@ class User {
         "next_page_url": nextPageUrl == null ? null : nextPageUrl,
         "path": path == null ? null : path,
         "per_page": perPage == null ? null : perPage,
-        "prev_page_url": prevPageUrl == null ? null : prevPageUrl,
+        "prev_page_url": prevPageUrl,
         "to": to == null ? null : to,
     };
 }
@@ -77,6 +77,7 @@ class Datum {
         this.id,
         this.email,
         this.name,
+        this.nomer,
         this.angkatan,
         this.nrp,
         this.image,
@@ -88,6 +89,7 @@ class Datum {
     final int id;
     final String email;
     final String name;
+    final int nomer;
     final String angkatan;
     final String nrp;
     final String image;
@@ -99,6 +101,7 @@ class Datum {
         id: json["id"] == null ? null : json["id"],
         email: json["email"] == null ? null : json["email"],
         name: json["name"] == null ? null : json["name"],
+        nomer: json["nomer"] == null ? null : json["nomer"],
         angkatan: json["angkatan"] == null ? null : json["angkatan"],
         nrp: json["nrp"] == null ? null : json["nrp"],
         image: json["image"] == null ? null : json["image"],
@@ -111,6 +114,7 @@ class Datum {
         "id": id == null ? null : id,
         "email": email == null ? null : email,
         "name": name == null ? null : name,
+        "nomer": nomer == null ? null : nomer,
         "angkatan": angkatan == null ? null : angkatan,
         "nrp": nrp == null ? null : nrp,
         "image": image == null ? null : image,

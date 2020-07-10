@@ -12,6 +12,7 @@ import 'package:discussion_app/views/createForm_page.dart';
 import 'package:discussion_app/views/create_post.dart';
 import 'package:discussion_app/views/detail_page.dart';
 import 'package:discussion_app/views/editPost_page.dart';
+import 'package:discussion_app/views/profile_page.dart';
 import 'package:discussion_app/views/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -158,7 +159,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       'Keluh kesah'
     ];
     String name = Provider.of<AuthProvider>(context).name;
-     nomer = Provider.of<AuthProvider>(context).nomer;
+    nomer = Provider.of<AuthProvider>(context).nomer;
     List nameSplit = name.split(' ');
     String profil = Provider.of<AuthProvider>(context).profil;
     var filterPost = Provider.of<PostProvider>(context).filterPost ?? null;
@@ -579,7 +580,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     horizontal: 18.0),
                                 child: Container(
                                   margin: EdgeInsets.only(top: 100),
-                                  height: (role == 0) ? 330 : 240,
+                                  height: (role == 0) ? 300 : 240,
                                   decoration: BoxDecoration(
                                     color: AppStyle.colorWhite,
                                     borderRadius:
@@ -625,21 +626,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     ),
                                   ),
                                   SizedBox(height: 5),
-                                  Center(
-                                    child: Text(
-                                      'Angkatan ${detailProfil.user.angkatan}',
-                                      style: AppStyle.textSubHeadlineBlack,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
+                                  (role == 0)
+                                      ? SizedBox()
+                                      : Center(
+                                          child: Text(
+                                            'Angkatan ${detailProfil.user.angkatan}',
+                                            style:
+                                                AppStyle.textSubHeadlineBlack,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
                                   SizedBox(height: 5),
-                                  Center(
-                                    child: Text(
-                                      '${detailProfil.user.nrp}',
-                                      style: AppStyle.textSubHeadlineBlack,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
+                                  (role == 0)
+                                      ? SizedBox()
+                                      : Center(
+                                          child: Text(
+                                            '${detailProfil.user.nrp}',
+                                            style:
+                                                AppStyle.textSubHeadlineBlack,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
                                   SizedBox(height: 10),
                                   (role == 0)
                                       ? Column(
@@ -1402,24 +1409,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   Icons.arrow_forward_ios,
                                 ),
                                 title: Text(
-                                  'Lihat lebih detail',
+                                  'Lihat profil',
                                   style: AppStyle.textSubHeadingAbu,
                                 ),
                                 onTap: () {
                                   Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailPostAuthCheck(
-                                        id: allPost[index].id,
-                                        image: allPost[index].postImage,
-                                        index: index,
-                                        token: tokenProvider,
-                                        name: name,
-                                        role: role,
-                                        idUser: idUser,
-                                      ),
-                                    ),
-                                  );
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ProfilPage(
+                                              id: allPost[index].id)));
                                 },
                               ),
                               Padding(
@@ -1493,24 +1491,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   Icons.arrow_forward_ios,
                                 ),
                                 title: Text(
-                                  'Lihat lebih detail',
+                                  'Lihat profil',
                                   style: AppStyle.textSubHeadingAbu,
                                 ),
                                 onTap: () {
                                   Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailPostAuthCheck(
-                                        id: allPost[index].id,
-                                        image: allPost[index].postImage,
-                                        index: index,
-                                        token: tokenProvider,
-                                        name: name,
-                                        role: role,
-                                        idUser: idUser,
-                                      ),
-                                    ),
-                                  );
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ProfilPage(
+                                              id: allPost[index].userId)));
                                 },
                               ),
                             ],

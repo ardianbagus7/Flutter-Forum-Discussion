@@ -37,11 +37,11 @@ class ApiService {
   }
 
   //* LOCAL HOST
-  final String api = 'http://192.168.43.47/api/v1';
+  //final String api = 'http://192.168.43.47/api/v1';
 
   //* AZURE VPS
-  //final String api = 'http://138.91.32.37/api/v1';
-  
+  final String api = 'http://138.91.32.37/api/v1';
+
   void validateResponseStatus(int status, int validStatus) {
     if (status == 401) {
       throw new AuthException("401", "Unauthorized");
@@ -280,8 +280,23 @@ class ApiService {
     return userDetailFromJson(response.body);
   }
 
-  Future<bool> editProfil(
-      String nama, String angkatan, File image, String nomer, String tokenNew) async {
+  Future<UserDetail> getDetailProfilId(int id, String tokenNew) async {
+    final url = "$api/user/detail/$id";
+    print(id);
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $tokenNew'
+    };
+
+    final response = await http.get(url, headers: headers);
+    print(response.body);
+    validateResponseStatus(response.statusCode, 200);
+
+    return userDetailFromJson(response.body);
+  }
+
+  Future<bool> editProfil(String nama, String angkatan, File image,
+      String nomer, String tokenNew) async {
     final url = '$api/user/profil';
     var request = http.MultipartRequest("POST", Uri.parse(url));
     request.fields['name'] = nama;

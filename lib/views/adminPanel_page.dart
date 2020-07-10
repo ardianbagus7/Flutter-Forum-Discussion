@@ -806,7 +806,7 @@ class _AdminPanelState extends State<AdminPanel> {
                                                                 context,
                                                                 listen: false)
                                                         .getAllKey(token);
-                                                        print('${allKey[0].key}');
+                                                    print('${allKey[0].key}');
                                                     if (_status2) {
                                                       customLaunch(
                                                           'mailto:${allForm[index].email}?subject=Invitation Key Hima Telkom&body=${allKey[0].key}');
@@ -1444,6 +1444,8 @@ class _AdminPanelState extends State<AdminPanel> {
                       ),
                       SizedBox(height: 10.0),
                       Text('Email : ${user[index].email}',
+                          style: AppStyle.textCaption2),
+                      Text('Nomer : +${user[index].nomer}',
                           style: AppStyle.textCaption2),
                       Text('NRP : ${user[index].nrp}',
                           style: AppStyle.textCaption2),

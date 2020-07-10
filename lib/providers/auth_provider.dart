@@ -54,9 +54,9 @@ class AuthProvider with ChangeNotifier {
 
   // URL ENDPOINT API USER
   //* LOCAL HOST
-  final String api = "http://192.168.43.47/api/v1/user";
+  //final String api = "http://192.168.43.47/api/v1/user";
   //* AZURE VPS
-  //final String api = 'http://138.91.32.37/api/v1/user';
+  final String api = 'http://138.91.32.37/api/v1/user';
 
   initAuthProvider() async {
     String email = await getEmail();

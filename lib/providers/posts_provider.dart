@@ -15,6 +15,7 @@ class PostProvider with ChangeNotifier {
   var filterPost;
   var searchPost;
   var detailProfil;
+  var detailProfilId;
   //* PAGINATE
   String nextPagePosts;
   bool isLoadingMore;
@@ -314,12 +315,28 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> editProfil(
-      String nama, String angkatan, File image, String nomer, String tokenNew) async {
+  Future<void> getDetailProfilId(int id, String token) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      final data = await apiService.getDetailProfilId(id, token);
+      detailProfilId = data;
+      print('sukses get detail id user');
+      notifyListeners();
+    } on AuthException {
+      //Token expired, redirect login
+      await authProvider.logOut(true);
+    } catch (exception) {
+      print(exception);
+    }
+  }
+
+  Future<bool> editProfil(String nama, String angkatan, File image,
+      String nomer, String tokenNew) async {
     try {
       statusEditProfil = 'loading';
       notifyListeners();
-      final data = await apiService.editProfil(nama, angkatan, image,nomer, tokenNew);
+      final data =
+          await apiService.editProfil(nama, angkatan, image, nomer, tokenNew);
       if (data) {
         statusEditProfil = 'sukses';
       }
