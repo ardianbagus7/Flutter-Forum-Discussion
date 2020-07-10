@@ -14,7 +14,7 @@ class ProfilPage extends StatefulWidget {
   final String token;
   ProfilPage({Key key, this.id, this.token}) : super(key: key);
   @override
-  _ProfilPageState createState() => _ProfilPageState(id: id);
+  _ProfilPageState createState() => _ProfilPageState(id: id,token: token);
 }
 
 class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
@@ -52,7 +52,6 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    super.initState();
     _colorAnimationController =
         AnimationController(vsync: this, duration: Duration(seconds: 0));
 
@@ -65,12 +64,14 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
     _transTween = Tween(begin: Offset(0, 40), end: Offset(0, 0))
         .animate(_textAnimationController);
-
+ 
+    print('tes $detailProfil');
     Future.microtask(() {
       // Provider.of<PostProvider>(context, listen: false).getAllPosts();
       Provider.of<PostProvider>(context, listen: false)
           .getDetailProfilId(id, token);
     });
+    super.initState();
   }
 
   bool _scrollListener(ScrollNotification scrollInfo) {
@@ -86,11 +87,9 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    detailProfil =
-        Provider.of<PostProvider>(context, listen: false).detailProfilId ??
-            null;
-    name = Provider.of<AuthProvider>(context, listen: false).name ?? null;
-    role = Provider.of<AuthProvider>(context, listen: false).role ?? null;
+    detailProfil = Provider.of<PostProvider>(context).detailProfilId ?? null;
+    name = Provider.of<AuthProvider>(context).name ?? null;
+    role = Provider.of<AuthProvider>(context).role ?? null;
     idUser = Provider.of<AuthProvider>(context).idUser;
 
     return Scaffold(

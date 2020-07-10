@@ -24,6 +24,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:otp_text_field/otp_field.dart';
 import 'package:otp_text_field/style.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -263,11 +264,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   child: ListView(
                     children: <Widget>[
                       (role == Role.developer || role == Role.admin)
-                          ? ListTile(
-                              leading: Icon(MdiIcons.accountStar,
-                                  color: Colors.white),
-                              title: Text('Admin panel',
-                                  style: AppStyle.textSubHeadingPutih),
+                          ? InkWell(
+                              child: Container(
+                                margin: EdgeInsets.only(left: 10),
+                                height: 50,
+                                child: Row(
+                                  children: <Widget>[
+                                    Icon(MdiIcons.accountStar,
+                                        color: Colors.white),
+                                    SizedBox(width: 10),
+                                    Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          8 /
+                                          18,
+                                      child: AutoSizeText('Admin panel',
+                                          style: AppStyle.textSubHeadingPutih),
+                                    ),
+                                  ],
+                                ),
+                              ),
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -277,11 +292,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               },
                             )
                           : SizedBox(),
-                      ListTile(
-                        leading:
-                            Icon(MdiIcons.accountSettings, color: Colors.white),
-                        title: Text('Pengaturan akun',
-                            style: AppStyle.textSubHeadingPutih),
+                      InkWell(
+                        child: Container(
+                          margin: EdgeInsets.only(left: 10),
+                          height: 50,
+                          child: Row(
+                            children: <Widget>[
+                              Icon(MdiIcons.accountSettings,
+                                  color: Colors.white),
+                              SizedBox(width: 10),
+                              Container(
+                                width:
+                                    MediaQuery.of(context).size.width * 8 / 16,
+                                child: AutoSizeText('Pengaturan Akun',
+                                    style: AppStyle.textSubHeadingPutih),
+                              ),
+                            ],
+                          ),
+                        ),
                         onTap: () async {
                           String _status = await Navigator.push(
                             context,
@@ -306,100 +334,127 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           }
                         },
                       ),
-                      ListTile(
-                          leading: Icon(MdiIcons.accountTieVoice,
-                              color: Colors.white),
-                          title: Text('Kontak developer',
-                              style: AppStyle.textSubHeadingPutih),
-                          onTap: () {
-                            showModalBottomSheet(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(10.0),
-                                    topRight: Radius.circular(10.0),
-                                  ),
-                                ),
-                                elevation: 10.0,
-                                context: context,
-                                backgroundColor: Colors.white,
-                                isScrollControlled: true,
-                                builder: (context) {
-                                  return SingleChildScrollView(
-                                    child: Column(
+                      InkWell(
+                        child: Container(
+                          margin: EdgeInsets.only(left: 10),
+                          height: 50,
+                          child: Row(
+                            children: <Widget>[
+                              Icon(MdiIcons.accountTieVoice,
+                                  color: Colors.white),
+                              SizedBox(width: 10),
+                              Container(
+                                width:
+                                    MediaQuery.of(context).size.width * 8 / 16,
+                                child: AutoSizeText('Kontak Developer',
+                                    style: AppStyle.textSubHeadingPutih),
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: () async {
+                          showModalBottomSheet(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10.0),
+                                topRight: Radius.circular(10.0),
+                              ),
+                            ),
+                            elevation: 10.0,
+                            context: context,
+                            backgroundColor: Colors.white,
+                            isScrollControlled: true,
+                            builder: (context) {
+                              return SingleChildScrollView(
+                                child: Column(
+                                  children: <Widget>[
+                                    SizedBox(height: 20),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: <Widget>[
-                                        SizedBox(height: 20),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: <Widget>[
-                                            IconButton(
-                                              icon: Icon(
-                                                MdiIcons.gmail,
-                                                color: AppStyle.colorMain,
-                                                size: 50,
-                                              ),
-                                              onPressed: () {
-                                                customLaunch(
-                                                    'mailto:ardianbagus7@gmail.com');
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: Icon(
-                                                MdiIcons.linkedin,
-                                                color: AppStyle.colorMain,
-                                                size: 50,
-                                              ),
-                                              onPressed: () {
-                                                customLaunch(
-                                                    'https://www.linkedin.com/in/ardianbagus/');
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: Icon(
-                                                MdiIcons.instagram,
-                                                color: AppStyle.colorMain,
-                                                size: 50,
-                                              ),
-                                              onPressed: () {
-                                                customLaunch(
-                                                    'https://www.instagram.com/ardianbagus_/');
-                                              },
-                                            ),
-                                          ],
+                                        IconButton(
+                                          icon: Icon(
+                                            MdiIcons.gmail,
+                                            color: AppStyle.colorMain,
+                                            size: 50,
+                                          ),
+                                          onPressed: () {
+                                            customLaunch(
+                                                'mailto:ardianbagus7@gmail.com');
+                                          },
                                         ),
-                                        SizedBox(height: 30),
+                                        IconButton(
+                                          icon: Icon(
+                                            MdiIcons.linkedin,
+                                            color: AppStyle.colorMain,
+                                            size: 50,
+                                          ),
+                                          onPressed: () {
+                                            customLaunch(
+                                                'https://www.linkedin.com/in/ardianbagus/');
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                            MdiIcons.instagram,
+                                            color: AppStyle.colorMain,
+                                            size: 50,
+                                          ),
+                                          onPressed: () {
+                                            customLaunch(
+                                                'https://www.instagram.com/ardianbagus_/');
+                                          },
+                                        ),
                                       ],
                                     ),
-                                  );
-                                });
-                          }),
-                      ListTile(
-                        leading:
-                            Icon(MdiIcons.thumbsUpDown, color: Colors.white),
-                        title: Text('Saran dan masukan',
-                            style: AppStyle.textSubHeadingPutih),
-                        onTap: () {
+                                    SizedBox(height: 30),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      InkWell(
+                        child: Container(
+                          margin: EdgeInsets.only(left: 10),
+                          height: 50,
+                          child: Row(
+                            children: <Widget>[
+                              Icon(MdiIcons.thumbsUpDown, color: Colors.white),
+                              SizedBox(width: 10),
+                              Container(
+                                width:
+                                    MediaQuery.of(context).size.width * 8 / 16,
+                                child: AutoSizeText('Saran dan Masukan',
+                                    style: AppStyle.textSubHeadingPutih),
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: () async {
                           sidebaropen = false;
                           feedbackController = TextEditingController(text: '');
                           setSidebarState();
                           //* FEEDBACK
                           showModalBottomSheet(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(10.0),
-                                  topRight: Radius.circular(10.0),
-                                ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10.0),
+                                topRight: Radius.circular(10.0),
                               ),
-                              elevation: 10.0,
-                              context: context,
-                              backgroundColor: Colors.white,
-                              isScrollControlled: true,
-                              builder: (context) {
-                                return StatefulBuilder(builder:
-                                    (BuildContext context,
-                                        StateSetter setModalState) {
+                            ),
+                            elevation: 10.0,
+                            context: context,
+                            backgroundColor: Colors.white,
+                            isScrollControlled: true,
+                            builder: (context) {
+                              return StatefulBuilder(
+                                builder: (BuildContext context,
+                                    StateSetter setModalState) {
                                   return Container(
                                     padding: EdgeInsets.only(
                                         bottom: MediaQuery.of(context)
@@ -515,15 +570,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   );
-                                });
-                              });
+                                },
+                              );
+                            },
+                          );
                         },
                       ),
-                      ListTile(
-                        leading: Icon(MdiIcons.bugCheck, color: Colors.white),
-                        title: Text('Laporkan bug',
-                            style: AppStyle.textSubHeadingPutih),
-                        onTap: () {
+                      InkWell(
+                        child: Container(
+                          margin: EdgeInsets.only(left: 10),
+                          height: 50,
+                          child: Row(
+                            children: <Widget>[
+                              Icon(MdiIcons.bugCheck, color: Colors.white),
+                              SizedBox(width: 10),
+                              Container(
+                                width:
+                                    MediaQuery.of(context).size.width * 8 / 16,
+                                child: AutoSizeText('Laporkan Bug',
+                                    style: AppStyle.textSubHeadingPutih),
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: () async {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -1417,43 +1487,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => ProfilPage(
-                                              id: allPost[index].id)));
+                                                id: allPost[index].userId,
+                                                token: tokenProvider,
+                                              )));
                                 },
                               ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18.0),
-                                child: Divider(
-                                  thickness: 2,
-                                ),
-                              ),
-                              ListTile(
-                                  leading: Icon(
-                                    Icons.edit,
-                                  ),
-                                  title: Text(
-                                    'Edit thread',
-                                    style: AppStyle.textSubHeadingAbu,
-                                  ),
-                                  onTap: () async {
-                                    String _statusEdit = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => EditPost(
-                                          token: tokenProvider,
-                                          postId: allPost[index].id,
-                                          idPost: allPost[index],
-                                        ),
-                                      ),
-                                    );
-                                    setState(() {
-                                      print(_statusEdit);
-                                      if (_statusEdit == 'ok') {
-                                        getdata();
-                                        _statusEdit = "";
-                                      }
-                                    });
-                                  }),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 18.0),
@@ -1552,33 +1590,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    FittedBox(
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              '${allPost[index].name}',
-                              style: AppStyle.textBody1,
-                            ),
-                            Container(
-                              height: 50.0,
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            '${allPost[index].name}',
+                            style: AppStyle.textBody1,
+                          ),
+                          Expanded(
+                            child: Container(
                               width: MediaQuery.of(context).size.width * 6 / 10,
-                              child: Text(
+                              child: AutoSizeText(
                                 '${allPost[index].title}',
                                 style: AppStyle.textRegular,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 2,
                               ),
                             ),
-                            Text(
-                              '${allPost[index].kategori}',
-                              style: AppStyle.textCaption,
-                            ),
-                          ],
-                        ),
+                          ),
+                          Text(
+                            '${allPost[index].kategori}',
+                            style: AppStyle.textCaption,
+                          ),
+                        ],
                       ),
                     ),
                   ],

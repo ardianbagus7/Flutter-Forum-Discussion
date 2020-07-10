@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:discussion_app/providers/posts_provider.dart';
@@ -14,23 +15,38 @@ class EditPost extends StatefulWidget {
   final String token;
   final int postId;
   final idPost;
-  EditPost({Key key, @required this.token, this.postId, this.idPost})
+  final title;
+  final deskripsi;
+  EditPost(
+      {Key key,
+      @required this.token,
+      this.postId,
+      this.idPost,
+      this.title,
+      this.deskripsi})
       : super(key: key);
   @override
-  _EditPostState createState() =>
-      _EditPostState(token: token, postId: postId, idPost: idPost);
+  _EditPostState createState() => _EditPostState(
+      token: token,
+      postId: postId,
+      idPost: idPost,
+      title: title,
+      deskripsi: deskripsi);
 }
 
 class _EditPostState extends State<EditPost> {
   final String token;
   final int postId;
   final idPost;
-  _EditPostState({
-    Key key,
-    @required this.token,
-    this.postId,
-    this.idPost,
-  });
+  String title;
+  String deskripsi;
+  _EditPostState(
+      {Key key,
+      @required this.token,
+      this.postId,
+      this.idPost,
+      this.title,
+      this.deskripsi});
   int statusKategori;
   List kategori = [
     'Forum Alumni',
@@ -42,6 +58,7 @@ class _EditPostState extends State<EditPost> {
   var statusCreate;
   File _image;
   final picker = ImagePicker();
+  var detailPost;
 
   Future getImage(ImageSource imageSource) async {
     final pickedFile = await picker.getImage(source: imageSource);
@@ -55,13 +72,21 @@ class _EditPostState extends State<EditPost> {
   TextEditingController descriptionController = TextEditingController();
   @override
   void initState() {
-    Future.microtask(() {
-      Provider.of<PostProvider>(context, listen: false)
-          .getIdPost(postId, token);
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getIdPost();
+    });
+  }
+
+  void getIdPost() async {
+    bool _status = await Provider.of<PostProvider>(context, listen: false)
+        .getIdPost(postId, token);
+    if (_status) {
       int index = kategori.indexWhere((element) => element == idPost.kategori);
       statusKategori = index;
-    });
-    super.initState();
+      titleController = TextEditingController(text: title);
+      descriptionController = TextEditingController(text: deskripsi);
+    }
   }
 
   void didChangeDepedencies() {
@@ -73,12 +98,7 @@ class _EditPostState extends State<EditPost> {
   @override
   Widget build(BuildContext context) {
     statusCreate = Provider.of<PostProvider>(context).statusEditPost;
-    var detailPost = Provider.of<PostProvider>(context).idPost ?? null;
-    if (detailPost != null) {
-      titleController = TextEditingController(text: detailPost.post[0].title);
-      descriptionController =
-          TextEditingController(text: detailPost.post[0].description);
-    }
+    detailPost = Provider.of<PostProvider>(context).idPost ?? null;
 
     void submit() async {
       bool status = await Provider.of<PostProvider>(context, listen: false)
@@ -404,7 +424,7 @@ class _EditPostState extends State<EditPost> {
         ),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Text('Mulai Diskusi', style: AppStyle.textSubHeadlineBlack),
+      title: Text('Edit Thread', style: AppStyle.textSubHeadlineBlack),
       actions: <Widget>[
         Center(
           child: InkWell(

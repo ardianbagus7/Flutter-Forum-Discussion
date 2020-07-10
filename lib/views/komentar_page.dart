@@ -231,10 +231,11 @@ class _KomentarScreenState extends State<KomentarScreen> {
                           child: Container(
                             child: TextField(
                               keyboardType: TextInputType.multiline,
-                              maxLines: 8,
-                              maxLength: 1000,
+                              maxLines: 2,
                               controller: komentarController,
                               decoration: InputDecoration(
+                                contentPadding: EdgeInsets.all(0),
+                                isDense: true,
                                 border: InputBorder.none,
                                 hintText: 'Komentar..',
                               ),

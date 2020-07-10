@@ -170,6 +170,8 @@ class _DetailPageState extends State<DetailPage> {
                                                   token: token,
                                                   postId: id,
                                                   idPost: detailPost.post[0],
+                                                  title: detailPost.post[0].title,
+                                                  deskripsi: detailPost.post[0].description,
                                                 ),
                                               ),
                                             );

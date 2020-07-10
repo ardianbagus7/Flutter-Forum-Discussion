@@ -75,7 +75,7 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 )
               : (searchPost.posts.length <= 0 && searchPost.msg != null)
-                  ? Text('0')
+                  ? SizedBox()
                   : CustomScrollView(
                       slivers: <Widget>[
                         SliverList(
@@ -241,7 +241,7 @@ class _SearchUserState extends State<SearchUser> {
                   ),
                 )
               : (user.length <= 0)
-                  ? Text('0')
+                  ? SizedBox()
                   : CustomScrollView(
                       slivers: <Widget>[
                         SliverToBoxAdapter(child: SizedBox(height: 20)),

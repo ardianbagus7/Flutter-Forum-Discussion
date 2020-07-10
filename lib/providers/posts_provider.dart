@@ -317,9 +317,12 @@ class PostProvider with ChangeNotifier {
 
   Future<void> getDetailProfilId(int id, String token) async {
     try {
+      detailProfilId = null;
+      notifyListeners();
       //Jika tidak ada exceptions thrown dari API service
       final data = await apiService.getDetailProfilId(id, token);
       detailProfilId = data;
+      print(data.msg);
       print('sukses get detail id user');
       notifyListeners();
     } on AuthException {
