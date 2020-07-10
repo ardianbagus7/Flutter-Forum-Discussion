@@ -5,6 +5,7 @@ import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/views/editPost_page.dart';
 import 'package:discussion_app/views/komentar_page.dart';
+import 'package:discussion_app/views/profile_page.dart';
 import 'package:discussion_app/views/reLogin_view.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -170,8 +171,10 @@ class _DetailPageState extends State<DetailPage> {
                                                   token: token,
                                                   postId: id,
                                                   idPost: detailPost.post[0],
-                                                  title: detailPost.post[0].title,
-                                                  deskripsi: detailPost.post[0].description,
+                                                  title:
+                                                      detailPost.post[0].title,
+                                                  deskripsi: detailPost
+                                                      .post[0].description,
                                                 ),
                                               ),
                                             );
@@ -297,11 +300,22 @@ class _DetailPageState extends State<DetailPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          CircleAvatar(
-                            radius: 30,
-                            foregroundColor: Colors.grey,
-                            backgroundImage: CachedNetworkImageProvider(
-                                detailPost.post[0].userImage),
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ProfilPage(
+                                            id: detailPost.post[0].userId,
+                                            token: token,
+                                          )));
+                            },
+                            child: CircleAvatar(
+                              radius: 30,
+                              foregroundColor: Colors.grey,
+                              backgroundImage: CachedNetworkImageProvider(
+                                  detailPost.post[0].userImage),
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),

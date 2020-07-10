@@ -5,6 +5,7 @@ import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/services/role.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
+import 'package:discussion_app/views/profile_page.dart';
 import 'package:discussion_app/views/reLogin_view.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -292,12 +293,21 @@ class _KomentarScreenState extends State<KomentarScreen> {
                   SizedBox(height: 10.0),
                   ListTile(
                     leading: Icon(
-                      Icons.warning,
+                      Icons.arrow_forward_ios,
                     ),
                     title: Text(
-                      'Laporkan thread',
+                      'Lihat profil',
                       style: AppStyle.textSubHeadingAbu,
                     ),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ProfilPage(
+                                    id: detailPostNew.komentar[index].userId,
+                                    token: token,
+                                  )));
+                    },
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -324,6 +334,24 @@ class _KomentarScreenState extends State<KomentarScreen> {
             : Column(
                 children: <Widget>[
                   SizedBox(height: 10.0),
+                  ListTile(
+                    leading: Icon(
+                      Icons.arrow_forward_ios,
+                    ),
+                    title: Text(
+                      'Lihat profil',
+                      style: AppStyle.textSubHeadingAbu,
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ProfilPage(
+                                    id: detailPostNew.komentar[index].userId,
+                                    token: token,
+                                  )));
+                    },
+                  ),
                 ],
               );
       },
