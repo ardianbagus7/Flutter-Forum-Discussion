@@ -5,7 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated, Relogin }
+enum Status {
+  Uninitialized,
+  Authenticated,
+  Authenticating,
+  Unauthenticated,
+  Relogin
+}
 
 class AuthProvider with ChangeNotifier {
   Status _status = Status.Uninitialized;
@@ -19,6 +25,7 @@ class AuthProvider with ChangeNotifier {
   String _nrp;
   String _password;
   String _roleName;
+  int _nomer;
   NotificationText _notification;
 
   int get idUser => _idUser;
@@ -30,6 +37,7 @@ class AuthProvider with ChangeNotifier {
   int get role => _role;
   String get roleName => _roleName;
   String get angkatan => _angkatan;
+  int get nomer => _nomer;
 
   NotificationText get notification => _notification;
 
@@ -45,7 +53,10 @@ class AuthProvider with ChangeNotifier {
   ];
 
   // URL ENDPOINT API USER
+  //* LOCAL HOST
   final String api = "http://192.168.43.47/api/v1/user";
+  //* AZURE VPS
+  //final String api = 'http://138.91.32.37/api/v1/user';
 
   initAuthProvider() async {
     String email = await getEmail();
@@ -58,6 +69,7 @@ class AuthProvider with ChangeNotifier {
     String roleName = await getRoleName();
     String angkatan = await getAngkatan();
     int idUser = await getIdUser();
+    int nomer = await getNomer();
     if (token != null) {
       _email = email;
       _idUser = idUser;
@@ -69,6 +81,7 @@ class AuthProvider with ChangeNotifier {
       _role = role;
       _angkatan = angkatan;
       _roleName = roleName;
+      _nomer = nomer;
       signin(_email, _password);
       _status = Status.Authenticated;
     } else {
@@ -103,6 +116,7 @@ class AuthProvider with ChangeNotifier {
       _role = apiResponse.user.role;
       _angkatan = apiResponse.user.angkatan;
       _idUser = apiResponse.user.id;
+      _nomer = apiResponse.user.nomer;
       _roleName = fixRole[apiResponse.user.role];
       await storeUserData(apiResponse, email, password);
       notifyListeners();
@@ -127,6 +141,7 @@ class AuthProvider with ChangeNotifier {
   Future<bool> signup(
       {@required String email,
       String password,
+      String nomer,
       String angkatan,
       String nama}) async {
     _status = Status.Authenticating;
@@ -138,6 +153,7 @@ class AuthProvider with ChangeNotifier {
       'email': email,
       'password': password,
       'angkatan': angkatan,
+      'nomer': nomer,
       'name': nama
     };
 
@@ -147,16 +163,7 @@ class AuthProvider with ChangeNotifier {
     final response = await http.post(url, body: body, headers: headers);
     print(response.body);
     if (response.statusCode == 201) {
-      var apiResponse = signInFromJson(response.body);
-      _status = Status.Authenticated;
-      _email = apiResponse.user.email;
-      _token = apiResponse.token;
-      _name = apiResponse.user.name;
-      _profil = apiResponse.user.image;
-      _role = apiResponse.user.role;
-      _angkatan = apiResponse.user.angkatan;
-      _idUser = apiResponse.user.id;
-      await storeUserData(apiResponse, email, password);
+      await signin(email, password);
       notifyListeners();
       print('login sukses');
       return true;
@@ -185,8 +192,15 @@ class AuthProvider with ChangeNotifier {
     await storage.setString('name', apiResponse.user.name);
     await storage.setString('profil', apiResponse.user.image);
     await storage.setString('angkatan', apiResponse.user.angkatan);
+    await storage.setInt('nomer', apiResponse.user.nomer);
     await storage.setInt('role', apiResponse.user.role);
     await storage.setString('roleName', fixRole[apiResponse.user.role]);
+  }
+
+  Future<int> getNomer() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    int nomer = storage.getInt('nomer');
+    return nomer;
   }
 
   Future<int> getIdUser() async {
@@ -301,6 +315,7 @@ class AuthProvider with ChangeNotifier {
       _role = apiResponse.user.role;
       _angkatan = apiResponse.user.angkatan;
       _idUser = apiResponse.user.id;
+      _nomer = apiResponse.user.nomer;
       _roleName = fixRole[apiResponse.user.role];
       await storeUserData(apiResponse, _emailRelog, _passwordRelog);
       print(_token);

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
+import 'package:discussion_app/utils/dropDownAngkatan.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:flutter/material.dart';
@@ -16,21 +17,33 @@ class EditProfil extends StatefulWidget {
   final String name;
   final String angkatan;
   final String token;
+  final String nomer;
   EditProfil(
-      {Key key, @required this.image, this.name, this.angkatan, this.token})
+      {Key key,
+      @required this.image,
+      this.name,
+      this.angkatan,
+      this.token,
+      this.nomer})
       : super(key: key);
   @override
   _EditProfilState createState() => _EditProfilState(
-      image: image, name: name, angkatan: angkatan, token: token);
+      image: image, name: name, angkatan: angkatan, token: token, nomer: nomer);
 }
 
 class _EditProfilState extends State<EditProfil> {
   final String image;
   final String name;
-  final String angkatan;
+  String angkatan;
   final String token;
+  String nomer;
   _EditProfilState(
-      {Key key, @required this.image, this.name, this.angkatan, this.token});
+      {Key key,
+      @required this.image,
+      this.name,
+      this.angkatan,
+      this.token,
+      this.nomer});
 
   var statusCreate;
   File _image;
@@ -38,10 +51,13 @@ class _EditProfilState extends State<EditProfil> {
 
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  TextEditingController nomerController = TextEditingController();
   @override
   void initState() {
+    nomer = nomer.substring(2, nomer.length);
     titleController = TextEditingController(text: name);
     descriptionController = TextEditingController(text: angkatan);
+    nomerController = TextEditingController(text: nomer);
     super.initState();
   }
 
@@ -62,7 +78,7 @@ class _EditProfilState extends State<EditProfil> {
     void submit() async {
       bool status = await Provider.of<PostProvider>(context, listen: false)
           .editProfil(
-              titleController.text, descriptionController.text, _image, token);
+              titleController.text, angkatan, _image,'62${nomerController.text}', token);
       if (status) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           Provider.of<AuthProvider>(context, listen: false)
@@ -102,6 +118,7 @@ class _EditProfilState extends State<EditProfil> {
                             SizedBox(height: 20.0),
                             judulField(),
                             deskripsiField(),
+                            nomerField(),
                             SizedBox(height: 20.0),
                             //submitPost(submit),
                           ],
@@ -143,6 +160,44 @@ class _EditProfilState extends State<EditProfil> {
     );
   }
 
+  Column nomerField() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+          child: Text('Nomer Telepon', style: AppStyle.textSubHeadingAbu),
+        ),
+        Stack(
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(10),
+              child: TextField(
+                keyboardType: TextInputType.number,
+                controller: nomerController,
+                decoration: InputDecoration(
+                  contentPadding:
+                      EdgeInsets.only(left: 55, top: 20, bottom: 20, right: 20),
+                  isDense: true,
+                  filled: true,
+                  fillColor: AppStyle.colorBg,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide.none),
+                ),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 20, top: 26),
+              child: Text('+62', style: AppStyle.textSubHeadingAbu),
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
   Column deskripsiField() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -152,19 +207,51 @@ class _EditProfilState extends State<EditProfil> {
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
           child: Text('Angkatan', style: AppStyle.textSubHeadingAbu),
         ),
-        Container(
-          padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-          child: TextField(
-            keyboardType: TextInputType.number,
-            controller: descriptionController,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: AppStyle.colorBg,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none),
-            ),
-            maxLength: 4,
+        Padding(
+          padding: EdgeInsets.all(10),
+          child: InkWell(
+            child: Container(
+                height: 60,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppStyle.colorBg,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                ), //
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          (angkatan == null)
+                              ? Text(
+                                  'Pilih tahun angkatan..',
+                                  style: AppStyle.textCaption2grey,
+                                )
+                              : Text(
+                                  angkatan,
+                                  style: AppStyle.textCaption2,
+                                ),
+                          Icon(Icons.keyboard_arrow_down,
+                              color: AppStyle.colorMain)
+                        ],
+                      )),
+                )),
+            onTap: () async {
+              String _angkatan = await Navigator.of(context).push(
+                PageRouteBuilder(
+                  opaque: false,
+                  pageBuilder: (BuildContext context, _, __) =>
+                      DropDownAngkatan(),
+                ),
+              );
+              setState(() {
+                angkatan = _angkatan;
+              });
+            },
           ),
         ),
       ],

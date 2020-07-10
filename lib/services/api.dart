@@ -36,8 +36,12 @@ class ApiService {
     storageNama = storage.getString('name');
   }
 
+  //* LOCAL HOST
   final String api = 'http://192.168.43.47/api/v1';
 
+  //* AZURE VPS
+  //final String api = 'http://138.91.32.37/api/v1';
+  
   void validateResponseStatus(int status, int validStatus) {
     if (status == 401) {
       throw new AuthException("401", "Unauthorized");
@@ -277,11 +281,12 @@ class ApiService {
   }
 
   Future<bool> editProfil(
-      String nama, String angkatan, File image, String tokenNew) async {
+      String nama, String angkatan, File image, String nomer, String tokenNew) async {
     final url = '$api/user/profil';
     var request = http.MultipartRequest("POST", Uri.parse(url));
     request.fields['name'] = nama;
     request.fields['angkatan'] = angkatan;
+    request.fields['nomer'] = nomer;
 
     if (image != null) {
       var pic = await http.MultipartFile.fromPath('image', image.path);

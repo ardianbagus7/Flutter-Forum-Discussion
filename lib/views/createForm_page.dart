@@ -272,7 +272,7 @@ class _CreateFormState extends State<CreateForm> {
         ),
         onPressed: () => Navigator.pop(context),
       ),
-      title: Text('Mulai Diskusi', style: AppStyle.textSubHeadlineBlack),
+      title: Text('Request invitation key', style: AppStyle.textSubHeadlineBlack),
       actions: <Widget>[
         Center(
           child: InkWell(

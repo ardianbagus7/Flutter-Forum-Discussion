@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/utils/ClipPathHome.dart';
+import 'package:discussion_app/utils/dropDownAngkatan.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/widgets/notification_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:discussion_app/utils/animation/fade.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LandingPage extends StatefulWidget {
   final String status;
@@ -35,6 +38,9 @@ class _LandingPageState extends State<LandingPage> {
   bool navigasiLanding = true;
   bool navigasiGetStarted = false;
 
+  //* ANGKATAN
+  String angkatan;
+
   //* void NAVIGASI
   void landing() {
     setState(() {
@@ -52,7 +58,7 @@ class _LandingPageState extends State<LandingPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController namaController = TextEditingController();
-  TextEditingController angkatanController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
 
   //* SIGN IN
   void getSignin() async {
@@ -73,12 +79,33 @@ class _LandingPageState extends State<LandingPage> {
     });
     await Provider.of<AuthProvider>(context, listen: false).signup(
         email: emailController.text,
-        angkatan: angkatanController.text,
+        nomer: '62${phoneController.text}',
         nama: namaController.text,
+        angkatan: angkatan,
         password: passwordController.text);
     setState(() {
       isLoading = false;
     });
+  }
+
+  //*tes
+  void launchWhatsApp({
+    @required String phone,
+    @required String message,
+  }) async {
+    String url() {
+      if (Platform.isIOS) {
+        return "whatsapp://wa.me/$phone/?text=${Uri.parse(message)}";
+      } else {
+        return "whatsapp://send?phone=$phone&text=${Uri.parse(message)}";
+      }
+    }
+
+    if (await canLaunch(url())) {
+      await launch(url());
+    } else {
+      throw 'Could not launch ${url()}';
+    }
   }
 
   //* INIT STATE
@@ -160,7 +187,8 @@ class _LandingPageState extends State<LandingPage> {
                                   });
                                 },
                                 child: Center(
-                                  child: Text('Get started',style: AppStyle.textBody1),
+                                  child: Text('Get started',
+                                      style: AppStyle.textBody1),
                                 ),
                               ),
                             ),
@@ -252,7 +280,10 @@ class _LandingPageState extends State<LandingPage> {
                                             style: AppStyle.textSubHeadingAbu)))
                                 : SizedBox(),
                             (signup == 1)
-                                ? FadeInUp(2.25, angkatanSignup())
+                                ? FadeInUp(
+                                    2.25,
+                                    angkatanDropDown(context),
+                                  )
                                 : SizedBox(),
                             (signup == 1)
                                 ? FadeInUp(
@@ -260,11 +291,14 @@ class _LandingPageState extends State<LandingPage> {
                                     Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 18.0),
-                                        child: Text('Email',
+                                        child: Text('Nomor Telepon',
                                             style: AppStyle.textSubHeadingAbu)))
                                 : SizedBox(),
                             (signup == 1)
-                                ? FadeInUp(2.75, emailSignin())
+                                ? FadeInUp(
+                                    2.75,
+                                    phoneSignup(),
+                                  )
                                 : SizedBox(),
                             (signup == 1)
                                 ? FadeInUp(
@@ -272,15 +306,27 @@ class _LandingPageState extends State<LandingPage> {
                                     Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 18.0),
+                                        child: Text('Email',
+                                            style: AppStyle.textSubHeadingAbu)))
+                                : SizedBox(),
+                            (signup == 1)
+                                ? FadeInUp(3.25, emailSignin())
+                                : SizedBox(),
+                            (signup == 1)
+                                ? FadeInUp(
+                                    3.5,
+                                    Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 18.0),
                                         child: Text('Password',
                                             style: AppStyle.textSubHeadingAbu)))
                                 : SizedBox(),
                             (signup == 1)
-                                ? FadeInUp(3.25, passwordSignin())
+                                ? FadeInUp(3.75, passwordSignin())
                                 : SizedBox(),
                             SizedBox(height: 10),
                             (signup == 1)
-                                ? FadeInUp(3.5, signupButton())
+                                ? FadeInUp(4, signupButton())
                                 : SizedBox(),
                           ],
                         ),
@@ -289,6 +335,54 @@ class _LandingPageState extends State<LandingPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  angkatanDropDown(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: InkWell(
+        child: Container(
+            height: 60,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppStyle.colorBg,
+              borderRadius: BorderRadius.all(
+                Radius.circular(10.0),
+              ),
+            ), //
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      (angkatan == null)
+                          ? Text(
+                              'Pilih tahun angkatan..',
+                              style: AppStyle.textCaption2grey,
+                            )
+                          : Text(
+                              angkatan,
+                              style: AppStyle.textCaption2,
+                            ),
+                      Icon(Icons.keyboard_arrow_down, color: AppStyle.colorMain)
+                    ],
+                  )),
+            )),
+        onTap: () async {
+          String _angkatan = await Navigator.of(context).push(
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (BuildContext context, _, __) => DropDownAngkatan(),
+            ),
+          );
+          setState(() {
+            angkatan = _angkatan;
+          });
+        },
       ),
     );
   }
@@ -345,7 +439,7 @@ class _LandingPageState extends State<LandingPage> {
                 emailController = TextEditingController(text: '');
                 passwordController = TextEditingController(text: '');
                 namaController = TextEditingController(text: '');
-                angkatanController = TextEditingController(text: '');
+                phoneController = TextEditingController(text: '');
               });
             },
             child: Row(
@@ -371,6 +465,7 @@ class _LandingPageState extends State<LandingPage> {
               ? InkWell(
                   onTap: () {
                     getSignup();
+                    // launchWhatsApp(message: 'halo',phone: '6285856589535');
                   },
                   child: Container(
                     width: double.infinity,
@@ -414,7 +509,7 @@ class _LandingPageState extends State<LandingPage> {
                 emailController = TextEditingController(text: '');
                 passwordController = TextEditingController(text: '');
                 namaController = TextEditingController(text: '');
-                angkatanController = TextEditingController(text: '');
+                phoneController = TextEditingController(text: '');
               });
             },
             child: Row(
@@ -483,20 +578,31 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Container angkatanSignup() {
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: TextField(
-        keyboardType: TextInputType.number,
-        controller: angkatanController,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: AppStyle.colorBg,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide.none),
+  Stack phoneSignup() {
+    return Stack(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(10),
+          child: TextField(
+            keyboardType: TextInputType.number,
+            controller: phoneController,
+            decoration: InputDecoration(
+              contentPadding:
+                  EdgeInsets.only(left: 55, top: 20, bottom: 20, right: 20),
+              isDense: true,
+              filled: true,
+              fillColor: AppStyle.colorBg,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide.none),
+            ),
+          ),
         ),
-      ),
+        Container(
+          margin: EdgeInsets.only(left: 20, top: 26),
+          child: Text('+62', style: AppStyle.textSubHeadingAbu),
+        )
+      ],
     );
   }
 

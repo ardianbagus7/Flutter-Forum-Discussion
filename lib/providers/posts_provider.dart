@@ -315,11 +315,11 @@ class PostProvider with ChangeNotifier {
   }
 
   Future<bool> editProfil(
-      String nama, String angkatan, File image, String tokenNew) async {
+      String nama, String angkatan, File image, String nomer, String tokenNew) async {
     try {
       statusEditProfil = 'loading';
       notifyListeners();
-      final data = await apiService.editProfil(nama, angkatan, image, tokenNew);
+      final data = await apiService.editProfil(nama, angkatan, image,nomer, tokenNew);
       if (data) {
         statusEditProfil = 'sukses';
       }

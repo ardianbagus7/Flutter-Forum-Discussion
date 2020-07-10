@@ -74,6 +74,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool loadingGetVerifikasi = false;
   String statusGetVerifikasi;
   String roleName;
+  int nomer;
 
   //*FEEDBACK
   TextEditingController feedbackController = TextEditingController();
@@ -157,6 +158,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       'Keluh kesah'
     ];
     String name = Provider.of<AuthProvider>(context).name;
+     nomer = Provider.of<AuthProvider>(context).nomer;
     List nameSplit = name.split(' ');
     String profil = Provider.of<AuthProvider>(context).profil;
     var filterPost = Provider.of<PostProvider>(context).filterPost ?? null;
@@ -288,6 +290,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 name: name,
                                 angkatan: detailProfil.user.angkatan,
                                 token: tokenProvider,
+                                nomer: '$nomer',
                               ),
                             ),
                           );

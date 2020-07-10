@@ -164,6 +164,15 @@ class AppStyle {
     fontWeight: FontWeight.w500,
   );
 
+  static TextStyle textCaption2grey = GoogleFonts.poppins(
+    textStyle: TextStyle(
+      color: Colors.grey.withOpacity(0.6),
+    ),
+    fontSize: 15,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.w500,
+  );
+
   static TextStyle textCaption2tipis = GoogleFonts.poppins(
     textStyle: TextStyle(
       color: Color(0xFF646464),

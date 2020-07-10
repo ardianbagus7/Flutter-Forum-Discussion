@@ -34,48 +34,52 @@ class SignIn {
 
 class User {
     User({
+        this.id,
         this.email,
         this.name,
-        this.nrp,
+        this.nomer,
         this.angkatan,
-        this.role,
+        this.nrp,
         this.image,
-        this.updatedAt,
+        this.role,
         this.createdAt,
-        this.id,
+        this.updatedAt,
     });
 
+    final int id;
     final String email;
     final String name;
-    final String nrp;
+    final String nomer;
     final String angkatan;
-    final int role;
+    final String nrp;
     final String image;
-    final DateTime updatedAt;
+    final int role;
     final DateTime createdAt;
-    final int id;
+    final DateTime updatedAt;
 
     factory User.fromJson(Map<String, dynamic> json) => User(
+        id: json["id"] == null ? null : json["id"],
         email: json["email"] == null ? null : json["email"],
         name: json["name"] == null ? null : json["name"],
-        nrp: json["nrp"] == null ? null : json["nrp"],
+        nomer: json["nomer"] == null ? null : json["nomer"],
         angkatan: json["angkatan"] == null ? null : json["angkatan"],
-        role: json["role"] == null ? null : json["role"],
+        nrp: json["nrp"] == null ? null : json["nrp"],
         image: json["image"] == null ? null : json["image"],
-        updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
+        role: json["role"] == null ? null : json["role"],
         createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
-        id: json["id"] == null ? null : json["id"],
+        updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
     );
 
     Map<String, dynamic> toJson() => {
+        "id": id == null ? null : id,
         "email": email == null ? null : email,
         "name": name == null ? null : name,
-        "nrp": nrp == null ? null : nrp,
+        "nomer": nomer == null ? null : nomer,
         "angkatan": angkatan == null ? null : angkatan,
-        "role": role == null ? null : role,
+        "nrp": nrp == null ? null : nrp,
         "image": image == null ? null : image,
-        "updated_at": updatedAt == null ? null : updatedAt.toIso8601String(),
+        "role": role == null ? null : role,
         "created_at": createdAt == null ? null : createdAt.toIso8601String(),
-        "id": id == null ? null : id,
+        "updated_at": updatedAt == null ? null : updatedAt.toIso8601String(),
     };
 }
