@@ -7,6 +7,7 @@ import 'package:discussion_app/views/detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:discussion_app/widgets/placeholder.dart';
 
 class SearchPage extends StatefulWidget {
   final String search;
@@ -14,17 +15,9 @@ class SearchPage extends StatefulWidget {
   final String name;
   final int role;
   final int idUser;
-  SearchPage(
-      {Key key,
-      @required this.search,
-      this.token,
-      this.name,
-      this.role,
-      this.idUser})
-      : super(key: key);
+  SearchPage({Key key, @required this.search, this.token, this.name, this.role, this.idUser}) : super(key: key);
   @override
-  _SearchPageState createState() => _SearchPageState(
-      search: search, token: token, name: name, role: role, idUser: idUser);
+  _SearchPageState createState() => _SearchPageState(search: search, token: token, name: name, role: role, idUser: idUser);
 }
 
 class _SearchPageState extends State<SearchPage> {
@@ -33,18 +26,12 @@ class _SearchPageState extends State<SearchPage> {
   final String name;
   final int role;
   final int idUser;
-  _SearchPageState(
-      {Key key,
-      @required this.search,
-      this.token,
-      this.name,
-      this.role,
-      this.idUser});
+  _SearchPageState({Key key, @required this.search, this.token, this.name, this.role, this.idUser});
 
   @override
   void initState() {
     Future.microtask(() {
-      Provider.of<PostProvider>(context, listen: false).getSearchPost(search,token);
+      Provider.of<PostProvider>(context, listen: false).getSearchPost(search, token);
     });
 
     super.initState();
@@ -67,23 +54,19 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
           child: (searchPost == null)
-              ? Center(
-                  child: SizedBox(
-                    height: 50.0,
-                    width: 50.0,
-                    child: CircularProgressIndicator(),
-                  ),
-                )
+              ? ListView(
+                children: <Widget>[
+                  PlaceHolder(),
+                ],
+              )
               : (searchPost.posts.length <= 0 && searchPost.msg != null)
                   ? SizedBox()
                   : CustomScrollView(
                       slivers: <Widget>[
                         SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                              (BuildContext context, int index) {
+                          delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
                             return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 18.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
                               child: InkWell(
                                 onTap: () {
                                   Navigator.push(
@@ -91,8 +74,7 @@ class _SearchPageState extends State<SearchPage> {
                                     MaterialPageRoute(
                                       builder: (context) => DetailPage(
                                         id: searchPost.posts[index].id,
-                                        image:
-                                            searchPost.posts[index].postImage,
+                                        image: searchPost.posts[index].postImage,
                                         index: index,
                                         token: token,
                                         name: name,
@@ -109,8 +91,7 @@ class _SearchPageState extends State<SearchPage> {
                                   child: Row(
                                     children: <Widget>[
                                       Hero(
-                                        tag:
-                                            'fullscreen${searchPost.posts[index].id}',
+                                        tag: 'fullscreen${searchPost.posts[index].id}',
                                         child: Container(
                                           width: 100,
                                           decoration: BoxDecoration(
@@ -119,10 +100,7 @@ class _SearchPageState extends State<SearchPage> {
                                             ),
                                             image: new DecorationImage(
                                               fit: BoxFit.cover,
-                                              image:
-                                                  new CachedNetworkImageProvider(
-                                                      searchPost.posts[index]
-                                                          .postImage),
+                                              image: new CachedNetworkImageProvider(searchPost.posts[index].postImage),
                                             ),
                                           ),
                                         ),
@@ -131,10 +109,8 @@ class _SearchPageState extends State<SearchPage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(5.0),
                                           child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: <Widget>[
                                               Text(
                                                 '${searchPost.posts[index].name}',
@@ -142,11 +118,7 @@ class _SearchPageState extends State<SearchPage> {
                                               ),
                                               Container(
                                                 height: 50.0,
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    6 /
-                                                    10,
+                                                width: MediaQuery.of(context).size.width * 6 / 10,
                                                 child: Text(
                                                   '${searchPost.posts[index].title}',
                                                   style: AppStyle.textRegular,
@@ -181,8 +153,7 @@ class SearchUser extends StatefulWidget {
   final String token;
   SearchUser({Key key, @required this.param, this.token}) : super(key: key);
   @override
-  _SearchUserState createState() =>
-      _SearchUserState(param: param, token: token);
+  _SearchUserState createState() => _SearchUserState(param: param, token: token);
 }
 
 class _SearchUserState extends State<SearchUser> {
@@ -197,21 +168,12 @@ class _SearchUserState extends State<SearchUser> {
   bool loadingEditRole = false;
   int status = 0;
 
-  List fixRole = [
-    'Guest',
-    'Mahasiswa Aktif',
-    'Fungsionaris',
-    'Alumni',
-    'Dosen',
-    'Admin',
-    'Developer'
-  ];
+  List fixRole = ['Guest', 'Mahasiswa Aktif', 'Fungsionaris', 'Alumni', 'Dosen', 'Admin', 'Developer'];
 
   @override
   void initState() {
     Future.microtask(() {
-      Provider.of<AdminProvider>(context, listen: false)
-          .getSearchUser(param, token);
+      Provider.of<AdminProvider>(context, listen: false).getSearchUser(param, token);
     });
     super.initState();
   }
@@ -249,8 +211,7 @@ class _SearchUserState extends State<SearchUser> {
                           delegate: SliverChildBuilderDelegate(
                             (BuildContext context, int index) {
                               return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                 child: InkWell(
                                   onLongPress: () {
                                     setState(() {
@@ -268,9 +229,7 @@ class _SearchUserState extends State<SearchUser> {
                                         backgroundColor: Colors.white,
                                         isScrollControlled: true,
                                         builder: (context) {
-                                          return StatefulBuilder(builder:
-                                              (BuildContext context,
-                                                  StateSetter setModalState) {
+                                          return StatefulBuilder(builder: (BuildContext context, StateSetter setModalState) {
                                             return SingleChildScrollView(
                                               child: Column(
                                                 children: <Widget>[
@@ -282,8 +241,7 @@ class _SearchUserState extends State<SearchUser> {
                                                           ),
                                                           title: Text(
                                                             'Ganti role',
-                                                            style: AppStyle
-                                                                .textSubHeadingAbu,
+                                                            style: AppStyle.textSubHeadingAbu,
                                                           ),
                                                           onTap: () {
                                                             setModalState(() {
@@ -296,81 +254,49 @@ class _SearchUserState extends State<SearchUser> {
                                                       : Container(
                                                           height: 50,
                                                           child: Center(
-                                                            child: Text(
-                                                                'Ganti role',
-                                                                style: AppStyle
-                                                                    .textSubHeadingAbu),
+                                                            child: Text('Ganti role', style: AppStyle.textSubHeadingAbu),
                                                           ),
                                                         ),
                                                   (isEditRole)
                                                       ? SizedBox()
                                                       : ListTile(
                                                           leading: Icon(
-                                                            Icons
-                                                                .delete_outline,
+                                                            Icons.delete_outline,
                                                           ),
                                                           title: Text(
                                                             'Hapus akun',
-                                                            style: AppStyle
-                                                                .textSubHeadingAbu,
+                                                            style: AppStyle.textSubHeadingAbu,
                                                           ),
                                                           onTap: () async {
-                                                            String _status =
-                                                                await showDeleteUser(
-                                                                    context,
-                                                                    user[index]
-                                                                        .id,
-                                                                    token);
-                                                            if (_status ==
-                                                                "ok") {
-                                                              Provider.of<AdminProvider>(
-                                                                      context,
-                                                                      listen:
-                                                                          false)
-                                                                  .getSearchUser(
-                                                                      param,
-                                                                      token);
+                                                            String _status = await showDeleteUser(context, user[index].id, token);
+                                                            if (_status == "ok") {
+                                                              Provider.of<AdminProvider>(context, listen: false).getSearchUser(param, token);
                                                             }
                                                           },
                                                         ),
                                                   (!isEditRole)
                                                       ? SizedBox()
                                                       : Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 10,
-                                                                  bottom: 10,
-                                                                  left: 13),
+                                                          padding: const EdgeInsets.only(top: 10, bottom: 10, left: 13),
                                                           child: Container(
                                                             height: 30.0,
-                                                            child: ListView
-                                                                .builder(
-                                                              itemCount: fixRole
-                                                                  .length,
-                                                              scrollDirection:
-                                                                  Axis.horizontal,
-                                                              itemBuilder:
-                                                                  (_, i) {
+                                                            child: ListView.builder(
+                                                              itemCount: fixRole.length,
+                                                              scrollDirection: Axis.horizontal,
+                                                              itemBuilder: (_, i) {
                                                                 return (i == 6)
                                                                     ? SizedBox()
                                                                     : FittedBox(
-                                                                        fit: BoxFit
-                                                                            .fitWidth,
-                                                                        child:
-                                                                            InkWell(
-                                                                          onTap:
-                                                                              () {
+                                                                        fit: BoxFit.fitWidth,
+                                                                        child: InkWell(
+                                                                          onTap: () {
                                                                             setModalState(() {
                                                                               statusRole = i;
                                                                             });
                                                                           },
-                                                                          child:
-                                                                              Container(
-                                                                            padding:
-                                                                                EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
-                                                                            margin:
-                                                                                EdgeInsets.symmetric(horizontal: 5.0),
+                                                                          child: Container(
+                                                                            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+                                                                            margin: EdgeInsets.symmetric(horizontal: 5.0),
                                                                             decoration: (i == statusRole)
                                                                                 ? BoxDecoration(
                                                                                     color: AppStyle.colorMain,
@@ -385,8 +311,7 @@ class _SearchUserState extends State<SearchUser> {
                                                                                       Radius.circular(50.0),
                                                                                     ),
                                                                                   ),
-                                                                            child:
-                                                                                Text(
+                                                                            child: Text(
                                                                               '${fixRole[i]}',
                                                                               style: (statusRole == i) ? AppStyle.textSubHeadingPutih : AppStyle.textSubHeadingAbu,
                                                                             ),
@@ -400,61 +325,34 @@ class _SearchUserState extends State<SearchUser> {
                                                   (!isEditRole)
                                                       ? SizedBox()
                                                       : Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      18.0,
-                                                                  vertical:
-                                                                      5.0),
+                                                          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 5.0),
                                                           child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
+                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                             children: <Widget>[
-                                                              Text(
-                                                                  'Role akan diganti sesuai pilihan',
-                                                                  style: AppStyle
-                                                                      .textCaption),
+                                                              Text('Role akan diganti sesuai pilihan', style: AppStyle.textCaption),
                                                               (loadingEditRole)
-                                                                  ? Center(
-                                                                      child:
-                                                                          CircularProgressIndicator())
+                                                                  ? Center(child: CircularProgressIndicator())
                                                                   : InkWell(
-                                                                      onTap:
-                                                                          () async {
-                                                                        setModalState(
-                                                                            () {
-                                                                          loadingEditRole =
-                                                                              true;
+                                                                      onTap: () async {
+                                                                        setModalState(() {
+                                                                          loadingEditRole = true;
                                                                         });
-                                                                        bool _status = await Provider.of<AdminProvider>(context, listen: false).getEditRole(
-                                                                            user[index].id,
-                                                                            statusRole,
-                                                                            token);
-                                                                        setModalState(
-                                                                            () {
+                                                                        bool _status = await Provider.of<AdminProvider>(context, listen: false).getEditRole(user[index].id, statusRole, token);
+                                                                        setModalState(() {
                                                                           if (_status) {
-                                                                            loadingEditRole =
-                                                                                false;
+                                                                            loadingEditRole = false;
                                                                             Navigator.pop(context);
-                                                                            Provider.of<AdminProvider>(context, listen: false).getSearchUser(param,token);
-                                                                                
+                                                                            Provider.of<AdminProvider>(context, listen: false).getSearchUser(param, token);
                                                                           } else {
-                                                                            loadingEditRole =
-                                                                                false;
+                                                                            loadingEditRole = false;
                                                                             showAlert(context);
                                                                           }
                                                                         });
                                                                       },
-                                                                      child:
-                                                                          CircleAvatar(
-                                                                        backgroundColor:
-                                                                            AppStyle.colorMain,
-                                                                        radius:
-                                                                            20,
-                                                                        child: Icon(
-                                                                            Icons.arrow_forward_ios),
+                                                                      child: CircleAvatar(
+                                                                        backgroundColor: AppStyle.colorMain,
+                                                                        radius: 20,
+                                                                        child: Icon(Icons.arrow_forward_ios),
                                                                       ),
                                                                     )
                                                             ],
@@ -484,46 +382,29 @@ class _SearchUserState extends State<SearchUser> {
                                     margin: EdgeInsets.symmetric(vertical: 5),
                                     width: double.infinity,
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 18.0, vertical: 10),
+                                      padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
                                       child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: <Widget>[
                                           Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
                                             children: <Widget>[
                                               CircleAvatar(
                                                 radius: 25,
-                                                backgroundImage:
-                                                    CachedNetworkImageProvider(
-                                                        user[index].image),
+                                                backgroundImage: CachedNetworkImageProvider(user[index].image),
                                               ),
                                               SizedBox(width: 10),
-                                              Text('${user[index].name}',
-                                                  style: AppStyle.textName),
+                                              Text('${user[index].name}', style: AppStyle.textName),
                                             ],
                                           ),
                                           SizedBox(height: 10.0),
-                                          Text('Email : ${user[index].email}',
-                                              style: AppStyle.textCaption2),
-                                          Text('NRP : ${user[index].nrp}',
-                                              style: AppStyle.textCaption2),
-                                          Text(
-                                              'Angkatan ${user[index].angkatan}',
-                                              style: AppStyle.textCaption2),
-                                          Text(
-                                              'Role : ' +
-                                                  fixRole[user[index].role],
-                                              style: AppStyle.textCaption2),
-                                          Text(
-                                              'Akun dibuat : ${user[index].createdAt.day}-${user[index].createdAt.month}-${user[index].createdAt.year}',
-                                              style: AppStyle.textCaption2),
+                                          Text('Email : ${user[index].email}', style: AppStyle.textCaption2),
+                                          Text('NRP : ${user[index].nrp}', style: AppStyle.textCaption2),
+                                          Text('Angkatan ${user[index].angkatan}', style: AppStyle.textCaption2),
+                                          Text('Role : ' + fixRole[user[index].role], style: AppStyle.textCaption2),
+                                          Text('Akun dibuat : ${user[index].createdAt.day}-${user[index].createdAt.month}-${user[index].createdAt.year}', style: AppStyle.textCaption2),
                                         ],
                                       ),
                                     ),

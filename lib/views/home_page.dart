@@ -4,6 +4,7 @@ import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/services/role.dart';
 import 'package:discussion_app/utils/ClipPathHome.dart';
 import 'package:discussion_app/utils/ClipShadowPath.dart';
+import 'package:discussion_app/utils/animation/fade.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/views/adminPanel_page.dart';
@@ -14,6 +15,7 @@ import 'package:discussion_app/views/detail_page.dart';
 import 'package:discussion_app/views/editPost_page.dart';
 import 'package:discussion_app/views/profile_page.dart';
 import 'package:discussion_app/views/search_page.dart';
+import 'package:discussion_app/widgets/placeholder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
@@ -1449,17 +1451,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
               SliverStickyHeader(
-                header: kategoriListView(kategori),
+                header: kategoriListView(kategori), 
                 sliver: (allPosts == null && status == 0 ||
                         filterPost == null && status != 0)
                     ? SliverToBoxAdapter(
-                        child: Center(
-                          child: SizedBox(
-                            height: 50.0,
-                            width: 50.0,
-                            child: CircularProgressIndicator(),
-                          ),
-                        ),
+                        child: PlaceHolder(),
                       )
                     : (status != 0)
                         ? listAllPost(filterPost, name, role, idUser)
@@ -1490,179 +1486,180 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   SliverList listAllPost(allPost, name, role, idUser) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0),
-          child: Material(
-            color: Colors.white.withOpacity(0.0),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(10),
-              radius: 500,
-              splashColor: AppStyle.colorMain,
-              highlightColor: Colors.grey.withOpacity(0.5),
-              onLongPress: () {
-                print('long pres $index');
-                showModalBottomSheet(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10.0),
-                      topRight: Radius.circular(10.0),
+        return FadeInUp(0.5+index, Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            child: Material(
+              color: Colors.white.withOpacity(0.0),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                radius: 500,
+                splashColor: AppStyle.colorMain,
+                highlightColor: Colors.grey.withOpacity(0.5),
+                onLongPress: () {
+                  print('long pres $index');
+                  showModalBottomSheet(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10.0),
+                        topRight: Radius.circular(10.0),
+                      ),
                     ),
-                  ),
-                  elevation: 10.0,
-                  context: context,
-                  backgroundColor: AppStyle.colorBg,
-                  builder: (builder) {
-                    return (allPost[index].userId == idUser ||
-                            role == Role.developer ||
-                            role == Role.admin)
-                        ? Column(
-                            children: <Widget>[
-                              SizedBox(height: 10.0),
-                              ListTile(
-                                leading: Icon(
-                                  Icons.arrow_forward_ios,
+                    elevation: 10.0,
+                    context: context,
+                    backgroundColor: AppStyle.colorBg,
+                    builder: (builder) {
+                      return (allPost[index].userId == idUser ||
+                              role == Role.developer ||
+                              role == Role.admin)
+                          ? Column(
+                              children: <Widget>[
+                                SizedBox(height: 10.0),
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.arrow_forward_ios,
+                                  ),
+                                  title: Text(
+                                    'Lihat profil',
+                                    style: AppStyle.textSubHeadingAbu,
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => ProfilPage(
+                                                  id: allPost[index].userId,
+                                                  token: tokenProvider,
+                                                )));
+                                  },
                                 ),
-                                title: Text(
-                                  'Lihat profil',
-                                  style: AppStyle.textSubHeadingAbu,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18.0),
+                                  child: Divider(
+                                    thickness: 2,
+                                  ),
                                 ),
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ProfilPage(
-                                                id: allPost[index].userId,
-                                                token: tokenProvider,
-                                              )));
-                                },
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18.0),
-                                child: Divider(
-                                  thickness: 2,
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.delete_outline,
+                                  ),
+                                  title: Text(
+                                    'Hapus thread',
+                                    style: AppStyle.textSubHeadingAbu,
+                                  ),
+                                  onTap: () async {
+                                    String _status = await showDelete(context,
+                                        allPost[index].id, tokenProvider, role);
+                                    setState(() {
+                                      print(_status);
+                                      if (_status == 'ok') {
+                                        getdata();
+                                        _status = "";
+                                      }
+                                    });
+                                  },
                                 ),
-                              ),
-                              ListTile(
-                                leading: Icon(
-                                  Icons.delete_outline,
+                              ],
+                            )
+                          : Column(
+                              children: <Widget>[
+                                SizedBox(height: 10.0),
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.arrow_forward_ios,
+                                  ),
+                                  title: Text(
+                                    'Lihat profil',
+                                    style: AppStyle.textSubHeadingAbu,
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => ProfilPage(
+                                                id: allPost[index].userId)));
+                                  },
                                 ),
-                                title: Text(
-                                  'Hapus thread',
-                                  style: AppStyle.textSubHeadingAbu,
-                                ),
-                                onTap: () async {
-                                  String _status = await showDelete(context,
-                                      allPost[index].id, tokenProvider, role);
-                                  setState(() {
-                                    print(_status);
-                                    if (_status == 'ok') {
-                                      getdata();
-                                      _status = "";
-                                    }
-                                  });
-                                },
-                              ),
-                            ],
-                          )
-                        : Column(
-                            children: <Widget>[
-                              SizedBox(height: 10.0),
-                              ListTile(
-                                leading: Icon(
-                                  Icons.arrow_forward_ios,
-                                ),
-                                title: Text(
-                                  'Lihat profil',
-                                  style: AppStyle.textSubHeadingAbu,
-                                ),
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ProfilPage(
-                                              id: allPost[index].userId)));
-                                },
-                              ),
-                            ],
-                          );
-                  },
-                );
-              },
-              onTap: () async {
-                String _status = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailPostAuthCheck(
-                      id: allPost[index].id,
-                      image: allPost[index].postImage,
-                      index: index,
-                      token: tokenProvider,
-                      name: name,
-                      role: role,
-                      idUser: idUser,
+                              ],
+                            );
+                    },
+                  );
+                },
+                onTap: () async {
+                  String _status = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailPostAuthCheck(
+                        id: allPost[index].id,
+                        image: allPost[index].postImage,
+                        index: index,
+                        token: tokenProvider,
+                        name: name,
+                        role: role,
+                        idUser: idUser,
+                      ),
                     ),
-                  ),
-                );
-                setState(() {
-                  print(_status);
-                  if (_status == 'ok') {
-                    getdata();
-                    _status = "";
-                  }
-                });
-              },
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 5.0),
-                width: double.infinity,
-                height: 100.0,
-                child: Row(
-                  children: <Widget>[
-                    Hero(
-                      tag: 'fullscreen${allPost[index].id}',
-                      child: Container(
-                        width: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10.0),
-                          ),
-                          image: new DecorationImage(
-                            fit: BoxFit.cover,
-                            image: new CachedNetworkImageProvider(
-                                allPost[index].postImage),
+                  );
+                  setState(() {
+                    print(_status);
+                    if (_status == 'ok') {
+                      getdata();
+                      _status = "";
+                    }
+                  });
+                },
+                child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 5.0),
+                  width: double.infinity,
+                  height: 100.0,
+                  child: Row(
+                    children: <Widget>[
+                      Hero(
+                        tag: 'fullscreen${allPost[index].id}',
+                        child: Container(
+                          width: 100,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                            image: new DecorationImage(
+                              fit: BoxFit.cover,
+                              image: new CachedNetworkImageProvider(
+                                  allPost[index].postImage),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            '${allPost[index].name}',
-                            style: AppStyle.textBody1,
-                          ),
-                          Expanded(
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 6 / 10,
-                              child: AutoSizeText(
-                                '${allPost[index].title}',
-                                style: AppStyle.textRegular,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              '${allPost[index].name}',
+                              style: AppStyle.textBody1,
+                            ),
+                            Expanded(
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 6 / 10,
+                                child: AutoSizeText(
+                                  '${allPost[index].title}',
+                                  style: AppStyle.textRegular,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                ),
                               ),
                             ),
-                          ),
-                          Text(
-                            '${allPost[index].kategori}',
-                            style: AppStyle.textCaption,
-                          ),
-                        ],
+                            Text(
+                              '${allPost[index].kategori}',
+                              style: AppStyle.textCaption,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

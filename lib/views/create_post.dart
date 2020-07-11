@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/services/role.dart';
+import 'package:discussion_app/utils/animation/fade.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:flutter/material.dart';
@@ -71,25 +72,28 @@ class _CreatePostState extends State<CreatePost> {
                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
                   child: Stack(
                     children: <Widget>[
-                      Container(
-                        decoration: AppStyle.decorationCard,
-                        margin: EdgeInsets.only(top: 100),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(height: 80.0),
-                              kategoriField(context),
-                              SizedBox(height: 20.0),
-                              judulField(),
-                              deskripsiField(),
-                              SizedBox(height: 20.0),
-                              //submitPost(submit),
-                            ],
+                      PopUp(
+                        1.0,
+                        Container(
+                          decoration: AppStyle.decorationCard,
+                          margin: EdgeInsets.only(top: 100),
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Column(
+                              children: <Widget>[
+                                SizedBox(height: 80.0),
+                                PopUp(2, kategoriField(context)),
+                                SizedBox(height: 20.0),
+                                PopUp(2.5, judulField()),
+                                PopUp(3, deskripsiField()),
+                                SizedBox(height: 20.0),
+                                //submitPost(submit),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Center(child: imagePost()),
+                      PopUp(1.5, Center(child: imagePost())),
                     ],
                   ),
                 ),

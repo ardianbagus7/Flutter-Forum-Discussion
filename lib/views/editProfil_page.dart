@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
+import 'package:discussion_app/utils/animation/fade.dart';
 import 'package:discussion_app/utils/dropDownAngkatan.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
@@ -18,17 +19,9 @@ class EditProfil extends StatefulWidget {
   final String angkatan;
   final String token;
   final String nomer;
-  EditProfil(
-      {Key key,
-      @required this.image,
-      this.name,
-      this.angkatan,
-      this.token,
-      this.nomer})
-      : super(key: key);
+  EditProfil({Key key, @required this.image, this.name, this.angkatan, this.token, this.nomer}) : super(key: key);
   @override
-  _EditProfilState createState() => _EditProfilState(
-      image: image, name: name, angkatan: angkatan, token: token, nomer: nomer);
+  _EditProfilState createState() => _EditProfilState(image: image, name: name, angkatan: angkatan, token: token, nomer: nomer);
 }
 
 class _EditProfilState extends State<EditProfil> {
@@ -37,13 +30,7 @@ class _EditProfilState extends State<EditProfil> {
   String angkatan;
   final String token;
   String nomer;
-  _EditProfilState(
-      {Key key,
-      @required this.image,
-      this.name,
-      this.angkatan,
-      this.token,
-      this.nomer});
+  _EditProfilState({Key key, @required this.image, this.name, this.angkatan, this.token, this.nomer});
 
   var statusCreate;
   File _image;
@@ -76,13 +63,10 @@ class _EditProfilState extends State<EditProfil> {
     statusCreate = Provider.of<PostProvider>(context).statusEditProfil;
 
     void submit() async {
-      bool status = await Provider.of<PostProvider>(context, listen: false)
-          .editProfil(
-              titleController.text, angkatan, _image,'62${nomerController.text}', token);
+      bool status = await Provider.of<PostProvider>(context, listen: false).editProfil(titleController.text, angkatan, _image, '62${nomerController.text}', token);
       if (status) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          Provider.of<AuthProvider>(context, listen: false)
-              .updateData(titleController.text, descriptionController.text);
+          Provider.of<AuthProvider>(context, listen: false).updateData(titleController.text, descriptionController.text);
           Navigator.of(context).pop('ok');
         });
       } else {
@@ -107,25 +91,28 @@ class _EditProfilState extends State<EditProfil> {
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: Stack(
                   children: <Widget>[
-                    Container(
-                      decoration: AppStyle.decorationCard,
-                      margin: EdgeInsets.only(top: 80),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(height: 80.0),
-                            SizedBox(height: 20.0),
-                            judulField(),
-                            deskripsiField(),
-                            nomerField(),
-                            SizedBox(height: 20.0),
-                            //submitPost(submit),
-                          ],
+                    PopUp(
+                      0.5,
+                      Container(
+                        decoration: AppStyle.decorationCard,
+                        margin: EdgeInsets.only(top: 80),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(height: 80.0),
+                              SizedBox(height: 20.0),
+                              PopUp(1.5, judulField()),
+                              PopUp(2.0, deskripsiField()),
+                              PopUp(2.5, nomerField()),
+                              SizedBox(height: 20.0),
+                              //submitPost(submit),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                    Center(child: imagePost()),
+                    PopUp(1.0, Center(child: imagePost())),
                   ],
                 ),
               ),
@@ -177,14 +164,11 @@ class _EditProfilState extends State<EditProfil> {
                 keyboardType: TextInputType.number,
                 controller: nomerController,
                 decoration: InputDecoration(
-                  contentPadding:
-                      EdgeInsets.only(left: 55, top: 20, bottom: 20, right: 20),
+                  contentPadding: EdgeInsets.only(left: 55, top: 20, bottom: 20, right: 20),
                   isDense: true,
                   filled: true,
                   fillColor: AppStyle.colorBg,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide.none),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
                 ),
               ),
             ),
@@ -235,8 +219,7 @@ class _EditProfilState extends State<EditProfil> {
                                   angkatan,
                                   style: AppStyle.textCaption2,
                                 ),
-                          Icon(Icons.keyboard_arrow_down,
-                              color: AppStyle.colorMain)
+                          Icon(Icons.keyboard_arrow_down, color: AppStyle.colorMain)
                         ],
                       )),
                 )),
@@ -244,8 +227,7 @@ class _EditProfilState extends State<EditProfil> {
               String _angkatan = await Navigator.of(context).push(
                 PageRouteBuilder(
                   opaque: false,
-                  pageBuilder: (BuildContext context, _, __) =>
-                      DropDownAngkatan(),
+                  pageBuilder: (BuildContext context, _, __) => DropDownAngkatan(),
                 ),
               );
               setState(() {
@@ -276,9 +258,7 @@ class _EditProfilState extends State<EditProfil> {
             decoration: InputDecoration(
               filled: true,
               fillColor: AppStyle.colorBg,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
             ),
           ),
         ),

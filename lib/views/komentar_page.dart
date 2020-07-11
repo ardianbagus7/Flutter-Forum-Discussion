@@ -7,6 +7,7 @@ import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/views/profile_page.dart';
 import 'package:discussion_app/views/reLogin_view.dart';
+import 'package:discussion_app/widgets/placeholder.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/scheduler.dart';
@@ -103,13 +104,7 @@ class _KomentarScreenState extends State<KomentarScreen> {
                 Expanded(
                   flex: 8,
                   child: (detailPostNew == null)
-                      ? Center(
-                          child: SizedBox(
-                            height: 50.0,
-                            width: 50.0,
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
+                      ? PlaceHolderKomentar()
                       : ListView.builder(
                           controller: _controller,
                           itemCount: detailPostNew.komentar.length,
@@ -190,7 +185,7 @@ class _KomentarScreenState extends State<KomentarScreen> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                    child: (role == Role.alumni &&  detailPost.post[0].kategori != 'Forum Alumni' && detailPost.post[0].kategori != 'Info Prodi')
+                    child: (role == Role.alumni && detailPost.post[0].kategori != 'Forum Alumni' && detailPost.post[0].kategori != 'Info Prodi')
                         ? Center(child: Text('Tidak bisa komentar di kategori ini', style: AppStyle.textCaption))
                         : Row(
                             children: <Widget>[

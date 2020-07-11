@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:discussion_app/providers/admin_provider.dart';
+import 'package:discussion_app/utils/animation/fade.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:flutter/material.dart';
@@ -20,13 +21,7 @@ class _CreateBugState extends State<CreateBug> {
   _CreateBugState({Key key, @required this.token});
 
   int statusKategori;
-  List kategori = [
-    'Forum Alumni',
-    'Kompetisi',
-    'Mata Kuliah',
-    'Beasiswa',
-    'Keluh kesah'
-  ];
+  List kategori = ['Forum Alumni', 'Kompetisi', 'Mata Kuliah', 'Beasiswa', 'Keluh kesah'];
   var statusCreate;
   File _image;
   final picker = ImagePicker();
@@ -45,8 +40,7 @@ class _CreateBugState extends State<CreateBug> {
     statusCreate = Provider.of<AdminProvider>(context).statusCreateBug;
 
     void submit() async {
-      bool status = await Provider.of<AdminProvider>(context, listen: false)
-          .createBug(descriptionController.text, _image, token);
+      bool status = await Provider.of<AdminProvider>(context, listen: false).createBug(descriptionController.text, _image, token);
       if (status) {
         Navigator.pop(context, 'ok');
       } else {
@@ -71,22 +65,25 @@ class _CreateBugState extends State<CreateBug> {
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: Stack(
                   children: <Widget>[
-                    Container(
-                      decoration: AppStyle.decorationCard,
-                      margin: EdgeInsets.only(top: 100),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(height: 80.0),
-                            deskripsiField(),
-                            SizedBox(height: 20.0),
-                            //submitPost(submit),
-                          ],
+                    PopUp(
+                      0.5,
+                      Container(
+                        decoration: AppStyle.decorationCard,
+                        margin: EdgeInsets.only(top: 100),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(height: 80.0),
+                              PopUp(1.5, deskripsiField()),
+                              SizedBox(height: 20.0),
+                              //submitPost(submit),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                    Center(child: imagePost()),
+                    PopUp(1.0, Center(child: imagePost())),
                   ],
                 ),
               ),
@@ -138,9 +135,7 @@ class _CreateBugState extends State<CreateBug> {
             decoration: InputDecoration(
               filled: true,
               fillColor: AppStyle.colorBg,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
             ),
             maxLines: 15,
           ),
@@ -238,9 +233,7 @@ class _CreateBugState extends State<CreateBug> {
         color: Colors.grey,
         height: 180.0,
         width: 180.0,
-        child: (_image == null)
-            ? Icon(Icons.add_a_photo, color: Colors.white, size: 40.0)
-            : FittedBox(fit: BoxFit.cover, child: Image.file(_image)),
+        child: (_image == null) ? Icon(Icons.add_a_photo, color: Colors.white, size: 40.0) : FittedBox(fit: BoxFit.cover, child: Image.file(_image)),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
+import 'package:discussion_app/utils/animation/fade.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/views/detail_page.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class ProfilPage extends StatefulWidget {
   final String token;
   ProfilPage({Key key, this.id, this.token}) : super(key: key);
   @override
-  _ProfilPageState createState() => _ProfilPageState(id: id,token: token);
+  _ProfilPageState createState() => _ProfilPageState(id: id, token: token);
 }
 
 class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
@@ -52,24 +53,18 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    _colorAnimationController =
-        AnimationController(vsync: this, duration: Duration(seconds: 0));
+    _colorAnimationController = AnimationController(vsync: this, duration: Duration(seconds: 0));
 
-    _iconColorTween = ColorTween(begin: Colors.grey, end: AppStyle.colorMain)
-        .animate(_colorAnimationController);
-    _opacityTween =
-        Tween<double>(begin: 0, end: 1).animate(_colorAnimationController);
-    _textAnimationController =
-        AnimationController(vsync: this, duration: Duration(seconds: 0));
+    _iconColorTween = ColorTween(begin: Colors.grey, end: AppStyle.colorMain).animate(_colorAnimationController);
+    _opacityTween = Tween<double>(begin: 0, end: 1).animate(_colorAnimationController);
+    _textAnimationController = AnimationController(vsync: this, duration: Duration(seconds: 0));
 
-    _transTween = Tween(begin: Offset(0, 40), end: Offset(0, 0))
-        .animate(_textAnimationController);
- 
+    _transTween = Tween(begin: Offset(0, 40), end: Offset(0, 0)).animate(_textAnimationController);
+
     print('tes $detailProfil');
     Future.microtask(() {
       // Provider.of<PostProvider>(context, listen: false).getAllPosts();
-      Provider.of<PostProvider>(context, listen: false)
-          .getDetailProfilId(id, token);
+      Provider.of<PostProvider>(context, listen: false).getDetailProfilId(id, token);
     });
     super.initState();
   }
@@ -77,8 +72,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
   bool _scrollListener(ScrollNotification scrollInfo) {
     if (scrollInfo.metrics.axis == Axis.vertical) {
       _colorAnimationController.animateTo(scrollInfo.metrics.pixels / 125);
-      _textAnimationController
-          .animateTo((scrollInfo.metrics.pixels - 125) / 50);
+      _textAnimationController.animateTo((scrollInfo.metrics.pixels - 125) / 50);
       return true;
     } else {
       return false;
@@ -115,15 +109,13 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                             child: Stack(
                               children: <Widget>[
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 18.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                   child: Container(
                                     margin: EdgeInsets.only(top: 100),
                                     height: 310,
                                     decoration: BoxDecoration(
                                       color: AppStyle.colorWhite,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(10.0)),
+                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.black.withOpacity(0.1),
@@ -143,9 +135,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                         backgroundColor: AppStyle.colorMain3,
                                         child: CircleAvatar(
                                           radius: 70,
-                                          backgroundImage:
-                                              CachedNetworkImageProvider(
-                                                  detailProfil.user.image),
+                                          backgroundImage: CachedNetworkImageProvider(detailProfil.user.image),
                                         ),
                                       ),
                                     ),
@@ -171,8 +161,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                         : Center(
                                             child: Text(
                                               'Angkatan ${detailProfil.user.angkatan}',
-                                              style:
-                                                  AppStyle.textSubHeadlineBlack,
+                                              style: AppStyle.textSubHeadlineBlack,
                                               textAlign: TextAlign.center,
                                             ),
                                           ),
@@ -182,42 +171,33 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                         : Center(
                                             child: Text(
                                               '${detailProfil.user.nrp}',
-                                              style:
-                                                  AppStyle.textSubHeadlineBlack,
+                                              style: AppStyle.textSubHeadlineBlack,
                                               textAlign: TextAlign.center,
                                             ),
                                           ),
                                     SizedBox(height: 10),
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 28.0),
+                                      padding: const EdgeInsets.symmetric(horizontal: 28.0),
                                       child: Divider(
                                         thickness: 2,
                                       ),
                                     ),
                                     SizedBox(height: 10),
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                       children: <Widget>[
                                         InkWell(
                                           onTap: () {
                                             print(detailProfil.user.email);
-                                            customLaunch(
-                                                'mailto:${detailProfil.user.email}');
+                                            customLaunch('mailto:${detailProfil.user.email}');
                                           },
-                                          child: Icon(MdiIcons.gmail,
-                                              color: AppStyle.colorMain,
-                                              size: 50),
+                                          child: Icon(MdiIcons.gmail, color: AppStyle.colorMain, size: 50),
                                         ),
                                         InkWell(
                                           onTap: () {
-                                            customLaunch(
-                                                'whatsapp://send?phone=${detailProfil.user.nomer}');
+                                            customLaunch('whatsapp://send?phone=${detailProfil.user.nomer}');
                                           },
-                                          child: Icon(MdiIcons.whatsapp,
-                                              color: AppStyle.colorMain,
-                                              size: 50),
+                                          child: Icon(MdiIcons.whatsapp, color: AppStyle.colorMain, size: 50),
                                         ),
                                       ],
                                     )
@@ -229,8 +209,7 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                           SliverToBoxAdapter(child: SizedBox(height: 10)),
                           SliverToBoxAdapter(
                             child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 18.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
                               child: Divider(
                                 thickness: 2,
                               ),
@@ -239,96 +218,84 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                           SliverToBoxAdapter(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 18.0),
-                              child: Text('Thread terbaru',
-                                  style: AppStyle.textList),
+                              child: Text('Thread terbaru', style: AppStyle.textList),
                             ),
                           ),
                           SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                                (BuildContext context, int index) {
-                              return InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailPostAuthCheck(
-                                        id: detailProfil.post[index].id,
-                                        image:
-                                            detailProfil.post[index].postImage,
-                                        index: index,
-                                        token: token,
-                                        name: name,
-                                        role: role,
-                                        idUser: idUser,
+                            delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+                              return FadeInUp(
+                                0.5 + index,
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DetailPostAuthCheck(
+                                          id: detailProfil.post[index].id,
+                                          image: detailProfil.post[index].postImage,
+                                          index: index,
+                                          token: token,
+                                          name: name,
+                                          role: role,
+                                          idUser: idUser,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 18.0),
-                                  child: Container(
-                                    margin: EdgeInsets.symmetric(vertical: 5.0),
-                                    width: double.infinity,
-                                    height: 100.0,
-                                    child: Row(
-                                      children: <Widget>[
-                                        Hero(
-                                          tag:
-                                              'fullscreen${detailProfil.post[index].id}',
-                                          child: Container(
-                                            width: 100,
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(10.0),
-                                              ),
-                                              image: new DecorationImage(
-                                                fit: BoxFit.cover,
-                                                image:
-                                                    new CachedNetworkImageProvider(
-                                                        detailProfil.post[index]
-                                                            .postImage),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                    child: Container(
+                                      margin: EdgeInsets.symmetric(vertical: 5.0),
+                                      width: double.infinity,
+                                      height: 100.0,
+                                      child: Row(
+                                        children: <Widget>[
+                                          Hero(
+                                            tag: 'fullscreen${detailProfil.post[index].id}',
+                                            child: Container(
+                                              width: 100,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(10.0),
+                                                ),
+                                                image: new DecorationImage(
+                                                  fit: BoxFit.cover,
+                                                  image: new CachedNetworkImageProvider(detailProfil.post[index].postImage),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        FittedBox(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(5.0),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                Text(
-                                                  '${detailProfil.post[index].name}',
-                                                  style: AppStyle.textBody1,
-                                                ),
-                                                Container(
-                                                  height: 50.0,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      6 /
-                                                      10,
-                                                  child: Text(
-                                                    '${detailProfil.post[index].title}',
-                                                    style: AppStyle.textRegular,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 2,
+                                          FittedBox(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(5.0),
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: <Widget>[
+                                                  Text(
+                                                    '${detailProfil.post[index].name}',
+                                                    style: AppStyle.textBody1,
                                                   ),
-                                                ),
-                                                Text(
-                                                  '${detailProfil.post[index].kategori}',
-                                                  style: AppStyle.textCaption,
-                                                ),
-                                              ],
+                                                  Container(
+                                                    height: 50.0,
+                                                    width: MediaQuery.of(context).size.width * 6 / 10,
+                                                    child: Text(
+                                                      '${detailProfil.post[index].title}',
+                                                      style: AppStyle.textRegular,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${detailProfil.post[index].kategori}',
+                                                    style: AppStyle.textCaption,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),

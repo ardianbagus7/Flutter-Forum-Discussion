@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:discussion_app/providers/admin_provider.dart';
+import 'package:discussion_app/utils/animation/fade.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:flutter/material.dart';
@@ -37,8 +38,7 @@ class _CreateFormState extends State<CreateForm> {
     statusCreate = Provider.of<AdminProvider>(context).statusCreateForm;
 
     void submit() async {
-      bool status = await Provider.of<AdminProvider>(context, listen: false)
-          .createForm(descriptionController.text, _image, token);
+      bool status = await Provider.of<AdminProvider>(context, listen: false).createForm(descriptionController.text, _image, token);
       if (status) {
         Navigator.pop(context, 'ok');
       } else {
@@ -61,33 +61,38 @@ class _CreateFormState extends State<CreateForm> {
               SizedBox(height: 20.0),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                child: Container(
-                  decoration: AppStyle.decorationCard,
-                  margin: EdgeInsets.only(top: 10),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        SizedBox(height: 20.0),
-                        deskripsiField(),
-                        SizedBox(height: 20.0),
-                        imagePost(),
-                        SizedBox(height: 20.0),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                          child: Text('Note : ',
-                              style: AppStyle.textSubHeadingAbu),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                          child: Text(
-                              'Data akan diverifikasi kevalidannya oleh admin, invitation key akan dikirim ke email akun yang telah terdaftar',
-                              style: AppStyle.textCaption2tipis),
-                        ),
-                        SizedBox(height: 20.0),
-                        //submitPost(submit),
-                      ],
+                child: PopUp(
+                  0.5,
+                  Container(
+                    decoration: AppStyle.decorationCard,
+                    margin: EdgeInsets.only(top: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          SizedBox(height: 20.0),
+                          PopUp(1, deskripsiField()),
+                          SizedBox(height: 20.0),
+                          PopUp(1.5, imagePost()),
+                          SizedBox(height: 20.0),
+                          PopUp(
+                            2.0,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Text('Note : ', style: AppStyle.textSubHeadingAbu),
+                            ),
+                          ),
+                          PopUp(
+                            2.0, Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Text('Data akan diverifikasi kevalidannya oleh admin, invitation key akan dikirim ke email akun yang telah terdaftar', style: AppStyle.textCaption2tipis),
+                            ),
+                          ),
+                          SizedBox(height: 20.0),
+                          //submitPost(submit),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -140,9 +145,7 @@ class _CreateFormState extends State<CreateForm> {
             decoration: InputDecoration(
               filled: true,
               fillColor: AppStyle.colorBg,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
             ),
             maxLines: 1,
           ),
@@ -242,8 +245,7 @@ class _CreateFormState extends State<CreateForm> {
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0),
-            child:
-                Text('Foto KTM / Smartcard', style: AppStyle.textSubHeadingAbu),
+            child: Text('Foto KTM / Smartcard', style: AppStyle.textSubHeadingAbu),
           ),
           Padding(
             padding: const EdgeInsets.all(10.0),
@@ -251,9 +253,7 @@ class _CreateFormState extends State<CreateForm> {
               color: Colors.grey,
               height: 250.0,
               width: double.infinity,
-              child: (_image == null)
-                  ? Icon(Icons.add_a_photo, color: Colors.white, size: 40.0)
-                  : FittedBox(fit: BoxFit.cover, child: Image.file(_image)),
+              child: (_image == null) ? Icon(Icons.add_a_photo, color: Colors.white, size: 40.0) : FittedBox(fit: BoxFit.cover, child: Image.file(_image)),
             ),
           ),
         ],

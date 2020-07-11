@@ -7,6 +7,7 @@ import 'package:discussion_app/views/editPost_page.dart';
 import 'package:discussion_app/views/komentar_page.dart';
 import 'package:discussion_app/views/profile_page.dart';
 import 'package:discussion_app/views/reLogin_view.dart';
+import 'package:discussion_app/widgets/placeholder.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
@@ -284,13 +285,7 @@ class _DetailPageState extends State<DetailPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0),
             child: (detailPost == null)
-                ? Center(
-                    child: SizedBox(
-                      height: 50.0,
-                      width: 50.0,
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
+                ? PlaceHolderDetailPost()
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
