@@ -18,20 +18,11 @@ class KomentarAuthCheck extends StatelessWidget {
   final String name;
   final int role;
   final int idUser;
-  KomentarAuthCheck(
-      {Key key,
-      @required this.detailPost,
-      this.token,
-      this.name,
-      this.role,
-      this.idUser})
-      : super(key: key);
+  KomentarAuthCheck({Key key, @required this.detailPost, this.token, this.name, this.role, this.idUser}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(builder: (context, user, child) {
-      if (user.status == Status.Relogin ||
-          user.status == Status.Authenticating ||
-          user.status == Status.Unauthenticated) {
+      if (user.status == Status.Relogin || user.status == Status.Authenticating || user.status == Status.Unauthenticated) {
         return Relogin();
       } else {
         return KomentarScreen(
@@ -52,17 +43,9 @@ class KomentarScreen extends StatefulWidget {
   final String name;
   final int role;
   final int idUser;
-  KomentarScreen(
-      {Key key,
-      @required this.detailPost,
-      this.token,
-      this.name,
-      this.role,
-      this.idUser})
-      : super(key: key);
+  KomentarScreen({Key key, @required this.detailPost, this.token, this.name, this.role, this.idUser}) : super(key: key);
   @override
-  _KomentarScreenState createState() => _KomentarScreenState(
-      detailPost: detailPost, token: token, idUser: idUser, role: role);
+  _KomentarScreenState createState() => _KomentarScreenState(detailPost: detailPost, token: token, idUser: idUser, role: role);
 }
 
 class _KomentarScreenState extends State<KomentarScreen> {
@@ -74,13 +57,7 @@ class _KomentarScreenState extends State<KomentarScreen> {
 
   final String name;
   final int role;
-  _KomentarScreenState(
-      {Key key,
-      @required this.detailPost,
-      this.token,
-      this.role,
-      this.name,
-      this.idUser});
+  _KomentarScreenState({Key key, @required this.detailPost, this.token, this.role, this.name, this.idUser});
   final _controller = ScrollController();
 
   @override
@@ -89,10 +66,8 @@ class _KomentarScreenState extends State<KomentarScreen> {
     statusKomentar = Provider.of<PostProvider>(context).statusKomentar;
 
     void submit(String id) async {
-      bool status1 = await Provider.of<PostProvider>(context, listen: false)
-          .createKomentar(id, komentarController.text, token);
-      bool status2 = await Provider.of<PostProvider>(context, listen: false)
-          .getIdPost(detailPost.post[0].id, token);
+      bool status1 = await Provider.of<PostProvider>(context, listen: false).createKomentar(id, komentarController.text, token);
+      bool status2 = await Provider.of<PostProvider>(context, listen: false).getIdPost(detailPost.post[0].id, token);
       if (status1 && status2) {
         komentarController = TextEditingController(text: '');
         SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -148,8 +123,7 @@ class _KomentarScreenState extends State<KomentarScreen> {
                                   CircleAvatar(
                                     radius: 20,
                                     foregroundColor: Colors.grey,
-                                    backgroundImage: CachedNetworkImageProvider(
-                                        detailPostNew.komentar[index].image),
+                                    backgroundImage: CachedNetworkImageProvider(detailPostNew.komentar[index].image),
                                   ),
                                   FittedBox(
                                     fit: BoxFit.fitWidth,
@@ -161,30 +135,23 @@ class _KomentarScreenState extends State<KomentarScreen> {
                                         ),
                                       ),
                                       margin: EdgeInsets.only(left: 10.0),
-                                      width: MediaQuery.of(context).size.width *
-                                          13 /
-                                          16,
+                                      width: MediaQuery.of(context).size.width * 13 / 16,
                                       child: Material(
                                         color: Colors.white.withOpacity(0.0),
                                         child: InkWell(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(10),
                                           radius: 500,
                                           splashColor: AppStyle.colorMain,
-                                          highlightColor:
-                                              Colors.grey.withOpacity(0.5),
+                                          highlightColor: Colors.grey.withOpacity(0.5),
                                           onLongPress: () {
                                             print('long pres $index');
-                                            longTapKomen(
-                                                context, detailPostNew, index);
+                                            longTapKomen(context, detailPostNew, index);
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: <Widget>[
                                                 Text(
                                                   '${detailPostNew.komentar[index].name}',
@@ -193,8 +160,7 @@ class _KomentarScreenState extends State<KomentarScreen> {
                                                 SizedBox(height: 10.0),
                                                 Text(
                                                   '${detailPostNew.komentar[index].komentar}',
-                                                  style: AppStyle
-                                                      .textSubHeadlineBlack,
+                                                  style: AppStyle.textSubHeadlineBlack,
                                                 ),
                                               ],
                                             ),
@@ -223,46 +189,47 @@ class _KomentarScreenState extends State<KomentarScreen> {
                     ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0, vertical: 5.0),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          flex: 8,
-                          child: Container(
-                            child: TextField(
-                              keyboardType: TextInputType.multiline,
-                              maxLines: 2,
-                              controller: komentarController,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.all(0),
-                                isDense: true,
-                                border: InputBorder.none,
-                                hintText: 'Komentar..',
-                              ),
-                            ),
-                          ),
-                        ),
-                        (statusKomentar != 'loading')
-                            ? IconButton(
-                                icon: Icon(Icons.send),
-                                onPressed: () {
-                                  if (role == 0) {
-                                    showVerifikasi(context);
-                                  } else {
-                                    submit('${detailPost.post[0].id}');
-                                  }
-                                },
-                              )
-                            : Center(
-                                child: SizedBox(
-                                  height: 30.0,
-                                  width: 30.0,
-                                  child: new CircularProgressIndicator(),
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                    child: (role == Role.alumni &&  detailPost.post[0].kategori != 'Forum Alumni' && detailPost.post[0].kategori != 'Info Prodi')
+                        ? Center(child: Text('Tidak bisa komentar di kategori ini', style: AppStyle.textCaption))
+                        : Row(
+                            children: <Widget>[
+                              Expanded(
+                                flex: 8,
+                                child: Container(
+                                  child: TextField(
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 2,
+                                    controller: komentarController,
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.all(0),
+                                      isDense: true,
+                                      border: InputBorder.none,
+                                      hintText: 'Komentar..',
+                                    ),
+                                  ),
                                 ),
-                              )
-                      ],
-                    ),
+                              ),
+                              (statusKomentar != 'loading')
+                                  ? IconButton(
+                                      icon: Icon(Icons.send),
+                                      onPressed: () {
+                                        if (role == 0) {
+                                          showVerifikasi(context);
+                                        } else {
+                                          submit('${detailPost.post[0].id}');
+                                        }
+                                      },
+                                    )
+                                  : Center(
+                                      child: SizedBox(
+                                        height: 30.0,
+                                        width: 30.0,
+                                        child: new CircularProgressIndicator(),
+                                      ),
+                                    )
+                            ],
+                          ),
                   ),
                 )
               ],
@@ -285,9 +252,7 @@ class _KomentarScreenState extends State<KomentarScreen> {
       context: context,
       backgroundColor: AppStyle.colorBg,
       builder: (builder) {
-        return (detailPostNew.komentar[index].userId == idUser ||
-                role == Role.developer ||
-                role == Role.admin)
+        return (detailPostNew.komentar[index].userId == idUser || role == Role.developer || role == Role.admin)
             ? Column(
                 children: <Widget>[
                   SizedBox(height: 10.0),
@@ -325,8 +290,7 @@ class _KomentarScreenState extends State<KomentarScreen> {
                     ),
                     onTap: () {
                       //detailPostNew.komentar[index].
-                      showDeleteKomentar(context, detailPost.post[0].id,
-                          detailPostNew.komentar[index].id, token, role);
+                      showDeleteKomentar(context, detailPost.post[0].id, detailPostNew.komentar[index].id, token, role);
                     },
                   ),
                 ],

@@ -1,15 +1,13 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/utils/ClipPathHome.dart';
 import 'package:discussion_app/utils/dropDownAngkatan.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
+import 'package:discussion_app/utils/validate.dart';
 import 'package:discussion_app/widgets/notification_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:discussion_app/utils/animation/fade.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class LandingPage extends StatefulWidget {
   final String status;
@@ -19,6 +17,7 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final String status;
   _LandingPageState({Key key, @required this.status});
 
@@ -38,9 +37,6 @@ class _LandingPageState extends State<LandingPage> {
   bool navigasiLanding = true;
   bool navigasiGetStarted = false;
 
-  //* ANGKATAN
-  String angkatan;
-
   //* void NAVIGASI
   void landing() {
     setState(() {
@@ -59,14 +55,22 @@ class _LandingPageState extends State<LandingPage> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController namaController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
+  //* VALIDATOR
+  String name;
+  String email;
+  String nomer;
+  String password;
+  String passwordConfirm;
+  String message = '';
+  String angkatan;
+  bool statusAngkatan = false;
 
   //* SIGN IN
   void getSignin() async {
     setState(() {
       isLoading = true;
     });
-    await Provider.of<AuthProvider>(context, listen: false)
-        .signin(emailController.text, passwordController.text);
+    await Provider.of<AuthProvider>(context, listen: false).signin(emailController.text, passwordController.text);
     setState(() {
       isLoading = false;
     });
@@ -74,38 +78,30 @@ class _LandingPageState extends State<LandingPage> {
 
   //* SIGN UP
   void getSignup() async {
-    setState(() {
-      isLoading = true;
-    });
-    await Provider.of<AuthProvider>(context, listen: false).signup(
-        email: emailController.text,
-        nomer: '62${phoneController.text}',
-        nama: namaController.text,
-        angkatan: angkatan,
-        password: passwordController.text);
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  //*tes
-  void launchWhatsApp({
-    @required String phone,
-    @required String message,
-  }) async {
-    String url() {
-      if (Platform.isIOS) {
-        return "whatsapp://wa.me/$phone/?text=${Uri.parse(message)}";
-      } else {
-        return "whatsapp://send?phone=$phone&text=${Uri.parse(message)}";
-      }
-    }
-
-    if (await canLaunch(url())) {
-      await launch(url());
+    final form = _formKey.currentState;
+    if (form.validate() && angkatan != null) {
+      setState(() {
+        statusAngkatan = false;
+        isLoading = true;
+      });
+      await Provider.of<AuthProvider>(context, listen: false).signup(email: email, nomer: '62$nomer', nama: name, angkatan: angkatan, password: password);
+      setState(() {
+        isLoading = false;
+      });
+      print('oke');
+    } else if (angkatan == null) {
+      setState(() {
+        statusAngkatan = true;
+      });
     } else {
-      throw 'Could not launch ${url()}';
+      setState(() {
+        statusAngkatan = false;
+      });
     }
+    /* setState(() {
+       
+      });
+    */
   }
 
   //* INIT STATE
@@ -140,9 +136,7 @@ class _LandingPageState extends State<LandingPage> {
                       curve: Curves.easeInOut,
                       duration: Duration(milliseconds: 1000),
                       width: MediaQuery.of(context).size.width,
-                      height: (!navigasiLanding)
-                          ? yHeightLanding
-                          : yHeightLandingFirst,
+                      height: (!navigasiLanding) ? yHeightLanding : yHeightLandingFirst,
                       color: AppStyle.colorMain,
                     ),
                   ),
@@ -155,16 +149,12 @@ class _LandingPageState extends State<LandingPage> {
                           1.5,
                           Center(
                             child: AnimatedContainer(
-                              margin: EdgeInsets.only(
-                                  top: MediaQuery.of(context).size.height *
-                                      14 /
-                                      16),
+                              margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 14 / 16),
                               duration: Duration(milliseconds: 500),
                               height: 50,
                               width: 250,
                               curve: Curves.easeInOut,
-                              transform: Matrix4.translationValues(
-                                  0, yOffsetButton, 0),
+                              transform: Matrix4.translationValues(0, yOffsetButton, 0),
                               decoration: BoxDecoration(
                                 color: AppStyle.colorWhite,
                                 borderRadius: BorderRadius.all(
@@ -187,8 +177,7 @@ class _LandingPageState extends State<LandingPage> {
                                   });
                                 },
                                 child: Center(
-                                  child: Text('Get started',
-                                      style: AppStyle.textBody1),
+                                  child: Text('Get started', style: AppStyle.textBody1),
                                 ),
                               ),
                             ),
@@ -212,34 +201,12 @@ class _LandingPageState extends State<LandingPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            (signin == 1)
-                                ? FadeInUp(
-                                    1.5,
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18.0),
-                                        child: Text('Email',
-                                            style: AppStyle.textSubHeadingAbu)))
-                                : SizedBox(),
-                            (signin == 1)
-                                ? FadeInUp(1.75, emailSignin())
-                                : SizedBox(),
-                            (signin == 1)
-                                ? FadeInUp(
-                                    2,
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18.0),
-                                        child: Text('Password',
-                                            style: AppStyle.textSubHeadingAbu)))
-                                : SizedBox(),
-                            (signin == 1)
-                                ? FadeInUp(2.25, passwordSignin())
-                                : SizedBox(),
+                            (signin == 1) ? FadeInUp(1.5, Padding(padding: const EdgeInsets.symmetric(horizontal: 18.0), child: Text('Email', style: AppStyle.textSubHeadingAbu))) : SizedBox(),
+                            (signin == 1) ? FadeInUp(1.75, emailSignin()) : SizedBox(),
+                            (signin == 1) ? FadeInUp(2, Padding(padding: const EdgeInsets.symmetric(horizontal: 18.0), child: Text('Password', style: AppStyle.textSubHeadingAbu))) : SizedBox(),
+                            (signin == 1) ? FadeInUp(2.25, passwordSignin()) : SizedBox(),
                             SizedBox(height: 10),
-                            (signin == 1)
-                                ? FadeInUp(2.5, signinButton())
-                                : SizedBox(),
+                            (signin == 1) ? FadeInUp(2.5, signinButton()) : SizedBox(),
                           ],
                         ),
                       ),
@@ -254,81 +221,37 @@ class _LandingPageState extends State<LandingPage> {
                         color: Colors.transparent,
                         width: MediaQuery.of(context).size.width - 18 - 18,
                         height: MediaQuery.of(context).size.height,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            (signup == 1)
-                                ? FadeInUp(
-                                    1.5,
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18.0),
-                                        child: Text('Nama',
-                                            style: AppStyle.textSubHeadingAbu)))
-                                : SizedBox(),
-                            (signup == 1)
-                                ? FadeInUp(1.75, namaSignup())
-                                : SizedBox(),
-                            (signup == 1)
-                                ? FadeInUp(
-                                    2,
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18.0),
-                                        child: Text('Angkatan',
-                                            style: AppStyle.textSubHeadingAbu)))
-                                : SizedBox(),
-                            (signup == 1)
-                                ? FadeInUp(
-                                    2.25,
-                                    angkatanDropDown(context),
-                                  )
-                                : SizedBox(),
-                            (signup == 1)
-                                ? FadeInUp(
-                                    2.5,
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18.0),
-                                        child: Text('Nomor Telepon',
-                                            style: AppStyle.textSubHeadingAbu)))
-                                : SizedBox(),
-                            (signup == 1)
-                                ? FadeInUp(
-                                    2.75,
-                                    phoneSignup(),
-                                  )
-                                : SizedBox(),
-                            (signup == 1)
-                                ? FadeInUp(
-                                    3,
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18.0),
-                                        child: Text('Email',
-                                            style: AppStyle.textSubHeadingAbu)))
-                                : SizedBox(),
-                            (signup == 1)
-                                ? FadeInUp(3.25, emailSignin())
-                                : SizedBox(),
-                            (signup == 1)
-                                ? FadeInUp(
-                                    3.5,
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18.0),
-                                        child: Text('Password',
-                                            style: AppStyle.textSubHeadingAbu)))
-                                : SizedBox(),
-                            (signup == 1)
-                                ? FadeInUp(3.75, passwordSignin())
-                                : SizedBox(),
-                            SizedBox(height: 10),
-                            (signup == 1)
-                                ? FadeInUp(4, signupButton())
-                                : SizedBox(),
-                          ],
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              (signup == 1) ? FadeInUp(1.5, Padding(padding: const EdgeInsets.symmetric(horizontal: 18.0), child: Text('Nama', style: AppStyle.textSubHeadingAbu))) : SizedBox(),
+                              (signup == 1) ? FadeInUp(1.75, namaSignup()) : SizedBox(),
+                              (signup == 1) ? FadeInUp(2, Padding(padding: const EdgeInsets.symmetric(horizontal: 18.0), child: Text('Angkatan', style: AppStyle.textSubHeadingAbu))) : SizedBox(),
+                              (signup == 1)
+                                  ? FadeInUp(
+                                      2.25,
+                                      angkatanDropDown(context),
+                                    )
+                                  : SizedBox(),
+                              (statusAngkatan) ? Padding(padding: const EdgeInsets.symmetric(horizontal: 18.0), child: Text('Tahun angkatan tidak boleh kosong', style: TextStyle(color: Colors.red, fontSize: 12))) : SizedBox(),
+                              (signup == 1) ? FadeInUp(2.5, Padding(padding: const EdgeInsets.symmetric(horizontal: 18.0), child: Text('Nomor Telepon', style: AppStyle.textSubHeadingAbu))) : SizedBox(),
+                              (signup == 1)
+                                  ? FadeInUp(
+                                      2.75,
+                                      phoneSignup(),
+                                    )
+                                  : SizedBox(),
+                              (signup == 1) ? FadeInUp(3, Padding(padding: const EdgeInsets.symmetric(horizontal: 18.0), child: Text('Email', style: AppStyle.textSubHeadingAbu))) : SizedBox(),
+                              (signup == 1) ? FadeInUp(3.25, emailSignup()) : SizedBox(),
+                              (signup == 1) ? FadeInUp(3.5, Padding(padding: const EdgeInsets.symmetric(horizontal: 18.0), child: Text('Password', style: AppStyle.textSubHeadingAbu))) : SizedBox(),
+                              (signup == 1) ? FadeInUp(3.75, passwordSignup()) : SizedBox(),
+                              SizedBox(height: 10),
+                              (signup == 1) ? FadeInUp(4, signupButton()) : SizedBox(),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -413,9 +336,7 @@ class _LandingPageState extends State<LandingPage> {
                         )
                       ],
                     ),
-                    child: Center(
-                        child: Text('Masuk',
-                            style: AppStyle.textSubHeading2Putih)),
+                    child: Center(child: Text('Masuk', style: AppStyle.textSubHeading2Putih)),
                   ),
                 )
               : Center(
@@ -427,8 +348,7 @@ class _LandingPageState extends State<LandingPage> {
                 ),
           SizedBox(height: 10),
           Consumer<AuthProvider>(
-            builder: (context, provider, child) =>
-                provider.notification ?? NotificationText(''),
+            builder: (context, provider, child) => provider.notification ?? NotificationText(''),
           ),
           SizedBox(height: 5),
           InkWell(
@@ -447,7 +367,7 @@ class _LandingPageState extends State<LandingPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text('Belum punya akun? ', style: AppStyle.textCaption2tipis),
-                Text('Daftar sekarang', style: AppStyle.textCaption2)
+                Text('Daftar sekarang', style: AppStyle.textCaption2),
               ],
             ),
           ),
@@ -465,7 +385,6 @@ class _LandingPageState extends State<LandingPage> {
               ? InkWell(
                   onTap: () {
                     getSignup();
-                    // launchWhatsApp(message: 'halo',phone: '6285856589535');
                   },
                   child: Container(
                     width: double.infinity,
@@ -484,8 +403,8 @@ class _LandingPageState extends State<LandingPage> {
                       ],
                     ),
                     child: Center(
-                        child: Text('Daftar',
-                            style: AppStyle.textSubHeading2Putih)),
+                      child: Text('Daftar', style: AppStyle.textSubHeading2Putih),
+                    ),
                   ),
                 )
               : Center(
@@ -497,8 +416,7 @@ class _LandingPageState extends State<LandingPage> {
                 ),
           SizedBox(height: 10),
           Consumer<AuthProvider>(
-            builder: (context, provider, child) =>
-                provider.notification ?? NotificationText(''),
+            builder: (context, provider, child) => provider.notification ?? NotificationText(''),
           ),
           SizedBox(height: 5),
           InkWell(
@@ -515,10 +433,7 @@ class _LandingPageState extends State<LandingPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text('Sudah punya akun? ', style: AppStyle.textCaption2tipis),
-                Text('Masuk sekarang', style: AppStyle.textCaption2)
-              ],
+              children: <Widget>[Text('Sudah punya akun? ', style: AppStyle.textCaption2tipis), Text('Masuk sekarang', style: AppStyle.textCaption2)],
             ),
           ),
         ],
@@ -536,9 +451,7 @@ class _LandingPageState extends State<LandingPage> {
         decoration: InputDecoration(
           filled: true,
           fillColor: AppStyle.colorBg,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide.none),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
         ),
       ),
     );
@@ -553,10 +466,47 @@ class _LandingPageState extends State<LandingPage> {
         decoration: InputDecoration(
           filled: true,
           fillColor: AppStyle.colorBg,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide.none),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
         ),
+      ),
+    );
+  }
+
+  Container emailSignup() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextFormField(
+        keyboardType: TextInputType.emailAddress,
+        // controller: emailController,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: AppStyle.colorBg,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
+        ),
+        validator: (value) {
+          email = value.trim();
+          return Validate.validateEmail(value);
+        },
+      ),
+    );
+  }
+
+  Container passwordSignup() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextFormField(
+        obscureText: true,
+        keyboardType: TextInputType.text,
+        controller: passwordController,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: AppStyle.colorBg,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
+        ),
+        validator: (value) {
+          password = value.trim();
+          return Validate.passwordField(value);
+        },
       ),
     );
   }
@@ -564,16 +514,18 @@ class _LandingPageState extends State<LandingPage> {
   Container namaSignup() {
     return Container(
       padding: EdgeInsets.all(10),
-      child: TextField(
+      child: TextFormField(
         keyboardType: TextInputType.text,
-        controller: namaController,
+        //controller: namaController,
         decoration: InputDecoration(
           filled: true,
           fillColor: AppStyle.colorBg,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide.none),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
         ),
+        validator: (value) {
+          name = value.trim();
+          return Validate.requiredField(value, 'Nama tidak boleh kosong');
+        },
       ),
     );
   }
@@ -583,19 +535,20 @@ class _LandingPageState extends State<LandingPage> {
       children: <Widget>[
         Container(
           padding: EdgeInsets.all(10),
-          child: TextField(
+          child: TextFormField(
             keyboardType: TextInputType.number,
-            controller: phoneController,
+            //controller: phoneController,
             decoration: InputDecoration(
-              contentPadding:
-                  EdgeInsets.only(left: 55, top: 20, bottom: 20, right: 20),
+              contentPadding: EdgeInsets.only(left: 55, top: 20, bottom: 20, right: 20),
               isDense: true,
               filled: true,
               fillColor: AppStyle.colorBg,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
             ),
+            validator: (value) {
+              nomer = value.trim();
+              return Validate.nomerField(value);
+            },
           ),
         ),
         Container(

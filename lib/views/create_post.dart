@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
+import 'package:discussion_app/services/role.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:flutter/material.dart';
@@ -11,31 +12,25 @@ import 'package:image_picker/image_picker.dart';
 
 class CreatePost extends StatefulWidget {
   final String token;
-  CreatePost({Key key, @required this.token}) : super(key: key);
+  final int role;
+  CreatePost({Key key, @required this.token, this.role}) : super(key: key);
   @override
-  _CreatePostState createState() => _CreatePostState(token: token);
+  _CreatePostState createState() => _CreatePostState(token: token, role: role);
 }
 
 class _CreatePostState extends State<CreatePost> {
   String token;
-  _CreatePostState({Key key, @required this.token});
+  final int role;
+  _CreatePostState({Key key, @required this.token, this.role});
 
   int statusKategori;
-  List kategori = [
-    'Forum Alumni',
-    'Kompetisi',
-    'Mata Kuliah',
-    'Beasiswa',
-    'Keluh kesah'
-  ];
+  List kategori = ['Forum Alumni', 'Info Prodi', 'Kompetisi', 'Mata Kuliah', 'Beasiswa', 'Keluh kesah'];
   var statusCreate;
   File _image;
   final picker = ImagePicker();
 
   void submit() async {
-    bool status = await Provider.of<PostProvider>(context, listen: false)
-        .createPost(titleController.text, descriptionController.text,
-            kategori[statusKategori], _image, token);
+    bool status = await Provider.of<PostProvider>(context, listen: false).createPost(titleController.text, descriptionController.text, kategori[statusKategori], _image, token);
     if (status) {
       Navigator.pop(context, 'ok');
     } else {
@@ -133,61 +128,128 @@ class _CreatePostState extends State<CreatePost> {
   Padding kategoriField(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text('Kategori', style: AppStyle.textSubHeadingAbu),
-          SizedBox(
-            height: 10.0,
-          ),
-          Container(
-            height: 30.0,
-            width: MediaQuery.of(context).size.width * 14 / 16,
-            child: ListView.builder(
-              itemCount: kategori.length,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (_, i) {
-                return FittedBox(
-                  fit: BoxFit.fitWidth,
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        statusKategori = i;
-                      });
-                    },
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
-                      margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      decoration: (i == statusKategori)
-                          ? BoxDecoration(
-                              color: AppStyle.colorMain,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(50.0),
-                              ),
-                            )
-                          : BoxDecoration(
-                              color: AppStyle.colorWhite,
-                              border: Border.all(
-                                  color: Colors.black.withOpacity(0.5)),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(50.0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text('Kategori', style: AppStyle.textSubHeadingAbu),
+            SizedBox(
+              height: 10.0,
+            ),
+            Container(
+              height: 30.0,
+              width: MediaQuery.of(context).size.width * 14 / 16,
+              child: ListView.builder(
+                itemCount: kategori.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (_, i) {
+                  return (role == Role.alumni && i == 0)
+                      ? FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                statusKategori = i;
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+                              margin: EdgeInsets.symmetric(horizontal: 5.0),
+                              decoration: (i == statusKategori)
+                                  ? BoxDecoration(
+                                      color: AppStyle.colorMain,
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(50.0),
+                                      ),
+                                    )
+                                  : BoxDecoration(
+                                      color: AppStyle.colorWhite,
+                                      border: Border.all(color: Colors.black.withOpacity(0.5)),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(50.0),
+                                      ),
+                                    ),
+                              child: Text(
+                                '${kategori[i]}',
+                                style: (statusKategori == i) ? AppStyle.textSubHeadingPutih : AppStyle.textSubHeadingAbu,
                               ),
                             ),
-                      child: Text(
-                        '${kategori[i]}',
-                        style: (statusKategori == i)
-                            ? AppStyle.textSubHeadingPutih
-                            : AppStyle.textSubHeadingAbu,
-                      ),
-                    ),
-                  ),
-                );
-              },
+                          ),
+                        )
+                      : (role == Role.dosen && i == 1)
+                          ? FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    statusKategori = i;
+                                  });
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+                                  margin: EdgeInsets.symmetric(horizontal: 5.0),
+                                  decoration: (i == statusKategori)
+                                      ? BoxDecoration(
+                                          color: AppStyle.colorMain,
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(50.0),
+                                          ),
+                                        )
+                                      : BoxDecoration(
+                                          color: AppStyle.colorWhite,
+                                          border: Border.all(color: Colors.black.withOpacity(0.5)),
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(50.0),
+                                          ),
+                                        ),
+                                  child: Text(
+                                    '${kategori[i]}',
+                                    style: (statusKategori == i) ? AppStyle.textSubHeadingPutih : AppStyle.textSubHeadingAbu,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : (role != Role.dosen && role != Role.alumni && i != 1)
+                              ? FittedBox(
+                                  fit: BoxFit.fitWidth,
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        statusKategori = i;
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+                                      margin: EdgeInsets.symmetric(horizontal: 5.0),
+                                      decoration: (i == statusKategori)
+                                          ? BoxDecoration(
+                                              color: AppStyle.colorMain,
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(50.0),
+                                              ),
+                                            )
+                                          : BoxDecoration(
+                                              color: AppStyle.colorWhite,
+                                              border: Border.all(color: Colors.black.withOpacity(0.5)),
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(50.0),
+                                              ),
+                                            ),
+                                      child: Text(
+                                        '${kategori[i]}',
+                                        style: (statusKategori == i) ? AppStyle.textSubHeadingPutih : AppStyle.textSubHeadingAbu,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : SizedBox();
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -209,9 +271,7 @@ class _CreatePostState extends State<CreatePost> {
             decoration: InputDecoration(
               filled: true,
               fillColor: AppStyle.colorBg,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
             ),
             maxLines: 10,
           ),
@@ -238,9 +298,7 @@ class _CreatePostState extends State<CreatePost> {
             decoration: InputDecoration(
               filled: true,
               fillColor: AppStyle.colorBg,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
             ),
           ),
         ),
@@ -337,9 +395,7 @@ class _CreatePostState extends State<CreatePost> {
         color: Colors.grey,
         height: 180.0,
         width: 180.0,
-        child: (_image == null)
-            ? Icon(Icons.add_a_photo, color: Colors.white, size: 40.0)
-            : FittedBox(fit: BoxFit.cover, child: Image.file(_image)),
+        child: (_image == null) ? Icon(Icons.add_a_photo, color: Colors.white, size: 40.0) : FittedBox(fit: BoxFit.cover, child: Image.file(_image)),
       ),
     );
   }

@@ -5,13 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-enum Status {
-  Uninitialized,
-  Authenticated,
-  Authenticating,
-  Unauthenticated,
-  Relogin
-}
+enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated, Relogin }
 
 class AuthProvider with ChangeNotifier {
   Status _status = Status.Uninitialized;
@@ -42,15 +36,7 @@ class AuthProvider with ChangeNotifier {
   NotificationText get notification => _notification;
 
   //* ROLE
-  List fixRole = [
-    'Guest',
-    'Mahasiswa Aktif',
-    'Fungsionaris',
-    'Alumni',
-    'Dosen',
-    'Admin',
-    'Developer'
-  ];
+  List fixRole = ['Guest', 'Mahasiswa Aktif', 'Fungsionaris', 'Alumni', 'Dosen', 'Admin', 'Developer'];
 
   // URL ENDPOINT API USER
   //* LOCAL HOST
@@ -103,83 +89,86 @@ class AuthProvider with ChangeNotifier {
 
     Map<String, String> headers = {'Accept': 'application/json'};
     print(_status);
+    try {
+      final response = await http.post(url, body: body, headers: headers);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        var apiResponse = loginFromJson(response.body);
+        _status = Status.Authenticated;
+        _email = apiResponse.user.email;
+        _token = apiResponse.token;
+        _name = apiResponse.user.name;
+        _profil = apiResponse.user.image;
+        _role = apiResponse.user.role;
+        _angkatan = apiResponse.user.angkatan;
+        _idUser = apiResponse.user.id;
+        _nomer = apiResponse.user.nomer;
+        _roleName = fixRole[apiResponse.user.role];
+        await storeUserData(apiResponse, email, password);
+        notifyListeners();
+        print('login sukses');
+        print(_token);
+        return true;
+      }
 
-    final response = await http.post(url, body: body, headers: headers);
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      var apiResponse = loginFromJson(response.body);
-      _status = Status.Authenticated;
-      _email = apiResponse.user.email;
-      _token = apiResponse.token;
-      _name = apiResponse.user.name;
-      _profil = apiResponse.user.image;
-      _role = apiResponse.user.role;
-      _angkatan = apiResponse.user.angkatan;
-      _idUser = apiResponse.user.id;
-      _nomer = apiResponse.user.nomer;
-      _roleName = fixRole[apiResponse.user.role];
-      await storeUserData(apiResponse, email, password);
-      notifyListeners();
-      print('login sukses');
-      print(_token);
-      return true;
-    }
+      if (response.statusCode == 404) {
+        _status = Status.Unauthenticated;
+        _notification = NotificationText('Email atau password salah');
+        notifyListeners();
+        return false;
+      }
 
-    if (response.statusCode == 404) {
       _status = Status.Unauthenticated;
-      _notification = NotificationText('Nrp atau password salah');
+      _notification = NotificationText('Server sedang bermasalah.');
+      notifyListeners();
+      return false;
+    } catch (e) {
+      print(e);
+      _status = Status.Unauthenticated;
+      _notification = NotificationText('Internet tidak dapat terhubung keserver.');
       notifyListeners();
       return false;
     }
-
-    _status = Status.Unauthenticated;
-    _notification = NotificationText('Server sedang bermasalah.');
-    notifyListeners();
-    return false;
   }
 
-  Future<bool> signup(
-      {@required String email,
-      String password,
-      String nomer,
-      String angkatan,
-      String nama}) async {
+  Future<bool> signup({@required String email, String password, String nomer, String angkatan, String nama}) async {
     _status = Status.Authenticating;
     _notification = null;
     notifyListeners();
     final url = "$api/register";
 
-    Map<String, String> body = {
-      'email': email,
-      'password': password,
-      'angkatan': angkatan,
-      'nomer': nomer,
-      'name': nama
-    };
+    Map<String, String> body = {'email': email, 'password': password, 'angkatan': angkatan, 'nomer': nomer, 'name': nama};
 
     Map<String, String> headers = {'Accept': 'application/json'};
     print(_status);
+    try {
+      final response = await http.post(url, body: body, headers: headers);
+      print(response.body);
+      if (response.statusCode == 201) {
+        await signin(email, password);
+        notifyListeners();
+        print('login sukses');
+        return true;
+      }
 
-    final response = await http.post(url, body: body, headers: headers);
-    print(response.body);
-    if (response.statusCode == 201) {
-      await signin(email, password);
-      notifyListeners();
-      print('login sukses');
-      return true;
-    }
+      if (response.statusCode == 404) {
+        _status = Status.Unauthenticated;
+        _notification = NotificationText('Email sudah ada');
+        notifyListeners();
+        return false;
+      }
 
-    if (response.statusCode == 404) {
       _status = Status.Unauthenticated;
-      _notification = NotificationText('Email sudah ada');
+      _notification = NotificationText('Server sedang bermasalah.');
+      notifyListeners();
+      return false;
+    } catch (e) {
+      print(e);
+      _status = Status.Unauthenticated;
+      _notification = NotificationText('Internet tidak dapat terhubung keserver.');
       notifyListeners();
       return false;
     }
-
-    _status = Status.Unauthenticated;
-    _notification = NotificationText('Server sedang bermasalah.');
-    notifyListeners();
-    return false;
   }
 
   storeUserData(apiResponse, email, password) async {
@@ -266,8 +255,7 @@ class AuthProvider with ChangeNotifier {
   logOut([bool tokenExpired = false]) async {
     if (tokenExpired == true) {
       await reLogin();
-      _notification =
-          NotificationText('Waktu sesi habis. Harap masuk lagi.', type: 'info');
+      _notification = NotificationText('Waktu sesi habis. Harap masuk lagi.', type: 'info');
     } else {
       _status = Status.Unauthenticated;
       SharedPreferences storage = await SharedPreferences.getInstance();

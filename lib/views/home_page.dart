@@ -153,6 +153,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     List kategori = [
       'Semua',
+      'Info Prodi',
       'Forum Alumni',
       'Kompetisi',
       'Mata Kuliah',
@@ -1203,6 +1204,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 MaterialPageRoute(
                   builder: (context) => CreatePost(
                     token: tokenProvider,
+                    role: role,
                   ),
                 ),
               );
