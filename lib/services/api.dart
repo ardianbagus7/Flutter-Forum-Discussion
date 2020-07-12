@@ -54,10 +54,7 @@ class ApiService {
 
   Future<AllPost> getAllPost() async {
     final url = "$api/post";
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
 
     final response = await http.get(url, headers: headers);
 
@@ -72,10 +69,7 @@ class ApiService {
   Future<AllPosts> getAllPosts() async {
     final url = "$api/post";
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
 
     final response = await http.get(url, headers: headers);
 
@@ -87,10 +81,7 @@ class ApiService {
   Future<AllPosts> getAllPostsMore(String url) async {
     print(url);
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
 
     final response = await http.get(url, headers: headers);
 
@@ -102,10 +93,7 @@ class ApiService {
   Future<IdPost> getIdPost(int id, String tokenProvider) async {
     final url = "$api/post/$id";
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenProvider'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenProvider'};
 
     final response = await http.get(url, headers: headers);
     print(response.body);
@@ -114,8 +102,7 @@ class ApiService {
     return idPostFromJson(response.body);
   }
 
-  Future<bool> createPost(String title, String description, String kategori,
-      File image, String tokenProvider) async {
+  Future<bool> createPost(String title, String description, String kategori, File image, String tokenProvider) async {
     final url = '$api/post';
     var request = http.MultipartRequest("POST", Uri.parse(url));
     request.fields['title'] = title;
@@ -139,8 +126,7 @@ class ApiService {
     return true;
   }
 
-  Future<bool> editPost(int id, String title, String description,
-      String kategori, File image, String tokenProvider) async {
+  Future<bool> editPost(int id, String title, String description, String kategori, File image, String tokenProvider) async {
     final url = '$api/post/$id';
     var request = http.MultipartRequest("POST", Uri.parse(url));
     request.fields['_method'] = 'PATCH';
@@ -169,10 +155,7 @@ class ApiService {
   Future<bool> deletePost(int id, String tokenNew) async {
     final url = '$api/post/$id';
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     Map<String, String> body = {'_method': 'DELETE'};
 
@@ -183,13 +166,10 @@ class ApiService {
     return true;
   }
 
-  Future<FilterPost> filterPost(String kategori) async {
+  Future<AllPosts> filterPost(String kategori) async {
     final url = '$api/post/filter';
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
 
     Map<String, String> body = {
       'kategori': '$kategori',
@@ -199,16 +179,27 @@ class ApiService {
 
     validateResponseStatus(response.statusCode, 200);
 
-    return filterPostFromJson(response.body);
+    return allPostsFromJson(response.body);
+  }
+
+  Future<AllPosts> getAllFilterPostsMore(String url, String kategori) async {
+    print(url);
+
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
+    Map<String, String> body = {
+      'kategori': '$kategori',
+    };
+    final response = await http.post(url, headers: headers, body: body);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    return allPostsFromJson(response.body);
   }
 
   Future<SearchPost> searchPost(String title, String tokenNew) async {
     final url = '$api/post/search';
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     Map<String, String> body = {
       'title': '$title',
@@ -223,14 +214,10 @@ class ApiService {
 
   //* KOMENTAR
 
-  Future<bool> createKomentar(
-      String postId, String komentar, String tokenProvider) async {
+  Future<bool> createKomentar(String postId, String komentar, String tokenProvider) async {
     final url = '$api/komentar';
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenProvider'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenProvider'};
 
     Map<String, String> body = {
       'post_id': postId,
@@ -247,10 +234,7 @@ class ApiService {
   Future<bool> deleteKomentar(int id, String tokenNew, int role) async {
     final url = '$api/komentar/$id';
     print(url);
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     Map<String, String> body = {'_method': 'DELETE', 'role': '$role'};
 
@@ -266,10 +250,7 @@ class ApiService {
   Future<UserDetail> getDetailProfil() async {
     final url = "$api/user/detail";
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
 
     final response = await http.get(url, headers: headers);
 
@@ -283,10 +264,7 @@ class ApiService {
   Future<UserDetail> getDetailProfilId(int id, String tokenNew) async {
     final url = "$api/user/detail/$id";
     print(id);
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
     print(response.body);
@@ -295,8 +273,7 @@ class ApiService {
     return userDetailFromJson(response.body);
   }
 
-  Future<bool> editProfil(String nama, String angkatan, File image,
-      String nomer, String tokenNew) async {
+  Future<bool> editProfil(String nama, String angkatan, File image, String nomer, String tokenNew) async {
     final url = '$api/user/profil';
     var request = http.MultipartRequest("POST", Uri.parse(url));
     request.fields['name'] = nama;
@@ -324,10 +301,7 @@ class ApiService {
   Future<bool> logout() async {
     final url = "$api/user/logout";
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
 
     final response = await http.get(url, headers: headers);
 
@@ -355,14 +329,10 @@ class ApiService {
     return response.statusCode;
   }
 
-  Future<int> verifikasi(
-      String key, int role, String nrp, String tokenNew) async {
+  Future<int> verifikasi(String key, int role, String nrp, String tokenNew) async {
     final url = '$api/user/verifikasi';
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     Map<String, String> body = {
       'role': '$role',
@@ -379,10 +349,7 @@ class ApiService {
 
   Future<AllKey> getAllKey(String tokenNew) async {
     final url = "$api/user/key/all";
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 
@@ -393,10 +360,7 @@ class ApiService {
 
   Future<bool> getGenerateKey(String tokenNew) async {
     final url = "$api/user/key";
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 
@@ -408,10 +372,7 @@ class ApiService {
   Future<AllUser> getAllUser(String tokenNew) async {
     final url = "$api/user";
     print(url);
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 
@@ -422,10 +383,7 @@ class ApiService {
 
   Future<AllUser> getAllUserMore(String url, String tokenNew) async {
     print(url);
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 
@@ -437,10 +395,7 @@ class ApiService {
   Future<bool> deleteUser(int id, String tokenNew) async {
     final url = '$api/user/$id';
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.post(url, headers: headers);
 
@@ -452,10 +407,7 @@ class ApiService {
   Future<bool> editAdminRole(int id, int role, String tokenNew) async {
     final url = '$api/user/admin/role';
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     Map<String, String> body = {
       'id': '$id',
@@ -474,10 +426,7 @@ class ApiService {
   Future<Feedback> getAllFeedback(String tokenNew) async {
     final url = "$api/user/admin/feedback";
     print(url);
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 
@@ -488,10 +437,7 @@ class ApiService {
 
   Future<Feedback> getAllFeedbackMore(String url, String tokenNew) async {
     print(url);
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 
@@ -503,10 +449,7 @@ class ApiService {
   Future<bool> createFeedback(String deskripsi, String tokenProvider) async {
     final url = '$api/user/admin/feedback';
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenProvider'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenProvider'};
 
     Map<String, String> body = {
       'deskripsi': deskripsi,
@@ -524,10 +467,7 @@ class ApiService {
   Future<FilterUser> filterUser(int role, String tokenNew) async {
     final url = '$api/user/admin/role?role=$role';
     print(url);
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 
@@ -536,14 +476,10 @@ class ApiService {
     return filterUserFromJson(response.body);
   }
 
-  Future<FilterUser> getAllFilterUserMore(
-      int role, String url, String tokenNew) async {
+  Future<FilterUser> getAllFilterUserMore(int role, String url, String tokenNew) async {
     String _url = url + '&role=$role';
     print(_url);
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(_url, headers: headers);
 
@@ -557,10 +493,7 @@ class ApiService {
   Future<SearchUser> searchUser(String param, String tokenNew) async {
     final url = '$api/user/admin/search?search=$param';
     print(url);
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
     print(response.body);
@@ -571,8 +504,7 @@ class ApiService {
 
   //* Bug
 
-  Future<bool> createBug(
-      String deskripsi, File image, String tokenProvider) async {
+  Future<bool> createBug(String deskripsi, File image, String tokenProvider) async {
     final url = '$api/user/admin/bug';
 
     //* BODY
@@ -601,10 +533,7 @@ class ApiService {
   Future<Bug> getAllBug(String tokenNew) async {
     final url = "$api/user/admin/bug";
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 
@@ -616,10 +545,7 @@ class ApiService {
   Future<Bug> getAllBugMore(String url, String tokenNew) async {
     print(url);
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 
@@ -657,10 +583,7 @@ class ApiService {
   Future<Form> getAllForm(String tokenNew) async {
     final url = "$api/user/admin/form";
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 
@@ -672,10 +595,7 @@ class ApiService {
   Future<Form> getAllFormMore(String url, String tokenNew) async {
     print(url);
 
-    Map<String, String> headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $tokenNew'
-    };
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $tokenNew'};
 
     final response = await http.get(url, headers: headers);
 

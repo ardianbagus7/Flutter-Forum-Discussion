@@ -275,97 +275,94 @@ class _AdminPanelState extends State<AdminPanel> {
                 : SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
-                        return FadeInUp(
-                          0.5 + index,
-                          Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                      color: AppStyle.colorWhite,
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10.0),
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          offset: Offset(0.0, 1),
-                                          blurRadius: 15.0,
-                                        )
+                        return Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppStyle.colorWhite,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10.0),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        offset: Offset(0.0, 1),
+                                        blurRadius: 15.0,
+                                      )
+                                    ],
+                                  ), //'${allFeedback[index].deskripsi}'
+                                  margin: EdgeInsets.symmetric(vertical: 5),
+                                  width: double.infinity,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            CircleAvatar(
+                                              radius: 25,
+                                              backgroundImage: CachedNetworkImageProvider(allBug[index].userImage),
+                                            ),
+                                            SizedBox(width: 10),
+                                            Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Container(
+                                                  width: MediaQuery.of(context).size.width * 11 / 16,
+                                                  child: Text(
+                                                    '${allBug[index].name}',
+                                                    style: AppStyle.textName,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                Text('${allBug[index].createdAt.day}-${allBug[index].createdAt.month}-${allBug[index].createdAt.year} ${allBug[index].createdAt.hour}:${allBug[index].createdAt.minute}:${allBug[index].createdAt.second}', style: AppStyle.textCaption),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text('${allBug[index].deskripsi}', style: AppStyle.textSubHeadlineBlack),
+                                        SizedBox(height: 10),
+                                        (allBug[index].bugImage == urlImageBug)
+                                            ? SizedBox()
+                                            : InkWell(
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                    PageRouteBuilder(
+                                                      opaque: false,
+                                                      pageBuilder: (BuildContext context, _, __) => FullScreen(
+                                                        index: index,
+                                                        image: allBug[index].bugImage,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Hero(
+                                                  tag: 'fullscreenBug$index',
+                                                  child: Container(
+                                                    height: 300,
+                                                    width: double.infinity,
+                                                    decoration: BoxDecoration(
+                                                      image: new DecorationImage(
+                                                        fit: BoxFit.cover,
+                                                        image: new CachedNetworkImageProvider(allBug[index].bugImage),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
                                       ],
-                                    ), //'${allFeedback[index].deskripsi}'
-                                    margin: EdgeInsets.symmetric(vertical: 5),
-                                    width: double.infinity,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: <Widget>[
-                                              CircleAvatar(
-                                                radius: 25,
-                                                backgroundImage: CachedNetworkImageProvider(allBug[index].userImage),
-                                              ),
-                                              SizedBox(width: 10),
-                                              Column(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: <Widget>[
-                                                  Container(
-                                                    width: MediaQuery.of(context).size.width * 11 / 16,
-                                                    child: Text(
-                                                      '${allBug[index].name}',
-                                                      style: AppStyle.textName,
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  Text('${allBug[index].createdAt.day}-${allBug[index].createdAt.month}-${allBug[index].createdAt.year} ${allBug[index].createdAt.hour}:${allBug[index].createdAt.minute}:${allBug[index].createdAt.second}', style: AppStyle.textCaption),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 10),
-                                          Text('${allBug[index].deskripsi}', style: AppStyle.textSubHeadlineBlack),
-                                          SizedBox(height: 10),
-                                          (allBug[index].bugImage == urlImageBug)
-                                              ? SizedBox()
-                                              : InkWell(
-                                                  onTap: () {
-                                                    Navigator.of(context).push(
-                                                      PageRouteBuilder(
-                                                        opaque: false,
-                                                        pageBuilder: (BuildContext context, _, __) => FullScreen(
-                                                          index: index,
-                                                          image: allBug[index].bugImage,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: Hero(
-                                                    tag: 'fullscreenBug$index',
-                                                    child: Container(
-                                                      height: 300,
-                                                      width: double.infinity,
-                                                      decoration: BoxDecoration(
-                                                        image: new DecorationImage(
-                                                          fit: BoxFit.cover,
-                                                          image: new CachedNetworkImageProvider(allBug[index].bugImage),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                        ],
-                                      ),
-                                    )),
-                              ),
-                            ],
-                          ),
+                                    ),
+                                  )),
+                            ),
+                          ],
                         );
                       },
                       childCount: allBug.length,
@@ -435,68 +432,65 @@ class _AdminPanelState extends State<AdminPanel> {
                 : SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
-                        return FadeInUp(
-                          0.5 + index,
-                          Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                      color: AppStyle.colorWhite,
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10.0),
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          offset: Offset(0.0, 1),
-                                          blurRadius: 15.0,
-                                        )
-                                      ],
-                                    ), //'${allFeedback[index].deskripsi}'
-                                    margin: EdgeInsets.symmetric(vertical: 5),
-                                    width: double.infinity,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: <Widget>[
-                                              CircleAvatar(
-                                                radius: 25,
-                                                backgroundImage: CachedNetworkImageProvider(allFeedback[index].image),
-                                              ),
-                                              SizedBox(width: 10),
-                                              Column(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: <Widget>[
-                                                  Container(
-                                                    width: MediaQuery.of(context).size.width * 11 / 16,
-                                                    child: Text(
-                                                      '${allFeedback[index].name}',
-                                                      style: AppStyle.textName,
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
+                        return Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppStyle.colorWhite,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10.0),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        offset: Offset(0.0, 1),
+                                        blurRadius: 15.0,
+                                      )
+                                    ],
+                                  ), //'${allFeedback[index].deskripsi}'
+                                  margin: EdgeInsets.symmetric(vertical: 5),
+                                  width: double.infinity,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            CircleAvatar(
+                                              radius: 25,
+                                              backgroundImage: CachedNetworkImageProvider(allFeedback[index].image),
+                                            ),
+                                            SizedBox(width: 10),
+                                            Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Container(
+                                                  width: MediaQuery.of(context).size.width * 11 / 16,
+                                                  child: Text(
+                                                    '${allFeedback[index].name}',
+                                                    style: AppStyle.textName,
+                                                    overflow: TextOverflow.ellipsis,
                                                   ),
-                                                  Text('${allFeedback[index].createdAt.day}-${allFeedback[index].createdAt.month}-${allFeedback[index].createdAt.year} ${allFeedback[index].createdAt.hour}:${allFeedback[index].createdAt.minute}:${allFeedback[index].createdAt.second}', style: AppStyle.textCaption),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 10),
-                                          Text('${allFeedback[index].deskripsi}', style: AppStyle.textSubHeadlineBlack),
-                                        ],
-                                      ),
-                                    )),
-                              ),
-                            ],
-                          ),
+                                                ),
+                                                Text('${allFeedback[index].createdAt.day}-${allFeedback[index].createdAt.month}-${allFeedback[index].createdAt.year} ${allFeedback[index].createdAt.hour}:${allFeedback[index].createdAt.minute}:${allFeedback[index].createdAt.second}', style: AppStyle.textCaption),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text('${allFeedback[index].deskripsi}', style: AppStyle.textSubHeadlineBlack),
+                                      ],
+                                    ),
+                                  )),
+                            ),
+                          ],
                         );
                       },
                       childCount: allFeedback.length,
@@ -566,135 +560,132 @@ class _AdminPanelState extends State<AdminPanel> {
                 : SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
-                        return FadeInUp(
-                          0.5 + index,
-                          Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                      color: AppStyle.colorWhite,
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10.0),
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          offset: Offset(0.0, 1),
-                                          blurRadius: 15.0,
-                                        )
-                                      ],
-                                    ), //'${allFeedback[index].deskripsi}'
-                                    margin: EdgeInsets.symmetric(vertical: 5),
-                                    width: double.infinity,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          (allForm[index].role == 0)
-                                              ? Align(
-                                                  alignment: Alignment.centerRight,
+                        return Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppStyle.colorWhite,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10.0),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        offset: Offset(0.0, 1),
+                                        blurRadius: 15.0,
+                                      )
+                                    ],
+                                  ), //'${allFeedback[index].deskripsi}'
+                                  margin: EdgeInsets.symmetric(vertical: 5),
+                                  width: double.infinity,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        (allForm[index].role == 0)
+                                            ? Align(
+                                                alignment: Alignment.centerRight,
+                                                child: Text(
+                                                  'Belum Terverifikasi',
+                                                  style: AppStyle.textSubHeadingMerah,
+                                                ),
+                                              )
+                                            : Align(
+                                                alignment: Alignment.centerRight,
+                                                child: Text(
+                                                  'Selesai Terverifikasi',
+                                                  style: AppStyle.textSubHeadingAbu,
+                                                ),
+                                              ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            CircleAvatar(
+                                              radius: 25,
+                                              backgroundImage: CachedNetworkImageProvider(allForm[index].userImage),
+                                            ),
+                                            SizedBox(width: 10),
+                                            Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Container(
+                                                  width: MediaQuery.of(context).size.width * 11 / 16,
                                                   child: Text(
-                                                    'Belum Terverifikasi',
-                                                    style: AppStyle.textSubHeadingMerah,
-                                                  ),
-                                                )
-                                              : Align(
-                                                  alignment: Alignment.centerRight,
-                                                  child: Text(
-                                                    'Selesai Terverifikasi',
-                                                    style: AppStyle.textSubHeadingAbu,
+                                                    '${allForm[index].name}',
+                                                    style: AppStyle.textName,
+                                                    overflow: TextOverflow.ellipsis,
                                                   ),
                                                 ),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: <Widget>[
-                                              CircleAvatar(
-                                                radius: 25,
-                                                backgroundImage: CachedNetworkImageProvider(allForm[index].userImage),
-                                              ),
-                                              SizedBox(width: 10),
-                                              Column(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: <Widget>[
-                                                  Container(
-                                                    width: MediaQuery.of(context).size.width * 11 / 16,
-                                                    child: Text(
-                                                      '${allForm[index].name}',
-                                                      style: AppStyle.textName,
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  Text('${allForm[index].createdAt.day}-${allForm[index].createdAt.month}-${allForm[index].createdAt.year} ${allForm[index].createdAt.hour}:${allForm[index].createdAt.minute}:${allForm[index].createdAt.second}', style: AppStyle.textCaption),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 10),
-                                          Text('${allForm[index].email}', style: AppStyle.textSubHeadlineBlack),
-                                          Text('${allForm[index].nrp}', style: AppStyle.textSubHeadlineBlack),
-                                          SizedBox(height: 10),
-                                          InkWell(
-                                            onTap: () {
-                                              Navigator.of(context).push(
-                                                PageRouteBuilder(
-                                                  opaque: false,
-                                                  pageBuilder: (BuildContext context, _, __) => FullScreen(
-                                                    index: index,
-                                                    image: allForm[index].verifImage,
-                                                  ),
+                                                Text('${allForm[index].createdAt.day}-${allForm[index].createdAt.month}-${allForm[index].createdAt.year} ${allForm[index].createdAt.hour}:${allForm[index].createdAt.minute}:${allForm[index].createdAt.second}', style: AppStyle.textCaption),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text('${allForm[index].email}', style: AppStyle.textSubHeadlineBlack),
+                                        Text('${allForm[index].nrp}', style: AppStyle.textSubHeadlineBlack),
+                                        SizedBox(height: 10),
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              PageRouteBuilder(
+                                                opaque: false,
+                                                pageBuilder: (BuildContext context, _, __) => FullScreen(
+                                                  index: index,
+                                                  image: allForm[index].verifImage,
                                                 ),
-                                              );
-                                            },
-                                            child: Hero(
-                                              tag: 'fullscreenBug$index',
-                                              child: Container(
-                                                height: 200,
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  image: new DecorationImage(
-                                                    fit: BoxFit.cover,
-                                                    image: new CachedNetworkImageProvider(allForm[index].verifImage),
-                                                  ),
+                                              ),
+                                            );
+                                          },
+                                          child: Hero(
+                                            tag: 'fullscreenBug$index',
+                                            child: Container(
+                                              height: 200,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                image: new DecorationImage(
+                                                  fit: BoxFit.cover,
+                                                  image: new CachedNetworkImageProvider(allForm[index].verifImage),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                          SizedBox(height: 10),
-                                          (isLoading)
-                                              ? Container(
-                                                  width: double.infinity,
-                                                  height: 38.0,
-                                                  child: Center(
-                                                    child: SizedBox(width: 40, height: 40, child: CircularProgressIndicator()),
-                                                  ))
-                                              : ListTile(
-                                                  title: Text('Kirim Invitation key', style: AppStyle.textSubHeadingAbu),
-                                                  leading: Icon(MdiIcons.gmail, size: 30, color: AppStyle.colorMain),
-                                                  onTap: () async {
-                                                    bool _status = await Provider.of<AdminProvider>(context, listen: false).generateKey(token);
-                                                    if (_status) {
-                                                      bool _status2 = await Provider.of<AdminProvider>(context, listen: false).getAllKey(token);
-                                                      print('${allKey[0].key}');
-                                                      if (_status2) {
-                                                        customLaunch('mailto:${allForm[index].email}?subject=Invitation Key Hima Telkom&body=${allKey[0].key}');
-                                                      }
-                                                    } else {
-                                                      showAlert(context);
+                                        ),
+                                        SizedBox(height: 10),
+                                        (isLoading)
+                                            ? Container(
+                                                width: double.infinity,
+                                                height: 38.0,
+                                                child: Center(
+                                                  child: SizedBox(width: 40, height: 40, child: CircularProgressIndicator()),
+                                                ))
+                                            : ListTile(
+                                                title: Text('Kirim Invitation key', style: AppStyle.textSubHeadingAbu),
+                                                leading: Icon(MdiIcons.gmail, size: 30, color: AppStyle.colorMain),
+                                                onTap: () async {
+                                                  bool _status = await Provider.of<AdminProvider>(context, listen: false).generateKey(token);
+                                                  if (_status) {
+                                                    bool _status2 = await Provider.of<AdminProvider>(context, listen: false).getAllKey(token);
+                                                    print('${allKey[0].key}');
+                                                    if (_status2) {
+                                                      customLaunch('mailto:${allForm[index].email}?subject=Invitation Key Hima Telkom&body=${allKey[0].key}');
                                                     }
-                                                  },
-                                                )
-                                        ],
-                                      ),
-                                    )),
-                              ),
-                            ],
-                          ),
+                                                  } else {
+                                                    showAlert(context);
+                                                  }
+                                                },
+                                              )
+                                      ],
+                                    ),
+                                  )),
+                            ),
+                          ],
                         );
                       },
                       childCount: allForm.length,
@@ -794,40 +785,37 @@ class _AdminPanelState extends State<AdminPanel> {
               : SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (BuildContext context, int index) {
-                      return FadeInUp(
-                        0.5 + index,
-                        Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                              child: Material(
-                                color: Colors.white.withOpacity(0),
-                                child: InkWell(
-                                  splashColor: AppStyle.colorMain,
-                                  child: Container(
-                                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 18),
-                                    height: 50,
-                                    width: double.infinity,
-                                    child: Center(
-                                      child: Text('${allKey[index].key}', style: AppStyle.textCaption2),
-                                    ),
+                      return Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                            child: Material(
+                              color: Colors.white.withOpacity(0),
+                              child: InkWell(
+                                splashColor: AppStyle.colorMain,
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+                                  height: 50,
+                                  width: double.infinity,
+                                  child: Center(
+                                    child: Text('${allKey[index].key}', style: AppStyle.textCaption2),
                                   ),
-                                  onLongPress: () {
-                                    Clipboard.setData(new ClipboardData(text: '${allKey[index].key}')).then((_) {
-                                      Scaffold.of(context).showSnackBar(SnackBar(content: Text("Key telah disalin clipboard")));
-                                    });
-                                  },
                                 ),
+                                onLongPress: () {
+                                  Clipboard.setData(new ClipboardData(text: '${allKey[index].key}')).then((_) {
+                                    Scaffold.of(context).showSnackBar(SnackBar(content: Text("Key telah disalin clipboard")));
+                                  });
+                                },
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                              child: Divider(
-                                thickness: 2,
-                              ),
-                            )
-                          ],
-                        ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                            child: Divider(
+                              thickness: 2,
+                            ),
+                          )
+                        ],
                       );
                     },
                     childCount: allKey.length,
@@ -1018,209 +1006,206 @@ class _AdminPanelState extends State<AdminPanel> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
-          return FadeInUp(
-            0.5 + index,
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18.0),
-              child: InkWell(
-                onLongPress: () {
-                  setState(() {
-                    isEditRole = false;
-                  });
-                  showModalBottomSheet(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10.0),
-                          topRight: Radius.circular(10.0),
-                        ),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            child: InkWell(
+              onLongPress: () {
+                setState(() {
+                  isEditRole = false;
+                });
+                showModalBottomSheet(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10.0),
+                        topRight: Radius.circular(10.0),
                       ),
-                      elevation: 10.0,
-                      context: context,
-                      backgroundColor: Colors.white,
-                      isScrollControlled: true,
-                      builder: (context) {
-                        return StatefulBuilder(builder: (BuildContext context, StateSetter setModalState) {
-                          return SingleChildScrollView(
-                            child: Column(
-                              children: <Widget>[
-                                (isEditRole)
-                                    ? SizedBox()
-                                    : ListTile(
-                                        leading: Icon(
-                                          Icons.edit,
-                                        ),
-                                        title: Text(
-                                          'Ganti role',
-                                          style: AppStyle.textSubHeadingAbu,
-                                        ),
-                                        onTap: () {
-                                          setModalState(() {
-                                            isEditRole = true;
-                                          });
-                                        },
+                    ),
+                    elevation: 10.0,
+                    context: context,
+                    backgroundColor: Colors.white,
+                    isScrollControlled: true,
+                    builder: (context) {
+                      return StatefulBuilder(builder: (BuildContext context, StateSetter setModalState) {
+                        return SingleChildScrollView(
+                          child: Column(
+                            children: <Widget>[
+                              (isEditRole)
+                                  ? SizedBox()
+                                  : ListTile(
+                                      leading: Icon(
+                                        Icons.edit,
                                       ),
-                                (!isEditRole)
-                                    ? SizedBox()
-                                    : Container(
-                                        height: 50,
-                                        child: Center(
-                                          child: Text('Ganti role', style: AppStyle.textSubHeadingAbu),
-                                        ),
+                                      title: Text(
+                                        'Ganti role',
+                                        style: AppStyle.textSubHeadingAbu,
                                       ),
-                                (isEditRole)
-                                    ? SizedBox()
-                                    : ListTile(
-                                        leading: Icon(
-                                          Icons.delete_outline,
-                                        ),
-                                        title: Text(
-                                          'Hapus akun',
-                                          style: AppStyle.textSubHeadingAbu,
-                                        ),
-                                        onTap: () async {
-                                          String _status = await showDeleteUser(context, allUser[index].id, token);
-                                          if (_status == "ok") {
-                                            (status == 0) ? Provider.of<AdminProvider>(context, listen: false).getAllUser(token) : Provider.of<AdminProvider>(context, listen: false).getAllFilterUser(status, token);
-                                          }
-                                        },
+                                      onTap: () {
+                                        setModalState(() {
+                                          isEditRole = true;
+                                        });
+                                      },
+                                    ),
+                              (!isEditRole)
+                                  ? SizedBox()
+                                  : Container(
+                                      height: 50,
+                                      child: Center(
+                                        child: Text('Ganti role', style: AppStyle.textSubHeadingAbu),
                                       ),
-                                (!isEditRole)
-                                    ? SizedBox()
-                                    : Padding(
-                                        padding: const EdgeInsets.only(top: 10, bottom: 10, left: 13),
-                                        child: Container(
-                                          height: 30.0,
-                                          child: ListView.builder(
-                                            itemCount: fixRole.length,
-                                            scrollDirection: Axis.horizontal,
-                                            itemBuilder: (_, i) {
-                                              return (i == 6)
-                                                  ? SizedBox()
-                                                  : FittedBox(
-                                                      fit: BoxFit.fitWidth,
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          setModalState(() {
-                                                            statusRole = i;
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
-                                                          margin: EdgeInsets.symmetric(horizontal: 5.0),
-                                                          decoration: (i == statusRole)
-                                                              ? BoxDecoration(
-                                                                  color: AppStyle.colorMain,
-                                                                  borderRadius: BorderRadius.all(
-                                                                    Radius.circular(50.0),
-                                                                  ),
-                                                                )
-                                                              : BoxDecoration(
-                                                                  color: AppStyle.colorWhite,
-                                                                  border: Border.all(color: Colors.black.withOpacity(0.5)),
-                                                                  borderRadius: BorderRadius.all(
-                                                                    Radius.circular(50.0),
-                                                                  ),
+                                    ),
+                              (isEditRole)
+                                  ? SizedBox()
+                                  : ListTile(
+                                      leading: Icon(
+                                        Icons.delete_outline,
+                                      ),
+                                      title: Text(
+                                        'Hapus akun',
+                                        style: AppStyle.textSubHeadingAbu,
+                                      ),
+                                      onTap: () async {
+                                        String _status = await showDeleteUser(context, allUser[index].id, token);
+                                        if (_status == "ok") {
+                                          (status == 0) ? Provider.of<AdminProvider>(context, listen: false).getAllUser(token) : Provider.of<AdminProvider>(context, listen: false).getAllFilterUser(status, token);
+                                        }
+                                      },
+                                    ),
+                              (!isEditRole)
+                                  ? SizedBox()
+                                  : Padding(
+                                      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 13),
+                                      child: Container(
+                                        height: 30.0,
+                                        child: ListView.builder(
+                                          itemCount: fixRole.length,
+                                          scrollDirection: Axis.horizontal,
+                                          itemBuilder: (_, i) {
+                                            return (i == 6)
+                                                ? SizedBox()
+                                                : FittedBox(
+                                                    fit: BoxFit.fitWidth,
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        setModalState(() {
+                                                          statusRole = i;
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+                                                        margin: EdgeInsets.symmetric(horizontal: 5.0),
+                                                        decoration: (i == statusRole)
+                                                            ? BoxDecoration(
+                                                                color: AppStyle.colorMain,
+                                                                borderRadius: BorderRadius.all(
+                                                                  Radius.circular(50.0),
                                                                 ),
-                                                          child: Text(
-                                                            '${fixRole[i]}',
-                                                            style: (statusRole == i) ? AppStyle.textSubHeadingPutih : AppStyle.textSubHeadingAbu,
-                                                          ),
+                                                              )
+                                                            : BoxDecoration(
+                                                                color: AppStyle.colorWhite,
+                                                                border: Border.all(color: Colors.black.withOpacity(0.5)),
+                                                                borderRadius: BorderRadius.all(
+                                                                  Radius.circular(50.0),
+                                                                ),
+                                                              ),
+                                                        child: Text(
+                                                          '${fixRole[i]}',
+                                                          style: (statusRole == i) ? AppStyle.textSubHeadingPutih : AppStyle.textSubHeadingAbu,
                                                         ),
                                                       ),
-                                                    );
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                (!isEditRole)
-                                    ? SizedBox()
-                                    : Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 5.0),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            Text('Role akan diganti sesuai pilihan', style: AppStyle.textCaption),
-                                            (loadingEditRole)
-                                                ? Center(child: CircularProgressIndicator())
-                                                : InkWell(
-                                                    onTap: () async {
-                                                      setModalState(() {
-                                                        loadingEditRole = true;
-                                                      });
-                                                      bool _status = await Provider.of<AdminProvider>(context, listen: false).getEditRole(user[index].id, statusRole, token);
-                                                      setModalState(() {
-                                                        if (_status) {
-                                                          loadingEditRole = false;
-                                                          Navigator.pop(context);
-                                                          (status == 0) ? Provider.of<AdminProvider>(context, listen: false).getAllUser(token) : Provider.of<AdminProvider>(context, listen: false).getAllFilterUser(status - 1, token);
-                                                        } else {
-                                                          loadingEditRole = false;
-                                                          showAlert(context);
-                                                        }
-                                                      });
-                                                    },
-                                                    child: CircleAvatar(
-                                                      backgroundColor: AppStyle.colorMain,
-                                                      radius: 20,
-                                                      child: Icon(Icons.arrow_forward_ios, color: Colors.white),
                                                     ),
-                                                  )
-                                          ],
+                                                  );
+                                          },
                                         ),
                                       ),
-                                SizedBox(height: 10)
-                              ],
-                            ),
-                          );
-                        });
+                                    ),
+                              (!isEditRole)
+                                  ? SizedBox()
+                                  : Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 5.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text('Role akan diganti sesuai pilihan', style: AppStyle.textCaption),
+                                          (loadingEditRole)
+                                              ? Center(child: CircularProgressIndicator())
+                                              : InkWell(
+                                                  onTap: () async {
+                                                    setModalState(() {
+                                                      loadingEditRole = true;
+                                                    });
+                                                    bool _status = await Provider.of<AdminProvider>(context, listen: false).getEditRole(user[index].id, statusRole, token);
+                                                    setModalState(() {
+                                                      if (_status) {
+                                                        loadingEditRole = false;
+                                                        Navigator.pop(context);
+                                                        (status == 0) ? Provider.of<AdminProvider>(context, listen: false).getAllUser(token) : Provider.of<AdminProvider>(context, listen: false).getAllFilterUser(status - 1, token);
+                                                      } else {
+                                                        loadingEditRole = false;
+                                                        showAlert(context);
+                                                      }
+                                                    });
+                                                  },
+                                                  child: CircleAvatar(
+                                                    backgroundColor: AppStyle.colorMain,
+                                                    radius: 20,
+                                                    child: Icon(Icons.arrow_forward_ios, color: Colors.white),
+                                                  ),
+                                                )
+                                        ],
+                                      ),
+                                    ),
+                              SizedBox(height: 10)
+                            ],
+                          ),
+                        );
                       });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppStyle.colorWhite,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10.0),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        offset: Offset(0.0, 1),
-                        blurRadius: 15.0,
-                      )
-                    ],
+                    });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppStyle.colorWhite,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
                   ),
-                  margin: EdgeInsets.symmetric(vertical: 5),
-                  width: double.infinity,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundImage: CachedNetworkImageProvider(user[index].image),
-                            ),
-                            SizedBox(width: 10),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 11 / 16,
-                              child: Text('${user[index].name}', style: AppStyle.textName, overflow: TextOverflow.ellipsis),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10.0),
-                        Text('Email : ${user[index].email}', style: AppStyle.textCaption2),
-                        Text('Nomer : +${user[index].nomer}', style: AppStyle.textCaption2),
-                        Text('NRP : ${user[index].nrp}', style: AppStyle.textCaption2),
-                        Text('Angkatan ${user[index].angkatan}', style: AppStyle.textCaption2),
-                        Text('Role : ' + fixRole[user[index].role], style: AppStyle.textCaption2),
-                        Text('Akun dibuat : ${user[index].createdAt.day}-${user[index].createdAt.month}-${user[index].createdAt.year}', style: AppStyle.textCaption2),
-                      ],
-                    ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: Offset(0.0, 1),
+                      blurRadius: 15.0,
+                    )
+                  ],
+                ),
+                margin: EdgeInsets.symmetric(vertical: 5),
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundImage: CachedNetworkImageProvider(user[index].image),
+                          ),
+                          SizedBox(width: 10),
+                          Container(
+                            width: MediaQuery.of(context).size.width * 11 / 16,
+                            child: Text('${user[index].name}', style: AppStyle.textName, overflow: TextOverflow.ellipsis),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10.0),
+                      Text('Email : ${user[index].email}', style: AppStyle.textCaption2),
+                      Text('Nomer : +${user[index].nomer}', style: AppStyle.textCaption2),
+                      Text('NRP : ${user[index].nrp}', style: AppStyle.textCaption2),
+                      Text('Angkatan ${user[index].angkatan}', style: AppStyle.textCaption2),
+                      Text('Role : ' + fixRole[user[index].role], style: AppStyle.textCaption2),
+                      Text('Akun dibuat : ${user[index].createdAt.day}-${user[index].createdAt.month}-${user[index].createdAt.year}', style: AppStyle.textCaption2),
+                    ],
                   ),
                 ),
               ),

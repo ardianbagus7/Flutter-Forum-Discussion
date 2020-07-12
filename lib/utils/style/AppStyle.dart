@@ -57,6 +57,16 @@ class AppStyle {
     fontWeight: FontWeight.w400,
   );
 
+  
+  static TextStyle textSubHeadlinePutih = GoogleFonts.poppins(
+    textStyle: TextStyle(
+      color: Colors.white,
+    ),
+    fontSize: 16,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.w400,
+  );
+
   static TextStyle textSubHeadingAbu = GoogleFonts.poppins(
     textStyle: TextStyle(
       color: Colors.black.withOpacity(0.5),

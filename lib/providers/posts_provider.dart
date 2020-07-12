@@ -18,8 +18,11 @@ class PostProvider with ChangeNotifier {
   var detailProfilId;
   //* PAGINATE
   String nextPagePosts;
+  String nextPageFilterPosts;
+
   bool isLoadingMore;
-  List<Datum> allPosts = List<Datum>();
+  List<Datum> allPosts;
+  List<Datum> filterPosts;
 
   String statusCreate = 'menunggu';
   String statusDelete = 'menunggu';
@@ -84,7 +87,7 @@ class PostProvider with ChangeNotifier {
         allPosts = _allPostNew;
 
         nextPagePosts = _data.posts.nextPageUrl;
-
+        print('sukses tambah');
         isLoadingMore = false;
         notifyListeners();
       } else {
@@ -133,13 +136,11 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> createPost(String title, String description, String kategori,
-      File image, String tokenProvider) async {
+  Future<bool> createPost(String title, String description, String kategori, File image, String tokenProvider) async {
     try {
       statusCreate = 'loading';
       notifyListeners();
-      final data = await apiService.createPost(
-          title, description, kategori, image, tokenProvider);
+      final data = await apiService.createPost(title, description, kategori, image, tokenProvider);
       if (data) {
         statusCreate = 'sukses';
       }
@@ -162,13 +163,11 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> editPost(int id, String title, String description,
-      String kategori, File image, String tokenProvider) async {
+  Future<bool> editPost(int id, String title, String description, String kategori, File image, String tokenProvider) async {
     try {
       statusEditPost = 'loading';
       notifyListeners();
-      final data = await apiService.editPost(
-          id, title, description, kategori, image, tokenProvider);
+      final data = await apiService.editPost(id, title, description, kategori, image, tokenProvider);
       if (data) {
         statusEditPost = 'sukses';
       }
@@ -217,17 +216,63 @@ class PostProvider with ChangeNotifier {
 
   Future<void> getFilterPost(String kategori) async {
     try {
-      filterPost = null;
+      isLoading = true;
+      filterPosts = null;
       notifyListeners();
-      final data = await apiService.filterPost(kategori);
-      filterPost = data.posts;
+      final _data = await apiService.filterPost(kategori);
 
+      List<Datum> _listFilter = _data.posts.data;
+      filterPosts = _listFilter;
+      nextPageFilterPosts = _data.posts.nextPageUrl;
+      isLoading = false;
       print('sukses filter post');
       notifyListeners();
     } on AuthException {
+      isLoading = false;
+      notifyListeners();
       await authProvider.logOut(true);
     } catch (exception) {
+      isLoading = false;
+      notifyListeners();
       print(exception);
+    }
+  }
+
+  Future<bool> getAllFilterPostMore(String kategori) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      String _url = nextPageFilterPosts;
+      if (_url != null) {
+        isLoadingMore = true;
+        final _data = await apiService.getAllFilterPostsMore(_url, kategori);
+
+        //* LIST POST LAMA
+        List<Datum> _listPostSekarang = filterPosts;
+        //* LIST POST BARU
+        List<Datum> _listPosts = _data.posts.data;
+        //* GABUNGAN POST LAMA DAN BARU
+        List<Datum> _allPostNew = [..._listPostSekarang, ..._listPosts];
+        filterPosts = _allPostNew;
+
+        nextPageFilterPosts = _data.posts.nextPageUrl;
+        print('sukses tambah');
+        isLoadingMore = false;
+        notifyListeners();
+      } else {
+        print('sudah habis gan');
+      }
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+      isLoadingMore = false;
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      isLoadingMore = false;
+      notifyListeners();
+      print(exception);
+      return false;
     }
   }
 
@@ -247,13 +292,11 @@ class PostProvider with ChangeNotifier {
   }
 
   //* KOMENTAR
-  Future<bool> createKomentar(
-      String postId, String komentar, String tokenProvider) async {
+  Future<bool> createKomentar(String postId, String komentar, String tokenProvider) async {
     try {
       statusKomentar = 'loading';
       notifyListeners();
-      final data =
-          await apiService.createKomentar(postId, komentar, tokenProvider);
+      final data = await apiService.createKomentar(postId, komentar, tokenProvider);
       if (data) {
         statusKomentar = 'sukses';
       } else {
@@ -333,13 +376,11 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> editProfil(String nama, String angkatan, File image,
-      String nomer, String tokenNew) async {
+  Future<bool> editProfil(String nama, String angkatan, File image, String nomer, String tokenNew) async {
     try {
       statusEditProfil = 'loading';
       notifyListeners();
-      final data =
-          await apiService.editProfil(nama, angkatan, image, nomer, tokenNew);
+      final data = await apiService.editProfil(nama, angkatan, image, nomer, tokenNew);
       if (data) {
         statusEditProfil = 'sukses';
       }
@@ -395,8 +436,7 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<String> getVerifikasi(
-      String key, int role, String nrp, String token) async {
+  Future<String> getVerifikasi(String key, int role, String nrp, String token) async {
     try {
       //Jika tidak ada exceptions thrown dari API service
       int _statuscek = await apiService.verifikasi(key, role, nrp, token);

@@ -5,6 +5,7 @@ import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/services/role.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
+import 'package:discussion_app/utils/timeAgoIndo.dart';
 import 'package:discussion_app/views/profile_page.dart';
 import 'package:discussion_app/views/reLogin_view.dart';
 import 'package:discussion_app/widgets/placeholder.dart';
@@ -120,49 +121,63 @@ class _KomentarScreenState extends State<KomentarScreen> {
                                     foregroundColor: Colors.grey,
                                     backgroundImage: CachedNetworkImageProvider(detailPostNew.komentar[index].image),
                                   ),
-                                  FittedBox(
-                                    fit: BoxFit.fitWidth,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFFE2E2E2),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(10.0),
-                                        ),
-                                      ),
-                                      margin: EdgeInsets.only(left: 10.0),
-                                      width: MediaQuery.of(context).size.width * 13 / 16,
-                                      child: Material(
-                                        color: Colors.white.withOpacity(0.0),
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(10),
-                                          radius: 500,
-                                          splashColor: AppStyle.colorMain,
-                                          highlightColor: Colors.grey.withOpacity(0.5),
-                                          onLongPress: () {
-                                            print('long pres $index');
-                                            longTapKomen(context, detailPostNew, index);
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                Text(
-                                                  '${detailPostNew.komentar[index].name}',
-                                                  style: AppStyle.textName,
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      FittedBox(
+                                        fit: BoxFit.fitWidth,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFFE2E2E2),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(10.0),
+                                            ),
+                                          ),
+                                          margin: EdgeInsets.only(left: 10.0),
+                                          width: MediaQuery.of(context).size.width * 13 / 16,
+                                          child: Material(
+                                            color: Colors.white.withOpacity(0.0),
+                                            child: InkWell(
+                                              borderRadius: BorderRadius.circular(10),
+                                              radius: 500,
+                                              splashColor: AppStyle.colorMain,
+                                              highlightColor: Colors.grey.withOpacity(0.5),
+                                              onLongPress: () {
+                                                print('long pres $index');
+                                                longTapKomen(context, detailPostNew, index);
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Text(
+                                                      '${detailPostNew.komentar[index].name}',
+                                                      style: AppStyle.textName,
+                                                    ),
+                                                    SizedBox(height: 10.0),
+                                                    Text(
+                                                      '${detailPostNew.komentar[index].komentar}',
+                                                      style: AppStyle.textSubHeadlineBlack,
+                                                    ),
+                                                  ],
                                                 ),
-                                                SizedBox(height: 10.0),
-                                                Text(
-                                                  '${detailPostNew.komentar[index].komentar}',
-                                                  style: AppStyle.textSubHeadlineBlack,
-                                                ),
-                                              ],
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
+                                      SizedBox(height: 5),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal:18.0),
+                                        child: Text(
+                                          timeAgoIndo(detailPostNew.komentar[index].createdAt),
+                                          style: AppStyle.textCaption,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),

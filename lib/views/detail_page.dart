@@ -3,6 +3,7 @@ import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/services/role.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
+import 'package:discussion_app/utils/timeAgoIndo.dart';
 import 'package:discussion_app/views/editPost_page.dart';
 import 'package:discussion_app/views/komentar_page.dart';
 import 'package:discussion_app/views/profile_page.dart';
@@ -20,22 +21,11 @@ class DetailPostAuthCheck extends StatelessWidget {
   final String name;
   final int role;
   final int idUser;
-  DetailPostAuthCheck(
-      {Key key,
-      @required this.id,
-      this.image,
-      this.index,
-      this.token,
-      this.name,
-      this.role,
-      this.idUser})
-      : super(key: key);
+  DetailPostAuthCheck({Key key, @required this.id, this.image, this.index, this.token, this.name, this.role, this.idUser}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(builder: (context, user, child) {
-      if (user.status == Status.Relogin ||
-          user.status == Status.Authenticating ||
-          user.status == Status.Unauthenticated) {
+      if (user.status == Status.Relogin || user.status == Status.Authenticating || user.status == Status.Unauthenticated) {
         return Relogin();
       } else {
         return DetailPage(
@@ -60,25 +50,9 @@ class DetailPage extends StatefulWidget {
   final String name;
   final int role;
   final int idUser;
-  DetailPage(
-      {Key key,
-      @required this.id,
-      this.image,
-      this.index,
-      this.token,
-      this.name,
-      this.role,
-      this.idUser})
-      : super(key: key);
+  DetailPage({Key key, @required this.id, this.image, this.index, this.token, this.name, this.role, this.idUser}) : super(key: key);
   @override
-  _DetailPageState createState() => _DetailPageState(
-      index: index,
-      id: id,
-      image: image,
-      token: token,
-      name: name,
-      role: role,
-      idUser: idUser);
+  _DetailPageState createState() => _DetailPageState(index: index, id: id, image: image, token: token, name: name, role: role, idUser: idUser);
 }
 
 class _DetailPageState extends State<DetailPage> {
@@ -89,15 +63,7 @@ class _DetailPageState extends State<DetailPage> {
   final String name;
   final int role;
   final int idUser;
-  _DetailPageState(
-      {Key key,
-      @required this.index,
-      this.id,
-      this.image,
-      this.token,
-      this.name,
-      this.role,
-      this.idUser});
+  _DetailPageState({Key key, @required this.index, this.id, this.image, this.token, this.name, this.role, this.idUser});
 
   void initState() {
     super.initState();
@@ -136,9 +102,7 @@ class _DetailPageState extends State<DetailPage> {
               actions: <Widget>[
                 (detailPost == null)
                     ? SizedBox()
-                    : (detailPost.post[0].userId == idUser ||
-                            role == Role.developer ||
-                            role == Role.admin)
+                    : (detailPost.post[0].userId == idUser || role == Role.developer || role == Role.admin)
                         ? InkWell(
                             onTap: () {
                               showModalBottomSheet(
@@ -164,37 +128,28 @@ class _DetailPageState extends State<DetailPage> {
                                             style: AppStyle.textSubHeadingAbu,
                                           ),
                                           onTap: () async {
-                                            String _status =
-                                                await Navigator.push(
+                                            String _status = await Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) => EditPost(
                                                   token: token,
                                                   postId: id,
                                                   idPost: detailPost.post[0],
-                                                  title:
-                                                      detailPost.post[0].title,
-                                                  deskripsi: detailPost
-                                                      .post[0].description,
+                                                  title: detailPost.post[0].title,
+                                                  deskripsi: detailPost.post[0].description,
                                                 ),
                                               ),
                                             );
                                             setState(() {
                                               print(_status);
                                               if (_status == 'ok') {
-                                                Provider.of<PostProvider>(
-                                                        context,
-                                                        listen: false)
-                                                    .getIdPost(
-                                                        detailPost.post[0].id,
-                                                        token);
+                                                Provider.of<PostProvider>(context, listen: false).getIdPost(detailPost.post[0].id, token);
                                                 _status = "";
                                               }
                                             });
                                           }),
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                         child: Divider(
                                           thickness: 2,
                                         ),
@@ -208,11 +163,7 @@ class _DetailPageState extends State<DetailPage> {
                                           style: AppStyle.textSubHeadingAbu,
                                         ),
                                         onTap: () async {
-                                          String _status = await showDelete(
-                                              context,
-                                              detailPost.post[0].id,
-                                              token,
-                                              role);
+                                          String _status = await showDelete(context, detailPost.post[0].id, token, role);
                                           if (_status == 'ok') {
                                             Navigator.pop(context, 'ok');
                                           }
@@ -240,8 +191,7 @@ class _DetailPageState extends State<DetailPage> {
                 SizedBox(width: 20)
               ],
               stretch: true,
-              title:
-                  Text('Diskusi', style: TextStyle(color: AppStyle.colorMain)),
+              title: Text('Diskusi', style: TextStyle(color: AppStyle.colorMain)),
               backgroundColor: Colors.white,
               expandedHeight: MediaQuery.of(context).size.height / 3,
               floating: false,
@@ -257,8 +207,7 @@ class _DetailPageState extends State<DetailPage> {
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         opaque: false,
-                        pageBuilder: (BuildContext context, _, __) =>
-                            FullScreen(
+                        pageBuilder: (BuildContext context, _, __) => FullScreen(
                           index: id,
                           image: image,
                         ),
@@ -308,8 +257,7 @@ class _DetailPageState extends State<DetailPage> {
                             child: CircleAvatar(
                               radius: 30,
                               foregroundColor: Colors.grey,
-                              backgroundImage: CachedNetworkImageProvider(
-                                  detailPost.post[0].userImage),
+                              backgroundImage: CachedNetworkImageProvider(detailPost.post[0].userImage),
                             ),
                           ),
                           Padding(
@@ -321,18 +269,27 @@ class _DetailPageState extends State<DetailPage> {
                                 FittedBox(
                                   fit: BoxFit.fitWidth,
                                   child: Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        7 /
-                                        10,
+                                    width: MediaQuery.of(context).size.width * 7 / 10,
                                     child: Text(
                                       '${detailPost.post[0].name}',
                                       style: AppStyle.textName,
                                     ),
                                   ),
                                 ),
-                                Text(
-                                  '${detailPost.post[0].createdAt.day}-${detailPost.post[0].createdAt.month}-${detailPost.post[0].createdAt.year}',
-                                  style: AppStyle.textCaption,
+                                Row(
+                                  children: <Widget>[
+                                    Text(
+                                      detailPost.post[0].kategori,
+                                      style: AppStyle.textCaption,
+                                    ),
+                                    SizedBox(width: 5),
+                                    CircleAvatar(radius: 2, backgroundColor: Color(0xFF646464)),
+                                    SizedBox(width: 5),
+                                    Text(
+                                      timeAgoIndo(detailPost.post[0].createdAt),
+                                      style: AppStyle.textCaption,
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -357,13 +314,11 @@ class _DetailPageState extends State<DetailPage> {
                       ),
                       InkWell(
                         onTap: () {
-                          Provider.of<PostProvider>(context, listen: false)
-                              .getIdPost(id, token);
+                          Provider.of<PostProvider>(context, listen: false).getIdPost(id, token);
                           Navigator.of(context).push(
                             PageRouteBuilder(
                               opaque: false,
-                              pageBuilder: (BuildContext context, _, __) =>
-                                  KomentarAuthCheck(
+                              pageBuilder: (BuildContext context, _, __) => KomentarAuthCheck(
                                 detailPost: detailPost,
                                 token: token,
                                 name: name,
@@ -376,8 +331,7 @@ class _DetailPageState extends State<DetailPage> {
                         },
                         child: Row(
                           children: <Widget>[
-                            Icon(Icons.mode_comment,
-                                color: Colors.grey, size: 25),
+                            Icon(Icons.mode_comment, color: Colors.grey, size: 25),
                             SizedBox(width: 10),
                             Text('Komentar', style: AppStyle.textCaption),
                           ],

@@ -110,96 +110,114 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                               children: <Widget>[
                                 Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                  child: Container(
-                                    margin: EdgeInsets.only(top: 100),
-                                    height: 310,
-                                    decoration: BoxDecoration(
-                                      color: AppStyle.colorWhite,
-                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          offset: Offset(0.0, 2),
-                                          blurRadius: 15.0,
-                                        )
-                                      ],
+                                  child: PopUp(
+                                    0.5,
+                                    Container(
+                                      margin: EdgeInsets.only(top: 100),
+                                      height: 310,
+                                      decoration: BoxDecoration(
+                                        color: AppStyle.colorWhite,
+                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.1),
+                                            offset: Offset(0.0, 2),
+                                            blurRadius: 15.0,
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
                                 Column(
                                   children: <Widget>[
                                     SizedBox(height: 20),
-                                    Center(
-                                      child: CircleAvatar(
-                                        radius: 75,
-                                        backgroundColor: AppStyle.colorMain3,
+                                    PopUp(
+                                      1.0,
+                                      Center(
                                         child: CircleAvatar(
-                                          radius: 70,
-                                          backgroundImage: CachedNetworkImageProvider(detailProfil.user.image),
+                                          radius: 75,
+                                          backgroundColor: AppStyle.colorMain3,
+                                          child: CircleAvatar(
+                                            radius: 70,
+                                            backgroundImage: CachedNetworkImageProvider(detailProfil.user.image),
+                                          ),
                                         ),
                                       ),
                                     ),
                                     SizedBox(height: 5),
-                                    Center(
-                                      child: Text(
-                                        '${detailProfil.user.name}',
-                                        style: AppStyle.textHeadlineProfil,
-                                        textAlign: TextAlign.center,
+                                    PopUp(
+                                      1.5,
+                                      Center(
+                                        child: Text(
+                                          '${detailProfil.user.name}',
+                                          style: AppStyle.textHeadlineProfil,
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
                                     ),
-                                    SizedBox(height: 5),
-                                    Center(
-                                      child: Text(
-                                        Role.roleName[detailProfil.user.role],
-                                        style: AppStyle.textSubHeadlineBlack,
-                                        textAlign: TextAlign.center,
+                                    PopUp(
+                                      2,
+                                      Center(
+                                        child: roleView(context, detailProfil.user.role),
                                       ),
                                     ),
                                     SizedBox(height: 5),
                                     (detailProfil.user.role == 0)
                                         ? SizedBox()
-                                        : Center(
-                                            child: Text(
-                                              'Angkatan ${detailProfil.user.angkatan}',
-                                              style: AppStyle.textSubHeadlineBlack,
-                                              textAlign: TextAlign.center,
+                                        : PopUp(
+                                            2.5,
+                                            Center(
+                                              child: Text(
+                                                'Angkatan ${detailProfil.user.angkatan}',
+                                                style: AppStyle.textSubHeadlineBlack,
+                                                textAlign: TextAlign.center,
+                                              ),
                                             ),
                                           ),
                                     SizedBox(height: 5),
                                     (detailProfil.user.role == 0)
                                         ? SizedBox()
-                                        : Center(
-                                            child: Text(
-                                              '${detailProfil.user.nrp}',
-                                              style: AppStyle.textSubHeadlineBlack,
-                                              textAlign: TextAlign.center,
+                                        : PopUp(
+                                            3,
+                                            Center(
+                                              child: Text(
+                                                '${detailProfil.user.nrp}',
+                                                style: AppStyle.textSubHeadlineBlack,
+                                                textAlign: TextAlign.center,
+                                              ),
                                             ),
                                           ),
                                     SizedBox(height: 10),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 28.0),
-                                      child: Divider(
-                                        thickness: 2,
+                                      child: PopUp(
+                                        3.5, Divider(
+                                          thickness: 2,
+                                        ),
                                       ),
                                     ),
                                     SizedBox(height: 10),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        InkWell(
-                                          onTap: () {
-                                            print(detailProfil.user.email);
-                                            customLaunch('mailto:${detailProfil.user.email}');
-                                          },
-                                          child: Icon(MdiIcons.gmail, color: AppStyle.colorMain, size: 50),
-                                        ),
-                                        InkWell(
-                                          onTap: () {
-                                            customLaunch('whatsapp://send?phone=${detailProfil.user.nomer}');
-                                          },
-                                          child: Icon(MdiIcons.whatsapp, color: AppStyle.colorMain, size: 50),
-                                        ),
-                                      ],
+                                    PopUp(
+                                      3.5,
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: <Widget>[
+                                          InkWell(
+                                            onTap: () {
+                                              print(detailProfil.user.email);
+                                              customLaunch('mailto:${detailProfil.user.email}');
+                                            },
+                                            child: Icon(MdiIcons.gmail, color: AppStyle.colorMain, size: 50),
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              customLaunch('whatsapp://send?phone=${detailProfil.user.nomer}');
+                                            },
+                                            child: Icon(MdiIcons.whatsapp, color: AppStyle.colorMain, size: 50),
+                                          ),
+                                        ],
+                                      ),
                                     )
                                   ],
                                 ),
@@ -210,21 +228,24 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                           SliverToBoxAdapter(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                              child: Divider(
-                                thickness: 2,
+                              child: PopUp(
+                                4,
+                                Divider(
+                                  thickness: 2,
+                                ),
                               ),
                             ),
                           ),
                           SliverToBoxAdapter(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 18.0),
-                              child: Text('Thread terbaru', style: AppStyle.textList),
+                              child: PopUp(4, Text('Thread terbaru', style: AppStyle.textList)),
                             ),
                           ),
                           SliverList(
                             delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
                               return FadeInUp(
-                                0.5 + index,
+                                4 + 0.5 + index,
                                 InkWell(
                                   onTap: () {
                                     Navigator.push(

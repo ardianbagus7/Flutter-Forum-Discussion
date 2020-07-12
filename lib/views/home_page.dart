@@ -7,6 +7,7 @@ import 'package:discussion_app/utils/ClipShadowPath.dart';
 import 'package:discussion_app/utils/animation/fade.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
+import 'package:discussion_app/utils/timeAgoIndo.dart';
 import 'package:discussion_app/views/adminPanel_page.dart';
 import 'package:discussion_app/views/createBug_page.dart';
 import 'package:discussion_app/views/createForm_page.dart';
@@ -105,18 +106,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _colorAnimationController =
-        AnimationController(vsync: this, duration: Duration(seconds: 0));
+    _colorAnimationController = AnimationController(vsync: this, duration: Duration(seconds: 0));
 
-    _iconColorTween = ColorTween(begin: Colors.grey, end: AppStyle.colorMain)
-        .animate(_colorAnimationController);
-    _opacityTween =
-        Tween<double>(begin: 0, end: 1).animate(_colorAnimationController);
-    _textAnimationController =
-        AnimationController(vsync: this, duration: Duration(seconds: 0));
+    _iconColorTween = ColorTween(begin: Colors.grey, end: AppStyle.colorMain).animate(_colorAnimationController);
+    _opacityTween = Tween<double>(begin: 0, end: 1).animate(_colorAnimationController);
+    _textAnimationController = AnimationController(vsync: this, duration: Duration(seconds: 0));
 
-    _transTween = Tween(begin: Offset(0, 40), end: Offset(0, 0))
-        .animate(_textAnimationController);
+    _transTween = Tween(begin: Offset(0, 40), end: Offset(0, 0)).animate(_textAnimationController);
 
     Future.microtask(() {
       Provider.of<PostProvider>(context, listen: false).getAllPosts();
@@ -130,8 +126,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _scrollListener(ScrollNotification scrollInfo) {
     if (scrollInfo.metrics.axis == Axis.vertical) {
       _colorAnimationController.animateTo(scrollInfo.metrics.pixels / 125);
-      _textAnimationController
-          .animateTo((scrollInfo.metrics.pixels - 125) / 50);
+      _textAnimationController.animateTo((scrollInfo.metrics.pixels - 125) / 50);
       return true;
     } else {
       return false;
@@ -153,20 +148,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    List kategori = [
-      'Semua',
-      'Info Prodi',
-      'Forum Alumni',
-      'Kompetisi',
-      'Mata Kuliah',
-      'Beasiswa',
-      'Keluh kesah'
-    ];
+    List kategori = ['Semua', 'Info Prodi', 'Forum Alumni', 'Kompetisi', 'Mata Kuliah', 'Beasiswa', 'Keluh kesah'];
     String name = Provider.of<AuthProvider>(context).name;
     nomer = Provider.of<AuthProvider>(context).nomer;
     List nameSplit = name.split(' ');
     String profil = Provider.of<AuthProvider>(context).profil;
-    var filterPost = Provider.of<PostProvider>(context).filterPost ?? null;
+    var filterPost = Provider.of<PostProvider>(context).filterPosts ?? null;
     var detailProfil = Provider.of<PostProvider>(context).detailProfil ?? null;
     tokenProvider = Provider.of<AuthProvider>(context).token;
     int role = Provider.of<AuthProvider>(context).role;
@@ -177,8 +164,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     allPosts = Provider.of<PostProvider>(context).allPosts ?? null;
     isLoadingMore = Provider.of<PostProvider>(context).isLoadingMore ?? false;
     //* FEEDBACK
-    statusFeedback =
-        Provider.of<PostProvider>(context).statusFeedback ?? 'menunggu';
+    statusFeedback = Provider.of<PostProvider>(context).statusFeedback ?? 'menunggu';
 
     return Scaffold(
       backgroundColor: AppStyle.colorBg,
@@ -196,13 +182,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               AnimatedContainer(
                 curve: Curves.easeInOut,
                 duration: Duration(milliseconds: 500),
-                transform: Matrix4.translationValues(xOffset, yOffset, 1.0)
-                  ..scale(pageScale),
+                transform: Matrix4.translationValues(xOffset, yOffset, 1.0)..scale(pageScale),
                 decoration: BoxDecoration(
                   color: AppStyle.colorBg,
-                  borderRadius: sidebaropen
-                      ? BorderRadius.circular(20)
-                      : BorderRadius.circular(0),
+                  borderRadius: sidebaropen ? BorderRadius.circular(20) : BorderRadius.circular(0),
                 ),
                 child: PageView(
                   controller: pageController,
@@ -211,12 +194,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       bottomNavBarIndex = index;
 
                       if (index == 0) {
-                        Provider.of<PostProvider>(context, listen: false)
-                            .getAllPosts();
+                        Provider.of<PostProvider>(context, listen: false).getAllPosts();
                       }
                       if (index == 1) {
-                        Provider.of<PostProvider>(context, listen: false)
-                            .getDetailProfil();
+                        Provider.of<PostProvider>(context, listen: false).getDetailProfil();
                       }
                     });
                   },
@@ -224,8 +205,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     // HALAMAN HOME PAGE / MAIN PAGE
                     GestureDetector(
                       onHorizontalDragUpdate: _handleDragUpdateFalse,
-                      child: mainPage(name, nameSplit[0], profil, kategori,
-                          allPost, filterPost, role, idUser),
+                      child: mainPage(name, nameSplit[0], profil, kategori, allPost, filterPost, role, idUser),
                     ),
 
                     //HALAMAN PROFIL
@@ -266,8 +246,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  sideBar(int role, BuildContext context, String profil, String name,
-      detailProfil) {
+  sideBar(int role, BuildContext context, String profil, String name, detailProfil) {
     return GestureDetector(
       onHorizontalDragUpdate: _handleDragUpdateTrue,
       child: SafeArea(
@@ -302,17 +281,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   height: 50,
                                   child: Row(
                                     children: <Widget>[
-                                      Icon(MdiIcons.accountStar,
-                                          color: Colors.white),
+                                      Icon(MdiIcons.accountStar, color: Colors.white),
                                       SizedBox(width: 10),
                                       Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                8 /
-                                                18,
-                                        child: AutoSizeText('Admin panel',
-                                            style:
-                                                AppStyle.textSubHeadingPutih),
+                                        width: MediaQuery.of(context).size.width * 8 / 18,
+                                        child: AutoSizeText('Admin panel', style: AppStyle.textSubHeadingPutih),
                                       ),
                                     ],
                                   ),
@@ -320,8 +293,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AdminAuthCheck()),
+                                    MaterialPageRoute(builder: (context) => AdminAuthCheck()),
                                   );
                                 },
                               )
@@ -332,15 +304,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             height: 50,
                             child: Row(
                               children: <Widget>[
-                                Icon(MdiIcons.accountSettings,
-                                    color: Colors.white),
+                                Icon(MdiIcons.accountSettings, color: Colors.white),
                                 SizedBox(width: 10),
                                 Container(
-                                  width: MediaQuery.of(context).size.width *
-                                      8 /
-                                      16,
-                                  child: AutoSizeText('Pengaturan Akun',
-                                      style: AppStyle.textSubHeadingPutih),
+                                  width: MediaQuery.of(context).size.width * 8 / 16,
+                                  child: AutoSizeText('Pengaturan Akun', style: AppStyle.textSubHeadingPutih),
                                 ),
                               ],
                             ),
@@ -360,8 +328,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             );
 
                             if (_status == "ok") {
-                              Provider.of<AuthProvider>(context, listen: false)
-                                  .reLogin();
+                              Provider.of<AuthProvider>(context, listen: false).reLogin();
                               setState(() {
                                 sidebaropen = false;
                                 setSidebarState();
@@ -375,15 +342,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             height: 50,
                             child: Row(
                               children: <Widget>[
-                                Icon(MdiIcons.accountTieVoice,
-                                    color: Colors.white),
+                                Icon(MdiIcons.accountTieVoice, color: Colors.white),
                                 SizedBox(width: 10),
                                 Container(
-                                  width: MediaQuery.of(context).size.width *
-                                      8 /
-                                      16,
-                                  child: AutoSizeText('Kontak Developer',
-                                      style: AppStyle.textSubHeadingPutih),
+                                  width: MediaQuery.of(context).size.width * 8 / 16,
+                                  child: AutoSizeText('Kontak Developer', style: AppStyle.textSubHeadingPutih),
                                 ),
                               ],
                             ),
@@ -406,10 +369,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     children: <Widget>[
                                       SizedBox(height: 20),
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: <Widget>[
                                           IconButton(
                                             icon: Icon(
@@ -418,8 +379,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               size: 50,
                                             ),
                                             onPressed: () {
-                                              customLaunch(
-                                                  'mailto:ardianbagus7@gmail.com');
+                                              customLaunch('mailto:ardianbagus7@gmail.com');
                                             },
                                           ),
                                           IconButton(
@@ -429,8 +389,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               size: 50,
                                             ),
                                             onPressed: () {
-                                              customLaunch(
-                                                  'https://www.linkedin.com/in/ardianbagus/');
+                                              customLaunch('https://www.linkedin.com/in/ardianbagus/');
                                             },
                                           ),
                                           IconButton(
@@ -440,8 +399,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               size: 50,
                                             ),
                                             onPressed: () {
-                                              customLaunch(
-                                                  'https://www.instagram.com/ardianbagus_/');
+                                              customLaunch('https://www.instagram.com/ardianbagus_/');
                                             },
                                           ),
                                         ],
@@ -460,23 +418,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             height: 50,
                             child: Row(
                               children: <Widget>[
-                                Icon(MdiIcons.thumbsUpDown,
-                                    color: Colors.white),
+                                Icon(MdiIcons.thumbsUpDown, color: Colors.white),
                                 SizedBox(width: 10),
                                 Container(
-                                  width: MediaQuery.of(context).size.width *
-                                      8 /
-                                      16,
-                                  child: AutoSizeText('Saran dan Masukan',
-                                      style: AppStyle.textSubHeadingPutih),
+                                  width: MediaQuery.of(context).size.width * 8 / 16,
+                                  child: AutoSizeText('Saran dan Masukan', style: AppStyle.textSubHeadingPutih),
                                 ),
                               ],
                             ),
                           ),
                           onTap: () async {
                             sidebaropen = false;
-                            feedbackController =
-                                TextEditingController(text: '');
+                            feedbackController = TextEditingController(text: '');
                             setSidebarState();
                             //* FEEDBACK
                             showModalBottomSheet(
@@ -492,17 +445,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               isScrollControlled: true,
                               builder: (context) {
                                 return StatefulBuilder(
-                                  builder: (BuildContext context,
-                                      StateSetter setModalState) {
+                                  builder: (BuildContext context, StateSetter setModalState) {
                                     return Container(
-                                      padding: EdgeInsets.only(
-                                          bottom: MediaQuery.of(context)
-                                              .viewInsets
-                                              .bottom),
+                                      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                                       child: GestureDetector(
                                         onTap: () {
-                                          FocusScope.of(context)
-                                              .requestFocus(new FocusNode());
+                                          FocusScope.of(context).requestFocus(new FocusNode());
                                         },
                                         child: SingleChildScrollView(
                                           child: Column(
@@ -510,98 +458,52 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               SizedBox(height: 20),
                                               Text(
                                                 'Saran dan Masukan',
-                                                style:
-                                                    AppStyle.textSubHeadingAbu,
+                                                style: AppStyle.textSubHeadingAbu,
                                               ),
                                               Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 18,
-                                                    vertical: 10),
+                                                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                                                 child: TextField(
-                                                  keyboardType:
-                                                      TextInputType.text,
-                                                  controller:
-                                                      feedbackController,
+                                                  keyboardType: TextInputType.text,
+                                                  controller: feedbackController,
                                                   maxLines: 10,
                                                   decoration: InputDecoration(
                                                     filled: true,
                                                     fillColor: AppStyle.colorBg,
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10.0),
-                                                        borderSide:
-                                                            BorderSide.none),
+                                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
                                                   ),
                                                 ),
                                               ),
                                               Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 18.0,
-                                                        vertical: 5.0),
+                                                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 5.0),
                                                 child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: <Widget>[
                                                     Container(
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              13 /
-                                                              16,
-                                                      child: Text(
-                                                          'Saran dan masukan anda sangat berguna untuk perkembangan aplikasi ini',
-                                                          style: AppStyle
-                                                              .textCaption),
+                                                      width: MediaQuery.of(context).size.width * 13 / 16,
+                                                      child: Text('Saran dan masukan anda sangat berguna untuk perkembangan aplikasi ini', style: AppStyle.textCaption),
                                                     ),
                                                     (loadingFeedback)
-                                                        ? Center(
-                                                            child:
-                                                                CircularProgressIndicator())
+                                                        ? Center(child: CircularProgressIndicator())
                                                         : InkWell(
                                                             onTap: () async {
                                                               setModalState(() {
-                                                                loadingFeedback =
-                                                                    true;
+                                                                loadingFeedback = true;
                                                               });
-                                                              bool _status = await Provider.of<
-                                                                          PostProvider>(
-                                                                      context,
-                                                                      listen:
-                                                                          false)
-                                                                  .createFeedback(
-                                                                      feedbackController
-                                                                          .text,
-                                                                      tokenProvider);
+                                                              bool _status = await Provider.of<PostProvider>(context, listen: false).createFeedback(feedbackController.text, tokenProvider);
                                                               if (_status) {
-                                                                loadingFeedback =
-                                                                    false;
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
+                                                                loadingFeedback = false;
+                                                                Navigator.of(context).pop();
                                                               } else {
-                                                                setModalState(
-                                                                    () {
-                                                                  loadingFeedback =
-                                                                      false;
-                                                                  showAlert(
-                                                                      context);
+                                                                setModalState(() {
+                                                                  loadingFeedback = false;
+                                                                  showAlert(context);
                                                                 });
                                                               }
                                                             },
                                                             child: CircleAvatar(
-                                                              backgroundColor:
-                                                                  AppStyle
-                                                                      .colorMain,
+                                                              backgroundColor: AppStyle.colorMain,
                                                               radius: 20,
-                                                              child: Icon(
-                                                                  Icons
-                                                                      .arrow_forward_ios,
-                                                                  color: Colors
-                                                                      .white),
+                                                              child: Icon(Icons.arrow_forward_ios, color: Colors.white),
                                                             ),
                                                           )
                                                   ],
@@ -628,11 +530,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 Icon(MdiIcons.bugCheck, color: Colors.white),
                                 SizedBox(width: 10),
                                 Container(
-                                  width: MediaQuery.of(context).size.width *
-                                      8 /
-                                      16,
-                                  child: AutoSizeText('Laporkan Bug',
-                                      style: AppStyle.textSubHeadingPutih),
+                                  width: MediaQuery.of(context).size.width * 8 / 16,
+                                  child: AutoSizeText('Laporkan Bug', style: AppStyle.textSubHeadingPutih),
                                 ),
                               ],
                             ),
@@ -667,8 +566,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  NotificationListener profilPage(
-      detailProfil, String name, String profil, role, idUser) {
+  NotificationListener profilPage(detailProfil, String name, String profil, role, idUser) {
     return NotificationListener<ScrollNotification>(
       onNotification: _scrollListener,
       child: (detailProfil == null)
@@ -691,15 +589,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           child: Stack(
                             children: <Widget>[
                               Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                 child: Container(
                                   margin: EdgeInsets.only(top: 100),
                                   height: (role == 0) ? 300 : 240,
                                   decoration: BoxDecoration(
                                     color: AppStyle.colorWhite,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10.0)),
+                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black.withOpacity(0.1),
@@ -719,8 +615,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       backgroundColor: AppStyle.colorMain3,
                                       child: CircleAvatar(
                                         radius: 70,
-                                        backgroundImage:
-                                            CachedNetworkImageProvider(profil),
+                                        backgroundImage: CachedNetworkImageProvider(profil),
                                       ),
                                     ),
                                   ),
@@ -732,13 +627,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
-                                  SizedBox(height: 5),
                                   Center(
-                                    child: Text(
-                                      '$roleName',
-                                      style: AppStyle.textSubHeadlineBlack,
-                                      textAlign: TextAlign.center,
-                                    ),
+                                    child: roleView(context, role),
                                   ),
                                   SizedBox(height: 5),
                                   (role == 0)
@@ -746,8 +636,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       : Center(
                                           child: Text(
                                             'Angkatan ${detailProfil.user.angkatan}',
-                                            style:
-                                                AppStyle.textSubHeadlineBlack,
+                                            style: AppStyle.textSubHeadlineBlack,
                                             textAlign: TextAlign.center,
                                           ),
                                         ),
@@ -757,8 +646,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       : Center(
                                           child: Text(
                                             '${detailProfil.user.nrp}',
-                                            style:
-                                                AppStyle.textSubHeadlineBlack,
+                                            style: AppStyle.textSubHeadlineBlack,
                                             textAlign: TextAlign.center,
                                           ),
                                         ),
@@ -767,9 +655,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       ? Column(
                                           children: <Widget>[
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 34.0),
+                                              padding: const EdgeInsets.symmetric(horizontal: 34.0),
                                               child: InkWell(
                                                 onTap: () {
                                                   //* VERIFIKASI
@@ -778,9 +664,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     statusVerifikasi = '';
                                                     pinVerifikasi = '';
                                                     statusGetVerifikasi = '';
-                                                    nrpController =
-                                                        TextEditingController(
-                                                            text: '');
+                                                    nrpController = TextEditingController(text: '');
                                                   });
                                                 },
                                                 child: Container(
@@ -788,33 +672,26 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   width: double.infinity,
                                                   decoration: BoxDecoration(
                                                     color: AppStyle.colorMain,
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                10.0)),
+                                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
                                                   ),
                                                   child: Center(
                                                       child: Text(
                                                     'Verifikasi akun',
-                                                    style: AppStyle
-                                                        .textSubHeading2Putih,
+                                                    style: AppStyle.textSubHeading2Putih,
                                                   )),
                                                 ),
                                               ),
                                             ),
                                             SizedBox(height: 10),
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 34.0),
+                                              padding: const EdgeInsets.symmetric(horizontal: 34.0),
                                               child: InkWell(
                                                 onTap: () {
                                                   //* FORM VERIFIKASI
                                                   Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          CreateForm(
+                                                      builder: (context) => CreateForm(
                                                         token: tokenProvider,
                                                       ),
                                                     ),
@@ -825,16 +702,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                   width: double.infinity,
                                                   decoration: BoxDecoration(
                                                     color: AppStyle.colorMain,
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                10.0)),
+                                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
                                                   ),
                                                   child: Center(
                                                       child: Text(
                                                     'Request Invitation Key',
-                                                    style: AppStyle
-                                                        .textSubHeading2Putih,
+                                                    style: AppStyle.textSubHeading2Putih,
                                                   )),
                                                 ),
                                               ),
@@ -850,8 +723,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         SliverToBoxAdapter(child: SizedBox(height: 10)),
                         SliverToBoxAdapter(
                           child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 18.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 18.0),
                             child: Divider(
                               thickness: 2,
                             ),
@@ -860,8 +732,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         SliverToBoxAdapter(
                           child: Padding(
                             padding: const EdgeInsets.only(left: 18.0),
-                            child: Text('Thread terbaru',
-                                style: AppStyle.textList),
+                            child: Text('Thread terbaru', style: AppStyle.textList),
                           ),
                         ),
                         listAllPost(detailProfil.post, name, role, idUser),
@@ -891,14 +762,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                           actions: <Widget>[
                             /* Transform.translate(
-                              offset: _transTween.value,
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.settings,
+                                offset: _transTween.value,
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.settings,
+                                  ),
+                                  onPressed: () {},
                                 ),
-                                onPressed: () {},
-                              ),
-                            ), */
+                              ), */
                           ],
                         ),
                       ),
@@ -923,16 +794,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       backgroundColor: Colors.white,
       isScrollControlled: true,
       builder: (context) {
-        return StatefulBuilder(builder: (BuildContext context,
-            StateSetter setModalState /*You can rename this!*/) {
+        return StatefulBuilder(builder: (BuildContext context, StateSetter setModalState /*You can rename this!*/) {
           return GestureDetector(
             onTap: () {
               FocusScope.of(context).requestFocus(new FocusNode());
             },
             child: SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom),
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
                   child: Column(
@@ -957,18 +826,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   width: MediaQuery.of(context).size.width,
                                   fieldWidth: 40,
                                   style: TextStyle(fontSize: 17),
-                                  textFieldAlignment:
-                                      MainAxisAlignment.spaceAround,
+                                  textFieldAlignment: MainAxisAlignment.spaceAround,
                                   fieldStyle: FieldStyle.underline,
                                   onCompleted: (pin) async {
                                     print("Completed: " + pin);
                                     setModalState(() {
                                       loadingVerifikasi = true;
                                     });
-                                    String _status =
-                                        await Provider.of<PostProvider>(context,
-                                                listen: false)
-                                            .getCekVerifikasi(pin);
+                                    String _status = await Provider.of<PostProvider>(context, listen: false).getCekVerifikasi(pin);
 
                                     setModalState(() {
                                       if (_status == 'true') {
@@ -999,10 +864,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 18.0),
-                                  child: Text('NRP',
-                                      style: AppStyle.textSubHeadingAbu),
+                                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                  child: Text('NRP', style: AppStyle.textSubHeadingAbu),
                                 ),
                                 Container(
                                   padding: EdgeInsets.all(10),
@@ -1013,16 +876,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     decoration: InputDecoration(
                                       filled: true,
                                       fillColor: AppStyle.colorBg,
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                          borderSide: BorderSide.none),
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
                                     ),
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 10, bottom: 10, left: 13),
+                                  padding: const EdgeInsets.only(top: 10, bottom: 10, left: 13),
                                   child: Container(
                                     height: 30.0,
                                     child: ListView.builder(
@@ -1040,47 +899,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     });
                                                   },
                                                   child: Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 10.0,
-                                                            vertical: 2.0),
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 5.0),
-                                                    decoration: (i ==
-                                                            statusRole)
+                                                    padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+                                                    margin: EdgeInsets.symmetric(horizontal: 5.0),
+                                                    decoration: (i == statusRole)
                                                         ? BoxDecoration(
-                                                            color: AppStyle
-                                                                .colorMain,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .all(
-                                                              Radius.circular(
-                                                                  50.0),
+                                                            color: AppStyle.colorMain,
+                                                            borderRadius: BorderRadius.all(
+                                                              Radius.circular(50.0),
                                                             ),
                                                           )
                                                         : BoxDecoration(
-                                                            color: AppStyle
-                                                                .colorWhite,
-                                                            border: Border.all(
-                                                                color: Colors
-                                                                    .black
-                                                                    .withOpacity(
-                                                                        0.5)),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .all(
-                                                              Radius.circular(
-                                                                  50.0),
+                                                            color: AppStyle.colorWhite,
+                                                            border: Border.all(color: Colors.black.withOpacity(0.5)),
+                                                            borderRadius: BorderRadius.all(
+                                                              Radius.circular(50.0),
                                                             ),
                                                           ),
                                                     child: Text(
                                                       '${listRole[i]}',
-                                                      style: (statusRole == i)
-                                                          ? AppStyle
-                                                              .textSubHeadingPutih
-                                                          : AppStyle
-                                                              .textSubHeadingAbu,
+                                                      style: (statusRole == i) ? AppStyle.textSubHeadingPutih : AppStyle.textSubHeadingAbu,
                                                     ),
                                                   ),
                                                 ),
@@ -1090,80 +927,49 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 18.0, vertical: 5.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 5.0),
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      Text(
-                                          'Pastikan data anda benar dan sesuai',
-                                          style: AppStyle.textCaption),
+                                      Text('Pastikan data anda benar dan sesuai', style: AppStyle.textCaption),
                                       (loadingGetVerifikasi)
-                                          ? Center(
-                                              child:
-                                                  CircularProgressIndicator())
+                                          ? Center(child: CircularProgressIndicator())
                                           : InkWell(
                                               onTap: () async {
                                                 setModalState(() {
                                                   loadingGetVerifikasi = true;
                                                 });
-                                                String _status = await Provider
-                                                        .of<PostProvider>(
-                                                            context,
-                                                            listen: false)
-                                                    .getVerifikasi(
-                                                        pinVerifikasi,
-                                                        statusRole,
-                                                        nrpController.text,
-                                                        tokenProvider);
+                                                String _status = await Provider.of<PostProvider>(context, listen: false).getVerifikasi(pinVerifikasi, statusRole, nrpController.text, tokenProvider);
                                                 if (_status == 'true') {
                                                   statusGetVerifikasi = 'true';
                                                   loadingGetVerifikasi = false;
                                                   Navigator.pop(context);
-                                                  Provider.of<AuthProvider>(
-                                                          context,
-                                                          listen: false)
-                                                      .reLogin();
+                                                  Provider.of<AuthProvider>(context, listen: false).reLogin();
                                                 } else if (_status == 'nrp') {
                                                   setModalState(() {
-                                                    loadingGetVerifikasi =
-                                                        false;
+                                                    loadingGetVerifikasi = false;
                                                     statusGetVerifikasi = 'nrp';
                                                   });
                                                 } else {
                                                   setModalState(() {
-                                                    loadingGetVerifikasi =
-                                                        false;
-                                                    statusGetVerifikasi =
-                                                        'false';
+                                                    loadingGetVerifikasi = false;
+                                                    statusGetVerifikasi = 'false';
                                                   });
                                                 }
                                               },
                                               child: CircleAvatar(
-                                                backgroundColor:
-                                                    AppStyle.colorMain,
+                                                backgroundColor: AppStyle.colorMain,
                                                 radius: 20,
-                                                child: Icon(
-                                                    Icons.arrow_forward_ios,
-                                                    color: Colors.white),
+                                                child: Icon(Icons.arrow_forward_ios, color: Colors.white),
                                               ),
                                             )
                                     ],
                                   ),
                                 ),
-                                (statusGetVerifikasi == 'false')
-                                    ? Text('Gagal upload data, server down')
-                                    : (statusGetVerifikasi == 'nrp')
-                                        ? Text('NRP sudah terdaftar')
-                                        : SizedBox(),
+                                (statusGetVerifikasi == 'false') ? Text('Gagal upload data, server down') : (statusGetVerifikasi == 'nrp') ? Text('NRP sudah terdaftar') : SizedBox(),
                               ],
                             )
-                          : (statusVerifikasi == 'false')
-                              ? Container(child: Text('tidak valid'))
-                              : (statusVerifikasi == 'gagal')
-                                  ? Container(child: Text('Gagal load'))
-                                  : SizedBox(),
+                          : (statusVerifikasi == 'false') ? Container(child: Text('tidak valid')) : (statusVerifikasi == 'gagal') ? Container(child: Text('Gagal load')) : SizedBox(),
                       SizedBox(height: 10),
                     ],
                   ),
@@ -1182,8 +988,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: AnimatedContainer(
         curve: Curves.easeInOut,
         duration: Duration(milliseconds: 500),
-        transform: Matrix4.translationValues(xOffset, yOffset, 1.0)
-          ..scale(pageScale),
+        transform: Matrix4.translationValues(xOffset, yOffset, 1.0)..scale(pageScale),
         height: 66,
         width: 66,
         margin: EdgeInsets.only(bottom: 30),
@@ -1231,8 +1036,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: AnimatedContainer(
         curve: Curves.easeInOut,
         duration: Duration(milliseconds: 500),
-        transform: Matrix4.translationValues(xOffset, yOffset, 1.0)
-          ..scale(pageScale),
+        transform: Matrix4.translationValues(xOffset, yOffset, 1.0)..scale(pageScale),
         child: ClipShadowPath(
           shadow: Shadow(
             blurRadius: 15,
@@ -1283,22 +1087,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  SafeArea mainPage(String name, String nameSplit, String profil, List kategori,
-      allPost, filterPost, int role, idUser) {
+  SafeArea mainPage(String name, String nameSplit, String profil, List kategori, allPost, filterPost, int role, idUser) {
     return SafeArea(
       child: RefreshIndicator(
         child: NotificationListener<ScrollNotification>(
           onNotification: (ScrollNotification scrollInfo) {
-            if (!isLoadingMore &&
-                scrollInfo.metrics.pixels ==
-                    scrollInfo.metrics.maxScrollExtent) {
+            if (!isLoadingMore && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
               // start loading data
               setState(() {
                 isLoadingMore = true;
               });
               //load data
-              Provider.of<PostProvider>(context, listen: false)
-                  .getAllPostMore();
+              if (status == 0) {
+                Provider.of<PostProvider>(context, listen: false).getAllPostMore();
+              } else if (status != 0) {
+                Provider.of<PostProvider>(context, listen: false).getAllFilterPostMore(kategori[status]);
+              }
             }
             return true;
           },
@@ -1312,8 +1116,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 pinned: true,
                 backgroundColor: AppStyle.colorBg,
                 flexibleSpace: FlexibleSpaceBar(
-                  titlePadding: EdgeInsetsDirectional.only(
-                      start: 0, bottom: 10, end: 0, top: 0),
+                  titlePadding: EdgeInsetsDirectional.only(start: 0, bottom: 10, end: 0, top: 0),
                   title: SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -1338,27 +1141,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     Icons.search,
                                     color: Colors.grey,
                                   ),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide: BorderSide.none),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
                                   hintStyle: TextStyle(color: Colors.grey),
                                   hintText: 'Cari diskusi...',
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 10),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
                                 ),
                                 textInputAction: TextInputAction.search,
                                 onSubmitted: (newValue) {
                                   Navigator.of(context).push(
                                     PageRouteBuilder(
                                       opaque: false,
-                                      pageBuilder:
-                                          (BuildContext context, _, __) =>
-                                              SearchPage(
-                                                  search: newValue,
-                                                  idUser: idUser,
-                                                  role: role,
-                                                  name: name,
-                                                  token: tokenProvider),
+                                      pageBuilder: (BuildContext context, _, __) => SearchPage(search: newValue, idUser: idUser, role: role, name: name, token: tokenProvider),
                                     ),
                                   );
                                 },
@@ -1368,14 +1161,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 child: InkWell(
                                   onTap: () {
                                     setState(() {
-                                      searchController =
-                                          TextEditingController(text: '');
+                                      searchController = TextEditingController(text: '');
                                     });
                                   },
                                   child: Container(
                                     margin: EdgeInsets.only(right: 10),
-                                    child: Icon(Icons.cancel,
-                                        color: Colors.grey.withOpacity(0.5)),
+                                    child: Icon(Icons.cancel, color: Colors.grey.withOpacity(0.5)),
                                   ),
                                 ),
                               ),
@@ -1387,8 +1178,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ),
                   collapseMode: CollapseMode.parallax,
                   background: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18.0, vertical: 10.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1399,8 +1189,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             sidebaropen = !sidebaropen;
                             setSidebarState();
                           },
-                          child: Icon(Icons.menu,
-                              size: 30, color: AppStyle.colorMain),
+                          child: Icon(Icons.menu, size: 30, color: AppStyle.colorMain),
                         ),
                         SizedBox(height: 15),
                         Row(
@@ -1416,10 +1205,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   style: AppStyle.textHeadlineTipisBlack,
                                 ),
                                 Container(
-                                  width: MediaQuery.of(context).size.width *
-                                          13 /
-                                          16 -
-                                      36,
+                                  width: MediaQuery.of(context).size.width * 13 / 16 - 36,
                                   height: 30,
                                   child: Text(
                                     '$name',
@@ -1433,8 +1219,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               tag: 'profil',
                               child: CircleAvatar(
                                 radius: 25,
-                                backgroundImage:
-                                    CachedNetworkImageProvider(profil),
+                                backgroundImage: CachedNetworkImageProvider(profil),
                               ),
                             ),
                           ],
@@ -1451,15 +1236,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
               SliverStickyHeader(
-                header: kategoriListView(kategori), 
-                sliver: (allPosts == null && status == 0 ||
-                        filterPost == null && status != 0)
-                    ? SliverToBoxAdapter(
-                        child: PlaceHolder(),
-                      )
-                    : (status != 0)
-                        ? listAllPost(filterPost, name, role, idUser)
-                        : listAllPost(allPosts, name, role, idUser),
+                header: kategoriListView(kategori),
+                sliver: (status == 0) ? listAllPost(allPosts, name, role, idUser) : listAllPost(filterPost, name, role, idUser),
               ),
               SliverToBoxAdapter(
                 child: Container(
@@ -1475,198 +1253,202 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
         ),
         onRefresh: () async {
-          bool _status = await Provider.of<PostProvider>(context, listen: false)
-              .getAllPosts();
+          bool _status = await Provider.of<PostProvider>(context, listen: false).getAllPosts();
           return _status;
         },
       ),
     );
   }
 
-  SliverList listAllPost(allPost, name, role, idUser) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        return FadeInUp(0.5+index, Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0),
-            child: Material(
-              color: Colors.white.withOpacity(0.0),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                radius: 500,
-                splashColor: AppStyle.colorMain,
-                highlightColor: Colors.grey.withOpacity(0.5),
-                onLongPress: () {
-                  print('long pres $index');
-                  showModalBottomSheet(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10.0),
-                        topRight: Radius.circular(10.0),
-                      ),
-                    ),
-                    elevation: 10.0,
-                    context: context,
-                    backgroundColor: AppStyle.colorBg,
-                    builder: (builder) {
-                      return (allPost[index].userId == idUser ||
-                              role == Role.developer ||
-                              role == Role.admin)
-                          ? Column(
-                              children: <Widget>[
-                                SizedBox(height: 10.0),
-                                ListTile(
-                                  leading: Icon(
-                                    Icons.arrow_forward_ios,
-                                  ),
-                                  title: Text(
-                                    'Lihat profil',
-                                    style: AppStyle.textSubHeadingAbu,
-                                  ),
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => ProfilPage(
-                                                  id: allPost[index].userId,
-                                                  token: tokenProvider,
-                                                )));
-                                  },
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 18.0),
-                                  child: Divider(
-                                    thickness: 2,
-                                  ),
-                                ),
-                                ListTile(
-                                  leading: Icon(
-                                    Icons.delete_outline,
-                                  ),
-                                  title: Text(
-                                    'Hapus thread',
-                                    style: AppStyle.textSubHeadingAbu,
-                                  ),
-                                  onTap: () async {
-                                    String _status = await showDelete(context,
-                                        allPost[index].id, tokenProvider, role);
-                                    setState(() {
-                                      print(_status);
-                                      if (_status == 'ok') {
-                                        getdata();
-                                        _status = "";
-                                      }
-                                    });
-                                  },
-                                ),
-                              ],
-                            )
-                          : Column(
-                              children: <Widget>[
-                                SizedBox(height: 10.0),
-                                ListTile(
-                                  leading: Icon(
-                                    Icons.arrow_forward_ios,
-                                  ),
-                                  title: Text(
-                                    'Lihat profil',
-                                    style: AppStyle.textSubHeadingAbu,
-                                  ),
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => ProfilPage(
-                                                id: allPost[index].userId)));
-                                  },
-                                ),
-                              ],
-                            );
-                    },
-                  );
-                },
-                onTap: () async {
-                  String _status = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailPostAuthCheck(
-                        id: allPost[index].id,
-                        image: allPost[index].postImage,
-                        index: index,
-                        token: tokenProvider,
-                        name: name,
-                        role: role,
-                        idUser: idUser,
-                      ),
-                    ),
-                  );
-                  setState(() {
-                    print(_status);
-                    if (_status == 'ok') {
-                      getdata();
-                      _status = "";
-                    }
-                  });
-                },
-                child: Container(
-                  margin: EdgeInsets.symmetric(vertical: 5.0),
-                  width: double.infinity,
-                  height: 100.0,
-                  child: Row(
-                    children: <Widget>[
-                      Hero(
-                        tag: 'fullscreen${allPost[index].id}',
-                        child: Container(
-                          width: 100,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
-                            image: new DecorationImage(
-                              fit: BoxFit.cover,
-                              image: new CachedNetworkImageProvider(
-                                  allPost[index].postImage),
-                            ),
+  Widget listAllPost(allPost, name, role, idUser) {
+    return (allPost == null)
+        ? SliverToBoxAdapter(
+            child: PlaceHolder(),
+          )
+        : SliverList(
+            delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: Material(
+                  color: Colors.white.withOpacity(0.0),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    radius: 500,
+                    splashColor: AppStyle.colorMain,
+                    highlightColor: Colors.grey.withOpacity(0.5),
+                    onLongPress: () {
+                      print('long pres $index');
+                      showModalBottomSheet(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10.0),
+                            topRight: Radius.circular(10.0),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              '${allPost[index].name}',
-                              style: AppStyle.textBody1,
-                            ),
-                            Expanded(
-                              child: Container(
-                                width: MediaQuery.of(context).size.width * 6 / 10,
-                                child: AutoSizeText(
-                                  '${allPost[index].title}',
-                                  style: AppStyle.textRegular,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
+                        elevation: 10.0,
+                        context: context,
+                        backgroundColor: AppStyle.colorBg,
+                        builder: (builder) {
+                          return (allPost[index].userId == idUser || role == Role.developer || role == Role.admin)
+                              ? Column(
+                                  children: <Widget>[
+                                    SizedBox(height: 10.0),
+                                    ListTile(
+                                      leading: Icon(
+                                        Icons.arrow_forward_ios,
+                                      ),
+                                      title: Text(
+                                        'Lihat profil',
+                                        style: AppStyle.textSubHeadingAbu,
+                                      ),
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => ProfilPage(
+                                                      id: allPost[index].userId,
+                                                      token: tokenProvider,
+                                                    )));
+                                      },
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                      child: Divider(
+                                        thickness: 2,
+                                      ),
+                                    ),
+                                    ListTile(
+                                      leading: Icon(
+                                        Icons.delete_outline,
+                                      ),
+                                      title: Text(
+                                        'Hapus thread',
+                                        style: AppStyle.textSubHeadingAbu,
+                                      ),
+                                      onTap: () async {
+                                        String _status = await showDelete(context, allPost[index].id, tokenProvider, role);
+                                        setState(() {
+                                          print(_status);
+                                          if (_status == 'ok') {
+                                            getdata();
+                                            _status = "";
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                )
+                              : Column(
+                                  children: <Widget>[
+                                    SizedBox(height: 10.0),
+                                    ListTile(
+                                      leading: Icon(
+                                        Icons.arrow_forward_ios,
+                                      ),
+                                      title: Text(
+                                        'Lihat profil',
+                                        style: AppStyle.textSubHeadingAbu,
+                                      ),
+                                      onTap: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilPage(id: allPost[index].userId)));
+                                      },
+                                    ),
+                                  ],
+                                );
+                        },
+                      );
+                    },
+                    onTap: () async {
+                      String _status = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailPostAuthCheck(
+                            id: allPost[index].id,
+                            image: allPost[index].postImage,
+                            index: index,
+                            token: tokenProvider,
+                            name: name,
+                            role: role,
+                            idUser: idUser,
+                          ),
+                        ),
+                      );
+                      setState(() {
+                        print(_status);
+                        if (_status == 'ok') {
+                          getdata();
+                          _status = "";
+                        }
+                      });
+                    },
+                    child: Container(
+                      margin: EdgeInsets.symmetric(vertical: 5.0),
+                      width: double.infinity,
+                      height: 100.0,
+                      child: Row(
+                        children: <Widget>[
+                          Hero(
+                            tag: 'fullscreen${allPost[index].id}',
+                            child: Container(
+                              width: 100,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10.0),
+                                ),
+                                image: new DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: new CachedNetworkImageProvider(allPost[index].postImage),
                                 ),
                               ),
                             ),
-                            Text(
-                              '${allPost[index].kategori}',
-                              style: AppStyle.textCaption,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  '${allPost[index].name}',
+                                  style: AppStyle.textBody1,
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width * 6 / 10,
+                                    child: AutoSizeText(
+                                      '${allPost[index].title}',
+                                      style: AppStyle.textRegular,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                    ),
+                                  ),
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Text(
+                                      '${allPost[index].kategori}',
+                                      style: AppStyle.textCaption,
+                                    ),
+                                    SizedBox(width: 5),
+                                    CircleAvatar(radius: 2, backgroundColor: Color(0xFF646464)),
+                                    SizedBox(width: 5),
+                                    Text(
+                                      '${timeAgoIndo(allPost[index].createdAt)}',
+                                      style: AppStyle.textCaption,
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-        );
-      }, childCount: allPost.length),
-    );
+              );
+            }, childCount: allPost.length),
+          );
   }
 
   Padding kategoriListView(List kategori) {
@@ -1692,8 +1474,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   });
                 },
                 child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+                  padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
                   margin: EdgeInsets.symmetric(horizontal: 5.0),
                   decoration: (i == status)
                       ? BoxDecoration(
@@ -1704,17 +1485,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         )
                       : BoxDecoration(
                           color: AppStyle.colorWhite,
-                          border:
-                              Border.all(color: Colors.black.withOpacity(0.5)),
+                          border: Border.all(color: Colors.black.withOpacity(0.5)),
                           borderRadius: BorderRadius.all(
                             Radius.circular(50.0),
                           ),
                         ),
                   child: Text(
                     '${kategori[i]}',
-                    style: (status == i)
-                        ? AppStyle.textSubHeadingPutih
-                        : AppStyle.textSubHeadingAbu,
+                    style: (status == i) ? AppStyle.textSubHeadingPutih : AppStyle.textSubHeadingAbu,
                   ),
                 ),
               ),
