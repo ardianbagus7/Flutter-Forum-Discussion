@@ -81,6 +81,7 @@ class AuthProvider with ChangeNotifier {
     _notification = null;
     notifyListeners();
     final url = "$api/signin";
+    print('url login : $url');
 
     Map<String, String> body = {
       'email': email,

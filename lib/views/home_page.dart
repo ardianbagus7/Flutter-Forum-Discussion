@@ -1,4 +1,5 @@
 import 'package:discussion_app/models/AllPosts_model.dart';
+import 'package:discussion_app/models/notif_model.dart';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/services/role.dart';
@@ -42,6 +43,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   //*PAGINATE ALL POSTS
   List<Datum> allPosts;
   bool isLoadingMore;
+  List<DatumNotif> allNotif;
+
+  int totalNotif;
 
   //*
   ScrollController scrollControl;
@@ -62,6 +66,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   double yOffset = 0;
   double xOffset = 0;
   double pageScale = 1;
+
+  //* SIDE BAR NOTIF
+  bool sidebarnotifopen = false;
+  double xOffsetNotif = 0;
 
   //* VERIFIKASI
   bool loadingVerifikasi = false;
@@ -88,9 +96,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void setSidebarState() {
     setState(() {
-      xOffset = sidebaropen ? MediaQuery.of(context).size.width * 10 / 16 : 0;
+      xOffset = sidebaropen ? MediaQuery.of(context).size.width * 13 / 18 : 0;
       yOffset = sidebaropen ? MediaQuery.of(context).size.width * 4 / 16 : 0;
       pageScale = sidebaropen ? 0.8 : 1;
+    });
+  }
+
+  void setSidebarNotifState() {
+    setState(() {
+      xOffset = sidebarnotifopen ? -MediaQuery.of(context).size.width : 0;
+      xOffsetNotif = sidebarnotifopen ? 0 : MediaQuery.of(context).size.width;
     });
   }
 
@@ -106,6 +121,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
     _colorAnimationController = AnimationController(vsync: this, duration: Duration(seconds: 0));
 
     _iconColorTween = ColorTween(begin: Colors.grey, end: AppStyle.colorMain).animate(_colorAnimationController);
@@ -115,6 +131,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _transTween = Tween(begin: Offset(0, 40), end: Offset(0, 0)).animate(_textAnimationController);
 
     Future.microtask(() {
+      xOffsetNotif = MediaQuery.of(context).size.width;
+      Provider.of<PostProvider>(context, listen: false).getAllNotif();
       Provider.of<PostProvider>(context, listen: false).getAllPosts();
       Provider.of<PostProvider>(context, listen: false).getDetailProfil();
     });
@@ -165,6 +183,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     isLoadingMore = Provider.of<PostProvider>(context).isLoadingMore ?? false;
     //* FEEDBACK
     statusFeedback = Provider.of<PostProvider>(context).statusFeedback ?? 'menunggu';
+    //* NOTIF
+    allNotif = Provider.of<PostProvider>(context).allNotif ?? null;
+    totalNotif = Provider.of<PostProvider>(context).totalNotif ?? null;
 
     return Scaffold(
       backgroundColor: AppStyle.colorBg,
@@ -178,7 +199,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             children: <Widget>[
               //* SIDE BAR
               sideBar(role, context, profil, name, detailProfil),
-              //* SIDE BAR
+              //* SIDE BAR NOTIF
+              (!sidebaropen) ? sideBarNotif(context, name, role, idUser) : SizedBox(),
+              //*HOME PAGE
               AnimatedContainer(
                 curve: Curves.easeInOut,
                 duration: Duration(milliseconds: 500),
@@ -222,13 +245,227 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  GestureDetector sideBarNotif(BuildContext context, String name, int role, int idUser) {
+    return GestureDetector(
+      //allNotif[index].pesan
+      onHorizontalDragUpdate: _handleDragUpdateTrueNotif,
+      child: AnimatedContainer(
+        curve: Curves.easeInOut,
+        duration: Duration(milliseconds: 500),
+        transform: Matrix4.translationValues(xOffsetNotif, 0, 1.0),
+        color: AppStyle.colorBg,
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height,
+        child: SafeArea(
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (!isLoadingMore && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                // start loading data
+                setState(() {
+                  isLoadingMore = true;
+                });
+                //load data
+                Provider.of<PostProvider>(context, listen: false).getAllNotifMore();
+              }
+              return true;
+            },
+            child: RefreshIndicator(
+              onRefresh: () async {
+                bool _status = await Provider.of<PostProvider>(context, listen: false).getAllNotif();
+                return _status;
+              },
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: <Widget>[
+                  SliverAppBar(
+                    automaticallyImplyLeading: false,
+                    expandedHeight: 50.0,
+                    floating: false,
+                    pinned: true,
+                    backgroundColor: AppStyle.colorBg,
+                    flexibleSpace: FlexibleSpaceBar(
+                      titlePadding: EdgeInsetsDirectional.only(start: 0, bottom: 10, end: 0, top: 0),
+                      title: SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              InkWell(
+                                onTap: () {
+                                  sidebarnotifopen = false;
+                                  setSidebarNotifState();
+                                },
+                                child: Icon(Icons.arrow_back_ios, color: AppStyle.colorMain),
+                              ),
+                              Text('Notifikasi', style: AppStyle.textHeadlineProfil),
+                              SizedBox(width: 10),
+                            ],
+                          ),
+                        ),
+                      ),
+                      collapseMode: CollapseMode.parallax,
+                    ),
+                  ),
+                  SliverToBoxAdapter(child: SizedBox(height: 5)),
+                  (allNotif == null)
+                      ? SliverToBoxAdapter(
+                          child: Center(
+                            child: SizedBox(
+                              height: 50.0,
+                              width: 50.0,
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                        ) //
+                      : SliverList(
+                          //allNotif[index].pesan
+                          delegate: SliverChildBuilderDelegate(
+                            (BuildContext context, int index) {
+                              return Container(
+                                color: (allNotif[index].read == 0) ? Colors.grey.withOpacity(0.2) : Colors.transparent,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ProfilPage(
+                                                id: allNotif[index].userPesanId,
+                                                token: tokenProvider,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: CircleAvatar(
+                                          radius: 25,
+                                          backgroundImage: CachedNetworkImageProvider(allNotif[index].image),
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () async {
+                                            Provider.of<PostProvider>(context, listen: false).getReadNotif(allNotif[index].id);
+                                            String _status = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => DetailPostAuthCheck(
+                                                  id: allNotif[index].postId,
+                                                  image: allNotif[index].imagePost,
+                                                  index: index,
+                                                  token: tokenProvider,
+                                                  name: name,
+                                                  role: role,
+                                                  idUser: idUser,
+                                                ),
+                                              ),
+                                            );
+                                            if (_status == null) {
+                                              Provider.of<PostProvider>(context, listen: false).getAllNotif();
+                                            }
+                                          },
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Container(
+                                                margin: EdgeInsets.only(bottom: 2),
+                                                child: Text('${allNotif[index].pesan}', style: AppStyle.textBody1Black, maxLines: 2, overflow: TextOverflow.ellipsis),
+                                              ),
+                                              Text('${timeAgoIndo(allNotif[index].createdAt)}', style: AppStyle.textCaption),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      InkWell(
+                                        onTap: () async {
+                                          Provider.of<PostProvider>(context, listen: false).getReadNotif(allNotif[index].id);
+                                          String _status = await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => DetailPostAuthCheck(
+                                                id: allNotif[index].postId,
+                                                image: allNotif[index].imagePost,
+                                                index: index,
+                                                token: tokenProvider,
+                                                name: name,
+                                                role: role,
+                                                idUser: idUser,
+                                              ),
+                                            ),
+                                          );
+                                          if (_status == null) {
+                                            Provider.of<PostProvider>(context, listen: false).getAllNotif();
+                                          }
+                                        },
+                                        child: Container(
+                                          width: 55,
+                                          height: 55,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(10.0),
+                                            ),
+                                            image: new DecorationImage(
+                                              fit: BoxFit.cover,
+                                              image: new CachedNetworkImageProvider(allNotif[index].imagePost),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                            childCount: allNotif.length,
+                          ),
+                        ),
+                  SliverToBoxAdapter(
+                    child: Container(
+                      height: isLoadingMore ? 50.0 : 0,
+                      color: Colors.transparent,
+                      child: Center(
+                        child: new CircularProgressIndicator(),
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(child: SizedBox(height: 100))
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleDragUpdateTrueNotif(DragUpdateDetails details) {
+    print(details.primaryDelta);
+    if (details.primaryDelta < -10) {
+      sidebarnotifopen = true;
+      setSidebarNotifState();
+    }
+    if (details.primaryDelta > 10) {
+      sidebarnotifopen = false;
+      setSidebarNotifState();
+    }
+  }
+
   void _handleDragUpdateTrue(DragUpdateDetails details) {
     print(details.primaryDelta);
-    if (details.primaryDelta < -5) {
+    if (details.primaryDelta < -10) {
       sidebaropen = false;
       setSidebarState();
     }
-    if (details.primaryDelta > 5) {
+    if (details.primaryDelta > 10) {
       sidebaropen = true;
       setSidebarState();
     }
@@ -236,13 +473,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void _handleDragUpdateFalse(DragUpdateDetails details) {
     print(details.primaryDelta);
-    if (details.primaryDelta > 5) {
+    if (details.primaryDelta > 10) {
       sidebaropen = true;
       setSidebarState();
     }
-    if (details.primaryDelta < -5) {
-      sidebaropen = false;
-      setSidebarState();
+    if (details.primaryDelta < -10 && sidebaropen == false) {
+      sidebarnotifopen = true;
+      setSidebarNotifState();
     }
   }
 
@@ -1089,26 +1326,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   SafeArea mainPage(String name, String nameSplit, String profil, List kategori, allPost, filterPost, int role, idUser) {
     return SafeArea(
-      child: RefreshIndicator(
-        child: NotificationListener<ScrollNotification>(
-          onNotification: (ScrollNotification scrollInfo) {
-            if (!isLoadingMore && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-              // start loading data
-              setState(() {
-                isLoadingMore = true;
-              });
-              //load data
-              if (status == 0) {
-                Provider.of<PostProvider>(context, listen: false).getAllPostMore();
-              } else if (status != 0) {
-                Provider.of<PostProvider>(context, listen: false).getAllFilterPostMore(kategori[status]);
-              }
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+            // start loading data
+            setState(() {
+              isLoadingMore = true;
+            });
+            //load data
+            if (status == 0) {
+              Provider.of<PostProvider>(context, listen: false).getAllPostMore();
+            } else if (status != 0) {
+              Provider.of<PostProvider>(context, listen: false).getAllFilterPostMore(kategori[status]);
             }
-            return true;
+          }
+          return true;
+        },
+        child: RefreshIndicator(
+          onRefresh: () async {
+            bool _status = await Provider.of<PostProvider>(context, listen: false).getAllPosts();
+            return _status;
           },
           child: CustomScrollView(
             controller: scrollControl,
-            physics: const BouncingScrollPhysics(),
+            physics: BouncingScrollPhysics(),
             slivers: <Widget>[
               SliverAppBar(
                 expandedHeight: 180.0,
@@ -1183,18 +1424,43 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        GestureDetector(
-                          onTap: () {
-                            //ganti state sidebar
-                            sidebaropen = !sidebaropen;
-                            setSidebarState();
-                          },
-                          child: Icon(Icons.menu, size: 30, color: AppStyle.colorMain),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            GestureDetector(
+                              onTap: () {
+                                //ganti state sidebar
+                                sidebaropen = !sidebaropen;
+                                setSidebarState();
+                              },
+                              child: Icon(Icons.menu, size: 30, color: AppStyle.colorMain),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                //ganti notif sidebar
+                                sidebarnotifopen = !sidebarnotifopen;
+                                setSidebarNotifState();
+
+                                Provider.of<PostProvider>(context, listen: false).getAllNotif();
+                              },
+                              child: Stack(
+                                children: <Widget>[
+                                  Icon(Icons.notifications, size: 30, color: AppStyle.colorMain),
+                                  CircleAvatar(
+                                    radius: 10,
+                                    backgroundColor: AppStyle.colorMain3,
+                                    child: AutoSizeText('$totalNotif', style: AppStyle.textNotif),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
                         ),
                         SizedBox(height: 15),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
                             Column(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -1215,13 +1481,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 )
                               ],
                             ),
-                            Hero(
+                            /*Hero(
                               tag: 'profil',
                               child: CircleAvatar(
-                                radius: 25,
+                                radius: 23,
                                 backgroundImage: CachedNetworkImageProvider(profil),
                               ),
-                            ),
+                            ), */
                           ],
                         ),
                       ],
@@ -1252,10 +1518,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ],
           ),
         ),
-        onRefresh: () async {
-          bool _status = await Provider.of<PostProvider>(context, listen: false).getAllPosts();
-          return _status;
-        },
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:discussion_app/models/bug_model.dart';
 import 'package:discussion_app/models/filterUser_model.dart';
 import 'package:discussion_app/models/formVerif_model.dart';
+import 'package:discussion_app/models/notif_model.dart';
 import 'package:discussion_app/models/searchUser_model.dart';
 import 'package:discussion_app/models/AllPosts_model.dart';
 import 'package:discussion_app/models/allKey_model.dart';
@@ -50,6 +51,32 @@ class ApiService {
     if (status != validStatus) {
       throw new ApiException(status.toString(), 'Server down');
     }
+  }
+
+  //* NOTIFIKASI
+
+  Future<Notif> getAllNotif() async {
+    final url = "$api/notifall";
+
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+    print('sukses get all notif');
+    return notifFromJson(response.body);
+  }
+
+  Future<Notif> getAllNotifMore(String url) async {
+    print(url);
+
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
+
+    final response = await http.get(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    return notifFromJson(response.body);
   }
 
   Future<AllPost> getAllPost() async {
@@ -602,5 +629,19 @@ class ApiService {
     validateResponseStatus(response.statusCode, 200);
     print('sukses get all form more');
     return formFromJson(response.body);
+  }
+
+  Future<bool> getReadNotif(int id) async {
+     final url = "$api/notif/$id";
+
+    Map<String, String> headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
+
+    final response = await http.post(url, headers: headers);
+
+    validateResponseStatus(response.statusCode, 200);
+
+    print('sukses read');
+
+    return true;
   }
 }

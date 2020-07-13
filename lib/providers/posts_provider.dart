@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:discussion_app/models/AllPosts_model.dart';
+import 'package:discussion_app/models/notif_model.dart';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/services/api.dart';
 import 'package:discussion_app/utils/exceptions.dart';
@@ -16,13 +17,16 @@ class PostProvider with ChangeNotifier {
   var searchPost;
   var detailProfil;
   var detailProfilId;
+  int totalNotif;
   //* PAGINATE
   String nextPagePosts;
   String nextPageFilterPosts;
+  String nextPageNotif;
 
   bool isLoadingMore;
   List<Datum> allPosts;
   List<Datum> filterPosts;
+  List<DatumNotif> allNotif;
 
   String statusCreate = 'menunggu';
   String statusDelete = 'menunggu';
@@ -39,6 +43,100 @@ class PostProvider with ChangeNotifier {
   PostProvider(AuthProvider authProvider) {
     this.apiService = ApiService(authProvider);
     this.authProvider = authProvider;
+  }
+
+  Future<bool> getAllNotif() async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      isLoading = true;
+      print('loading $isLoading');
+      notifyListeners();
+      final _data = await apiService.getAllNotif();
+
+      List<DatumNotif> _listNotif = _data.notif.data;
+      allNotif = _listNotif;
+
+      print('notif : ${allNotif.length}');
+
+      totalNotif = _data.total;
+
+      nextPageNotif = _data.notif.nextPageUrl;
+      isLoading = false;
+      notifyListeners();
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+      isLoading = false;
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      isLoading = false;
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getAllNotifMore() async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+      String _url = nextPageNotif;
+      if (_url != null) {
+        isLoadingMore = true;
+        final _data = await apiService.getAllNotifMore(_url);
+
+        //* LIST POST LAMA
+        List<DatumNotif> _listNotifSekarang = allNotif;
+        //* LIST POST BARU
+        List<DatumNotif> _listNotif = _data.notif.data;
+        //* GABUNGAN POST LAMA DAN BARU
+        List<DatumNotif> _allNotifNew = [..._listNotifSekarang, ..._listNotif];
+        allNotif = _allNotifNew;
+
+        nextPageNotif = _data.notif.nextPageUrl;
+        print('sukses tambah');
+        isLoadingMore = false;
+        notifyListeners();
+      } else {
+        print('sudah habis gan');
+      }
+      return true;
+    } on AuthException {
+      //Token expired, redirect login
+      isLoadingMore = false;
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      isLoadingMore = false;
+      notifyListeners();
+      print(exception);
+      return false;
+    }
+  }
+
+  Future<bool> getReadNotif(int id) async {
+    try {
+      //Jika tidak ada exceptions thrown dari API service
+
+      final _data = await apiService.getReadNotif(id);
+      if (_data)
+        return true;
+      else
+        return false;
+    } on AuthException {
+      //Token expired, redirect login
+      isLoading = false;
+      notifyListeners();
+      await authProvider.logOut(true);
+      return false;
+    } catch (exception) {
+      isLoading = false;
+      notifyListeners();
+      print(exception);
+      return false;
+    }
   }
 
   Future<bool> getAllPosts() async {

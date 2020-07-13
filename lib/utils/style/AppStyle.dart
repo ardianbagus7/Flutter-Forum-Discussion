@@ -57,7 +57,6 @@ class AppStyle {
     fontWeight: FontWeight.w400,
   );
 
-  
   static TextStyle textSubHeadlinePutih = GoogleFonts.poppins(
     textStyle: TextStyle(
       color: Colors.white,
@@ -120,6 +119,15 @@ class AppStyle {
     fontWeight: FontWeight.w500,
   );
 
+  static TextStyle textBody1Black = GoogleFonts.poppins(
+    textStyle: TextStyle(
+      color: Colors.black,
+    ),
+    fontSize: 14,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.w500,
+  );
+
   static TextStyle textRegular = GoogleFonts.poppins(
     textStyle: TextStyle(
       color: Colors.black,
@@ -161,6 +169,15 @@ class AppStyle {
       color: Color(0xFF646464),
     ),
     fontSize: 12,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.w500,
+  );
+
+  static TextStyle textNotif = GoogleFonts.poppins(
+    textStyle: TextStyle(
+      color: Colors.white,
+    ),
+    fontSize: 10,
     fontStyle: FontStyle.normal,
     fontWeight: FontWeight.w500,
   );
