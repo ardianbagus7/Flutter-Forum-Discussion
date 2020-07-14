@@ -1447,11 +1447,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               child: Stack(
                                 children: <Widget>[
                                   Icon(Icons.notifications, size: 30, color: AppStyle.colorMain),
-                                  CircleAvatar(
-                                    radius: 10,
-                                    backgroundColor: AppStyle.colorMain3,
-                                    child: AutoSizeText('$totalNotif', style: AppStyle.textNotif),
-                                  ),
+                                  (totalNotif == 0 || totalNotif == null)
+                                      ? SizedBox()
+                                      : CircleAvatar(
+                                          radius: 10,
+                                          backgroundColor: AppStyle.colorMain3,
+                                          child: AutoSizeText('$totalNotif', style: AppStyle.textNotif),
+                                        ),
                                 ],
                               ),
                             )

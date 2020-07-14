@@ -7,11 +7,60 @@ import 'package:discussion_app/views/login_page.dart';
 import 'package:discussion_app/views/reLogin_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+import 'dart:convert';
+import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'package:workmanager/workmanager.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+// BACKGROUND FETCH
+const simplePeriodicTask = "simplePeriodicTask";
+// LOCAL NOTIFICATION SETUP
+void showNotification(v, flp) async {
+  var android = AndroidNotificationDetails('channel id', 'channel NAME', 'CHANNEL DESCRIPTION', priority: Priority.High, importance: Importance.Max);
+  var iOS = IOSNotificationDetails();
+  var platform = NotificationDetails(android, iOS);
+  await flp.show(0, 'Tune Apps', '$v', platform, payload: 'New notification \n $v');
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Workmanager.initialize(callbackDispatcher, isInDebugMode: true); // DEBUG MODE 
+  await Workmanager.registerPeriodicTask("5", simplePeriodicTask,
+      existingWorkPolicy: ExistingWorkPolicy.replace,
+      frequency: Duration(minutes: 15), // FREKUENSI FETCH API
+      initialDelay: Duration(seconds: 5), // DURASI DELAY NOTIF
+      constraints: Constraints(
+        networkType: NetworkType.connected,
+      ));
   runApp(
     ChangeNotifierProvider(create: (context) => AuthProvider(), child: MyApp()),
   );
+}
+
+void callbackDispatcher() {
+  Workmanager.executeTask((task, inputData) async {
+    FlutterLocalNotificationsPlugin flp = FlutterLocalNotificationsPlugin();
+    var android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    var iOS = IOSInitializationSettings();
+    var initSetttings = InitializationSettings(android, iOS);
+    flp.initialize(initSetttings);
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    int idUser = storage.getInt('id');
+    print('id user = $idUser');
+    var response = await http.get('http://138.91.32.37/api/v1/notif/$idUser');
+    print(response.body);
+    var convert = json.decode(response.body);
+    if (convert['read'] == 0) {
+      showNotification(convert['pesan'], flp);
+    } else {
+      print("no messgae");
+    }
+
+    return Future.value(true);
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -21,8 +70,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => PostProvider(authProvider)),
-        ChangeNotifierProvider(
-            create: (context) => AdminProvider(authProvider)),
+        ChangeNotifierProvider(create: (context) => AdminProvider(authProvider)),
       ],
       child: MaterialApp(
         initialRoute: '/',
@@ -63,8 +111,7 @@ class _RouterState extends State<Router> {
           case Status.Authenticated:
             return MultiProvider(
               providers: [
-                ChangeNotifierProvider(
-                    create: (context) => PostProvider(authProvider)),
+                ChangeNotifierProvider(create: (context) => PostProvider(authProvider)),
               ],
               child: HomePage(),
             );
