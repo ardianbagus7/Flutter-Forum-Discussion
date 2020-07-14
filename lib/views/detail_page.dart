@@ -115,61 +115,65 @@ class _DetailPageState extends State<DetailPage> {
                                 elevation: 10.0,
                                 context: context,
                                 backgroundColor: AppStyle.colorBg,
+                                isScrollControlled: true,
                                 builder: (builder) {
-                                  return Column(
-                                    children: <Widget>[
-                                      SizedBox(height: 10.0),
-                                      ListTile(
+                                  return SingleChildScrollView(
+                                    child: Column(
+                                      children: <Widget>[
+                                        SizedBox(height: 10.0),
+                                        ListTile(
+                                            leading: Icon(
+                                              Icons.edit,
+                                            ),
+                                            title: Text(
+                                              'Edit thread',
+                                              style: AppStyle.textSubHeadingAbu,
+                                            ),
+                                            onTap: () async {
+                                              String _status = await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => EditPost(
+                                                    token: token,
+                                                    postId: id,
+                                                    idPost: detailPost.post[0],
+                                                    title: detailPost.post[0].title,
+                                                    deskripsi: detailPost.post[0].description,
+                                                  ),
+                                                ),
+                                              );
+                                              setState(() {
+                                                print(_status);
+                                                if (_status == 'ok') {
+                                                  Provider.of<PostProvider>(context, listen: false).getIdPost(detailPost.post[0].id, token);
+                                                  _status = "";
+                                                }
+                                              });
+                                            }),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                          child: Divider(
+                                            thickness: 2,
+                                          ),
+                                        ),
+                                        ListTile(
                                           leading: Icon(
-                                            Icons.edit,
+                                            Icons.delete_outline,
                                           ),
                                           title: Text(
-                                            'Edit thread',
+                                            'Hapus thread',
                                             style: AppStyle.textSubHeadingAbu,
                                           ),
                                           onTap: () async {
-                                            String _status = await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => EditPost(
-                                                  token: token,
-                                                  postId: id,
-                                                  idPost: detailPost.post[0],
-                                                  title: detailPost.post[0].title,
-                                                  deskripsi: detailPost.post[0].description,
-                                                ),
-                                              ),
-                                            );
-                                            setState(() {
-                                              print(_status);
-                                              if (_status == 'ok') {
-                                                Provider.of<PostProvider>(context, listen: false).getIdPost(detailPost.post[0].id, token);
-                                                _status = "";
-                                              }
-                                            });
-                                          }),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                        child: Divider(
-                                          thickness: 2,
+                                            String _status = await showDelete(context, detailPost.post[0].id, token, role);
+                                            if (_status == 'ok') {
+                                              Navigator.pop(context, 'ok');
+                                            }
+                                          },
                                         ),
-                                      ),
-                                      ListTile(
-                                        leading: Icon(
-                                          Icons.delete_outline,
-                                        ),
-                                        title: Text(
-                                          'Hapus thread',
-                                          style: AppStyle.textSubHeadingAbu,
-                                        ),
-                                        onTap: () async {
-                                          String _status = await showDelete(context, detailPost.post[0].id, token, role);
-                                          if (_status == 'ok') {
-                                            Navigator.pop(context, 'ok');
-                                          }
-                                        },
-                                      ),
-                                    ],
+                                          SizedBox(height: 10.0),
+                                      ],
+                                    ),
                                   );
                                 },
                               );

@@ -171,7 +171,7 @@ class _KomentarScreenState extends State<KomentarScreen> {
                                       ),
                                       SizedBox(height: 5),
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal:18.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                         child: Text(
                                           timeAgoIndo(detailPostNew.komentar[index].createdAt),
                                           style: AppStyle.textCaption,
@@ -261,73 +261,80 @@ class _KomentarScreenState extends State<KomentarScreen> {
       elevation: 10.0,
       context: context,
       backgroundColor: AppStyle.colorBg,
+      isScrollControlled: true,
       builder: (builder) {
-        return (detailPostNew.komentar[index].userId == idUser || role == Role.developer || role == Role.admin)
-            ? Column(
-                children: <Widget>[
-                  SizedBox(height: 10.0),
-                  ListTile(
-                    leading: Icon(
-                      Icons.arrow_forward_ios,
+        return SingleChildScrollView(
+          child: (detailPostNew.komentar[index].userId == idUser || role == Role.developer || role == Role.admin)
+              ? Column(
+                  children: <Widget>[
+                    SizedBox(height: 10.0),
+                    ListTile(
+                      leading: Icon(
+                        Icons.arrow_forward_ios,
+                      ),
+                      title: Text(
+                        'Lihat profil',
+                        style: AppStyle.textSubHeadingAbu,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ProfilPage(
+                                      id: detailPostNew.komentar[index].userId,
+                                      token: token,
+                                    )));
+                      },
                     ),
-                    title: Text(
-                      'Lihat profil',
-                      style: AppStyle.textSubHeadingAbu,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                      child: Divider(
+                        thickness: 2,
+                      ),
                     ),
-                    onTap: () {
-                      Navigator.push(
+                    ListTile(
+                      leading: Icon(
+                        Icons.delete_outline,
+                      ),
+                      title: Text(
+                        'Hapus Komentar',
+                        style: AppStyle.textSubHeadingAbu,
+                      ),
+                      onTap: () {
+                        //detailPostNew.komentar[index].
+                        showDeleteKomentar(context, detailPost.post[0].id, detailPostNew.komentar[index].id, token, role);
+                      },
+                    ),
+                    SizedBox(height: 10.0),
+                  ],
+                )
+              : Column(
+                  children: <Widget>[
+                    SizedBox(height: 10.0),
+                    ListTile(
+                      leading: Icon(
+                        Icons.arrow_forward_ios,
+                      ),
+                      title: Text(
+                        'Lihat profil',
+                        style: AppStyle.textSubHeadingAbu,
+                      ),
+                      onTap: () {
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => ProfilPage(
-                                    id: detailPostNew.komentar[index].userId,
-                                    token: token,
-                                  )));
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                    child: Divider(
-                      thickness: 2,
+                            builder: (context) => ProfilPage(
+                              id: detailPostNew.komentar[index].userId,
+                              token: token,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.delete_outline,
-                    ),
-                    title: Text(
-                      'Hapus Komentar',
-                      style: AppStyle.textSubHeadingAbu,
-                    ),
-                    onTap: () {
-                      //detailPostNew.komentar[index].
-                      showDeleteKomentar(context, detailPost.post[0].id, detailPostNew.komentar[index].id, token, role);
-                    },
-                  ),
-                ],
-              )
-            : Column(
-                children: <Widget>[
-                  SizedBox(height: 10.0),
-                  ListTile(
-                    leading: Icon(
-                      Icons.arrow_forward_ios,
-                    ),
-                    title: Text(
-                      'Lihat profil',
-                      style: AppStyle.textSubHeadingAbu,
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ProfilPage(
-                                    id: detailPostNew.komentar[index].userId,
-                                    token: token,
-                                  )));
-                    },
-                  ),
-                ],
-              );
+                    SizedBox(height: 10.0),
+                  ],
+                ),
+        );
       },
     );
   }

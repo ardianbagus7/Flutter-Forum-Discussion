@@ -1552,72 +1552,79 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         elevation: 10.0,
                         context: context,
                         backgroundColor: AppStyle.colorBg,
+                        isScrollControlled: true,
                         builder: (builder) {
                           return (allPost[index].userId == idUser || role == Role.developer || role == Role.admin)
-                              ? Column(
-                                  children: <Widget>[
-                                    SizedBox(height: 10.0),
-                                    ListTile(
-                                      leading: Icon(
-                                        Icons.arrow_forward_ios,
+                              ? SingleChildScrollView(
+                                  child: Column(
+                                    children: <Widget>[
+                                      SizedBox(height: 10.0),
+                                      ListTile(
+                                        leading: Icon(
+                                          Icons.arrow_forward_ios,
+                                        ),
+                                        title: Text(
+                                          'Lihat profil',
+                                          style: AppStyle.textSubHeadingAbu,
+                                        ),
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) => ProfilPage(
+                                                        id: allPost[index].userId,
+                                                        token: tokenProvider,
+                                                      )));
+                                        },
                                       ),
-                                      title: Text(
-                                        'Lihat profil',
-                                        style: AppStyle.textSubHeadingAbu,
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                        child: Divider(
+                                          thickness: 2,
+                                        ),
                                       ),
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => ProfilPage(
-                                                      id: allPost[index].userId,
-                                                      token: tokenProvider,
-                                                    )));
-                                      },
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                      child: Divider(
-                                        thickness: 2,
+                                      ListTile(
+                                        leading: Icon(
+                                          Icons.delete_outline,
+                                        ),
+                                        title: Text(
+                                          'Hapus thread',
+                                          style: AppStyle.textSubHeadingAbu,
+                                        ),
+                                        onTap: () async {
+                                          String _status = await showDelete(context, allPost[index].id, tokenProvider, role);
+                                          setState(() {
+                                            print(_status);
+                                            if (_status == 'ok') {
+                                              getdata();
+                                              _status = "";
+                                            }
+                                          });
+                                        },
                                       ),
-                                    ),
-                                    ListTile(
-                                      leading: Icon(
-                                        Icons.delete_outline,
-                                      ),
-                                      title: Text(
-                                        'Hapus thread',
-                                        style: AppStyle.textSubHeadingAbu,
-                                      ),
-                                      onTap: () async {
-                                        String _status = await showDelete(context, allPost[index].id, tokenProvider, role);
-                                        setState(() {
-                                          print(_status);
-                                          if (_status == 'ok') {
-                                            getdata();
-                                            _status = "";
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ],
+                                      SizedBox(height: 10.0),
+                                    ],
+                                  ),
                                 )
-                              : Column(
-                                  children: <Widget>[
-                                    SizedBox(height: 10.0),
-                                    ListTile(
-                                      leading: Icon(
-                                        Icons.arrow_forward_ios,
+                              : SingleChildScrollView(
+                                  child: Column(
+                                    children: <Widget>[
+                                      SizedBox(height: 10.0),
+                                      ListTile(
+                                        leading: Icon(
+                                          Icons.arrow_forward_ios,
+                                        ),
+                                        title: Text(
+                                          'Lihat profil',
+                                          style: AppStyle.textSubHeadingAbu,
+                                        ),
+                                        onTap: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilPage(id: allPost[index].userId)));
+                                        },
                                       ),
-                                      title: Text(
-                                        'Lihat profil',
-                                        style: AppStyle.textSubHeadingAbu,
-                                      ),
-                                      onTap: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilPage(id: allPost[index].userId)));
-                                      },
-                                    ),
-                                  ],
+                                      SizedBox(height: 10.0),
+                                    ],
+                                  ),
                                 );
                         },
                       );
