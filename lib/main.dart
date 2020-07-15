@@ -27,7 +27,7 @@ void showNotification(v, flp) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Workmanager.initialize(callbackDispatcher, isInDebugMode: true); // DEBUG MODE 
+  await Workmanager.initialize(callbackDispatcher, isInDebugMode: false); // DEBUG MODE
   await Workmanager.registerPeriodicTask("5", simplePeriodicTask,
       existingWorkPolicy: ExistingWorkPolicy.replace,
       frequency: Duration(minutes: 15), // FREKUENSI FETCH API
@@ -47,16 +47,20 @@ void callbackDispatcher() {
     var iOS = IOSInitializationSettings();
     var initSetttings = InitializationSettings(android, iOS);
     flp.initialize(initSetttings);
-    SharedPreferences storage = await SharedPreferences.getInstance();
-    int idUser = storage.getInt('id');
-    print('id user = $idUser');
-    var response = await http.get('http://138.91.32.37/api/v1/notif/$idUser');
-    print(response.body);
-    var convert = json.decode(response.body);
-    if (convert['read'] == 0) {
-      showNotification(convert['pesan'], flp);
-    } else {
-      print("no messgae");
+    try {
+      SharedPreferences storage = await SharedPreferences.getInstance();
+      int idUser = storage.getInt('id');
+      print('id user = $idUser');
+      var response = await http.get('http://138.91.32.37/api/v1/notif/$idUser');
+      print(response.body);
+      var convert = json.decode(response.body);
+      if (convert['read'] == 0) {
+        showNotification(convert['pesan'], flp);
+      } else {
+        print("no messgae");
+      }
+    } catch (e) {
+      print(e);
     }
 
     return Future.value(true);

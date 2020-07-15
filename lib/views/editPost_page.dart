@@ -17,21 +17,9 @@ class EditPost extends StatefulWidget {
   final idPost;
   final title;
   final deskripsi;
-  EditPost(
-      {Key key,
-      @required this.token,
-      this.postId,
-      this.idPost,
-      this.title,
-      this.deskripsi})
-      : super(key: key);
+  EditPost({Key key, @required this.token, this.postId, this.idPost, this.title, this.deskripsi}) : super(key: key);
   @override
-  _EditPostState createState() => _EditPostState(
-      token: token,
-      postId: postId,
-      idPost: idPost,
-      title: title,
-      deskripsi: deskripsi);
+  _EditPostState createState() => _EditPostState(token: token, postId: postId, idPost: idPost, title: title, deskripsi: deskripsi);
 }
 
 class _EditPostState extends State<EditPost> {
@@ -40,21 +28,9 @@ class _EditPostState extends State<EditPost> {
   final idPost;
   String title;
   String deskripsi;
-  _EditPostState(
-      {Key key,
-      @required this.token,
-      this.postId,
-      this.idPost,
-      this.title,
-      this.deskripsi});
+  _EditPostState({Key key, @required this.token, this.postId, this.idPost, this.title, this.deskripsi});
   int statusKategori;
-  List kategori = [
-    'Forum Alumni',
-    'Kompetisi',
-    'Mata Kuliah',
-    'Beasiswa',
-    'Keluh kesah'
-  ];
+  List kategori = ['Forum Alumni', 'Kompetisi', 'Mata Kuliah', 'Beasiswa', 'Keluh kesah'];
   var statusCreate;
   File _image;
   final picker = ImagePicker();
@@ -79,8 +55,7 @@ class _EditPostState extends State<EditPost> {
   }
 
   void getIdPost() async {
-    bool _status = await Provider.of<PostProvider>(context, listen: false)
-        .getIdPost(postId, token);
+    bool _status = await Provider.of<PostProvider>(context, listen: false).getIdPost(postId, token);
     if (_status) {
       int index = kategori.indexWhere((element) => element == idPost.kategori);
       statusKategori = index;
@@ -101,13 +76,10 @@ class _EditPostState extends State<EditPost> {
     detailPost = Provider.of<PostProvider>(context).idPost ?? null;
 
     void submit() async {
-      bool status = await Provider.of<PostProvider>(context, listen: false)
-          .editPost(postId, titleController.text, descriptionController.text,
-              kategori[statusKategori], _image, token);
+      bool status = await Provider.of<PostProvider>(context, listen: false).editPost(postId, titleController.text, descriptionController.text, kategori[statusKategori], _image, token);
       if (status) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          Provider.of<PostProvider>(context, listen: false)
-              .getIdPost(detailPost.post[0].id, token);
+          Provider.of<PostProvider>(context, listen: false).getIdPost(detailPost.post[0].id, token);
           Navigator.pop(context, 'ok');
           Navigator.pop(context, 'ok');
         });
@@ -221,8 +193,7 @@ class _EditPostState extends State<EditPost> {
                       });
                     },
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+                      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
                       margin: EdgeInsets.symmetric(horizontal: 5.0),
                       decoration: (i == statusKategori)
                           ? BoxDecoration(
@@ -233,17 +204,14 @@ class _EditPostState extends State<EditPost> {
                             )
                           : BoxDecoration(
                               color: AppStyle.colorWhite,
-                              border: Border.all(
-                                  color: Colors.black.withOpacity(0.5)),
+                              border: Border.all(color: Colors.black.withOpacity(0.5)),
                               borderRadius: BorderRadius.all(
                                 Radius.circular(50.0),
                               ),
                             ),
                       child: Text(
                         '${kategori[i]}',
-                        style: (statusKategori == i)
-                            ? AppStyle.textSubHeadingPutih
-                            : AppStyle.textSubHeadingAbu,
+                        style: (statusKategori == i) ? AppStyle.textSubHeadingPutih : AppStyle.textSubHeadingAbu,
                       ),
                     ),
                   ),
@@ -273,9 +241,7 @@ class _EditPostState extends State<EditPost> {
             decoration: InputDecoration(
               filled: true,
               fillColor: AppStyle.colorBg,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
             ),
             maxLines: 10,
           ),
@@ -302,9 +268,7 @@ class _EditPostState extends State<EditPost> {
             decoration: InputDecoration(
               filled: true,
               fillColor: AppStyle.colorBg,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide.none),
             ),
           ),
         ),
@@ -325,74 +289,78 @@ class _EditPostState extends State<EditPost> {
             elevation: 10.0,
             context: context,
             backgroundColor: AppStyle.colorBg,
+            isScrollControlled: true,
             builder: (builder) {
-              return Column(
-                children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.only(top: 10.0),
-                    height: 50.0,
-                    width: double.infinity,
-                    child: Center(
-                      child: Text(
-                        'Pilih Foto',
-                        style: AppStyle.textHeadlineTipisBlack,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            getImage(ImageSource.camera);
-                            Navigator.of(context).pop();
-                          },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(
-                                Icons.camera_alt,
-                                color: AppStyle.colorMain,
-                                size: 50,
-                              ),
-                              Text(
-                                'Kamera',
-                                style: AppStyle.textCaption2,
-                              ),
-                            ],
-                          ),
+              return SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(top: 10.0),
+                      height: 50.0,
+                      width: double.infinity,
+                      child: Center(
+                        child: Text(
+                          'Pilih Foto',
+                          style: AppStyle.textHeadlineTipisBlack,
                         ),
                       ),
-                      Expanded(
-                        child: Container(
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Expanded(
                           child: InkWell(
                             onTap: () {
-                              getImage(ImageSource.gallery);
+                              getImage(ImageSource.camera);
                               Navigator.of(context).pop();
                             },
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 Icon(
-                                  Icons.photo_library,
+                                  Icons.camera_alt,
                                   color: AppStyle.colorMain,
                                   size: 50,
                                 ),
                                 Text(
-                                  'Galeri',
+                                  'Kamera',
                                   style: AppStyle.textCaption2,
                                 ),
                               ],
                             ),
                           ),
                         ),
-                      )
-                    ],
-                  )
-                ],
+                        Expanded(
+                          child: Container(
+                            child: InkWell(
+                              onTap: () {
+                                getImage(ImageSource.gallery);
+                                Navigator.of(context).pop();
+                              },
+                              child: Column(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.photo_library,
+                                    color: AppStyle.colorMain,
+                                    size: 50,
+                                  ),
+                                  Text(
+                                    'Galeri',
+                                    style: AppStyle.textCaption2,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
               );
             });
         // getImage(ImageSource.camera);

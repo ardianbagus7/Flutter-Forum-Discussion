@@ -82,6 +82,29 @@ class SlideUp extends StatelessWidget {
   }
 }
 
+class SlideUpKomentar extends StatelessWidget {
+  final double delay;
+  final Widget child;
+
+  SlideUpKomentar(this.delay, this.child);
+
+  @override
+  Widget build(BuildContext context) {
+    final tween = MultiTween<_AniProps>()..add(_AniProps.translateX, MediaQuery.of(context).size.height.tweenTo(0.0));
+
+    return PlayAnimation<MultiTweenValues<_AniProps>>(
+      delay: (300 * delay).round().milliseconds,
+      duration: 200.milliseconds,
+      tween: tween,
+      child: child,
+      builder: (context, child, value) => Transform.translate(
+        offset: Offset(0, value.get(_AniProps.translateX)),
+        child: child,
+      ),
+    );
+  }
+}
+
 class FadeInUpBack extends StatelessWidget {
   final double delay;
   final Widget child;

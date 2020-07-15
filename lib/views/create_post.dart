@@ -323,74 +323,78 @@ class _CreatePostState extends State<CreatePost> {
             elevation: 10.0,
             context: context,
             backgroundColor: AppStyle.colorBg,
+            isScrollControlled: true,
             builder: (builder) {
-              return Column(
-                children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.only(top: 10.0),
-                    height: 50.0,
-                    width: double.infinity,
-                    child: Center(
-                      child: Text(
-                        'Pilih Foto',
-                        style: AppStyle.textHeadlineTipisBlack,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            getImage(ImageSource.camera);
-                            Navigator.of(context).pop();
-                          },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(
-                                Icons.camera_alt,
-                                color: AppStyle.colorMain,
-                                size: 50,
-                              ),
-                              Text(
-                                'Kamera',
-                                style: AppStyle.textCaption2,
-                              ),
-                            ],
-                          ),
+              return SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(top: 10.0),
+                      height: 50.0,
+                      width: double.infinity,
+                      child: Center(
+                        child: Text(
+                          'Pilih Foto',
+                          style: AppStyle.textHeadlineTipisBlack,
                         ),
                       ),
-                      Expanded(
-                        child: Container(
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Expanded(
                           child: InkWell(
                             onTap: () {
-                              getImage(ImageSource.gallery);
+                              getImage(ImageSource.camera);
                               Navigator.of(context).pop();
                             },
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 Icon(
-                                  Icons.photo_library,
+                                  Icons.camera_alt,
                                   color: AppStyle.colorMain,
                                   size: 50,
                                 ),
                                 Text(
-                                  'Galeri',
+                                  'Kamera',
                                   style: AppStyle.textCaption2,
                                 ),
                               ],
                             ),
                           ),
                         ),
-                      )
-                    ],
-                  )
-                ],
+                        Expanded(
+                          child: Container(
+                            child: InkWell(
+                              onTap: () {
+                                getImage(ImageSource.gallery);
+                                Navigator.of(context).pop();
+                              },
+                              child: Column(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.photo_library,
+                                    color: AppStyle.colorMain,
+                                    size: 50,
+                                  ),
+                                  Text(
+                                    'Galeri',
+                                    style: AppStyle.textCaption2,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
               );
             });
         // getImage(ImageSource.camera);

@@ -171,7 +171,7 @@ class _DetailPageState extends State<DetailPage> {
                                             }
                                           },
                                         ),
-                                          SizedBox(height: 10.0),
+                                        SizedBox(height: 10.0),
                                       ],
                                     ),
                                   );
@@ -258,10 +258,14 @@ class _DetailPageState extends State<DetailPage> {
                                             token: token,
                                           )));
                             },
-                            child: CircleAvatar(
-                              radius: 30,
-                              foregroundColor: Colors.grey,
-                              backgroundImage: CachedNetworkImageProvider(detailPost.post[0].userImage),
+                            child: CachedNetworkImage(
+                              imageUrl: detailPost.post[0].userImage,
+                              placeholder: (context, url) => CircleAvatar(radius: 30, backgroundColor: Colors.grey[200], child: Center(child: Icon(Icons.image,color: Colors.grey))),
+                              errorWidget: (context, url, error) => CircleAvatar(radius: 30, backgroundColor: Colors.grey[200], child: Center(child: Text('${name[0]}', style: AppStyle.textSubHeadlineBlack))),
+                              imageBuilder: (context, imageProvider) => CircleAvatar(
+                                backgroundImage: imageProvider,
+                                radius: 30,
+                              ),
                             ),
                           ),
                           Padding(
@@ -318,7 +322,6 @@ class _DetailPageState extends State<DetailPage> {
                       ),
                       InkWell(
                         onTap: () {
-                          Provider.of<PostProvider>(context, listen: false).getIdPost(id, token);
                           Navigator.of(context).push(
                             PageRouteBuilder(
                               opaque: false,

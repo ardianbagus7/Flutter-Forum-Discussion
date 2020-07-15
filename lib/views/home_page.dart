@@ -227,10 +227,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   children: <Widget>[
                     // HALAMAN HOME PAGE / MAIN PAGE
                     GestureDetector(
-                      onHorizontalDragUpdate: _handleDragUpdateFalse,
+                      onHorizontalDragEnd: _handleDragEndFalse,
                       child: mainPage(name, nameSplit[0], profil, kategori, allPost, filterPost, role, idUser),
                     ),
-
                     //HALAMAN PROFIL
                     profilPage(detailProfil, name, profil, role, idUser)
                   ],
@@ -248,7 +247,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   GestureDetector sideBarNotif(BuildContext context, String name, int role, int idUser) {
     return GestureDetector(
       //allNotif[index].pesan
-      onHorizontalDragUpdate: _handleDragUpdateTrueNotif,
+      onHorizontalDragEnd: _handleDragEndTrueNotif,
       child: AnimatedContainer(
         curve: Curves.easeInOut,
         duration: Duration(milliseconds: 500),
@@ -343,9 +342,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             ),
                                           );
                                         },
-                                        child: CircleAvatar(
-                                          radius: 25,
-                                          backgroundImage: CachedNetworkImageProvider(allNotif[index].image),
+                                        child: CachedNetworkImage(
+                                          imageUrl: allNotif[index].image,
+                                          placeholder: (context, url) => CircleAvatar(radius: 25, backgroundColor: Colors.grey[200], child: Center(child: Icon(Icons.image, color: Colors.grey))),
+                                          errorWidget: (context, url, error) => CircleAvatar(radius: 25, backgroundColor: Colors.grey[200], child: Center(child: Text('${name[0]}', style: AppStyle.textSubHeadlineBlack))),
+                                          imageBuilder: (context, imageProvider) => CircleAvatar(
+                                            backgroundImage: imageProvider,
+                                            radius: 25,
+                                          ),
                                         ),
                                       ),
                                       SizedBox(width: 10),
@@ -447,45 +451,44 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  void _handleDragUpdateTrueNotif(DragUpdateDetails details) {
-    print(details.primaryDelta);
-    if (details.primaryDelta < -10) {
-      sidebarnotifopen = true;
-      setSidebarNotifState();
-    }
-    if (details.primaryDelta > 10) {
+  //* SIDEBAR NOTIF GESTURE
+  void _handleDragEndTrueNotif(DragEndDetails details) {
+    if (details.primaryVelocity > 0) {
       sidebarnotifopen = false;
       setSidebarNotifState();
     }
-  }
-
-  void _handleDragUpdateTrue(DragUpdateDetails details) {
-    print(details.primaryDelta);
-    if (details.primaryDelta < -10) {
-      sidebaropen = false;
-      setSidebarState();
-    }
-    if (details.primaryDelta > 10) {
-      sidebaropen = true;
-      setSidebarState();
-    }
-  }
-
-  void _handleDragUpdateFalse(DragUpdateDetails details) {
-    print(details.primaryDelta);
-    if (details.primaryDelta > 10) {
-      sidebaropen = true;
-      setSidebarState();
-    }
-    if (details.primaryDelta < -10 && sidebaropen == false) {
+    if (details.primaryVelocity < 0 && sidebaropen == false) {
       sidebarnotifopen = true;
       setSidebarNotifState();
+    }
+  }
+
+  //* MAIN PAGE GESTURE
+  void _handleDragEndFalse(DragEndDetails details) {
+    if (details.primaryVelocity > 0) {
+      sidebaropen = true;
+      setSidebarState();
+    }
+    if (details.primaryVelocity < 0 && sidebaropen == false) {
+      sidebarnotifopen = true;
+      setSidebarNotifState();
+    }
+  }
+
+  //* SIDEBAR GESTURE
+  void _handleDragEndTrue(DragEndDetails details) {
+    if (details.primaryVelocity > 0) {
+
+    }
+    if (details.primaryVelocity < 0) {
+      sidebaropen = false;
+      setSidebarState();
     }
   }
 
   sideBar(int role, BuildContext context, String profil, String name, detailProfil) {
     return GestureDetector(
-      onHorizontalDragUpdate: _handleDragUpdateTrue,
+      onHorizontalDragEnd: _handleDragEndTrue,
       child: SafeArea(
         child: Container(
           width: double.infinity,
@@ -850,9 +853,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     child: CircleAvatar(
                                       radius: 75,
                                       backgroundColor: AppStyle.colorMain3,
-                                      child: CircleAvatar(
-                                        radius: 70,
-                                        backgroundImage: CachedNetworkImageProvider(profil),
+                                      child: CachedNetworkImage(
+                                        imageUrl: profil,
+                                        placeholder: (context, url) => CircleAvatar(radius: 70, backgroundColor: Colors.grey[200], child: Center(child: Icon(Icons.image, color: Colors.grey))),
+                                        errorWidget: (context, url, error) => CircleAvatar(radius: 70, backgroundColor: Colors.grey[200], child: Center(child: Text('${name[0]}', style: AppStyle.textSubHeadlineBlack))),
+                                        imageBuilder: (context, imageProvider) => CircleAvatar(
+                                          backgroundImage: imageProvider,
+                                          radius: 70,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -1662,13 +1670,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             tag: 'fullscreen${allPost[index].id}',
                             child: Container(
                               width: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10.0),
-                                ),
-                                image: new DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: new CachedNetworkImageProvider(allPost[index].postImage),
+                              height: 100,
+                              child: CachedNetworkImage(
+                                imageUrl: '${allPost[index].postImage}',
+                                placeholder: (context, url) => Container(color: Colors.grey.withOpacity(0.5), child: Center(child: Icon(Icons.image, color: Colors.white))),
+                                errorWidget: (context, url, error) => Icon(Icons.error),
+                                imageBuilder: (context, imageProvider) => Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10.0),
+                                    ),
+                                    image: DecorationImage(
+                                      image: imageProvider,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),

@@ -138,9 +138,14 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                         child: CircleAvatar(
                                           radius: 75,
                                           backgroundColor: AppStyle.colorMain3,
-                                          child: CircleAvatar(
-                                            radius: 70,
-                                            backgroundImage: CachedNetworkImageProvider(detailProfil.user.image),
+                                          child: CachedNetworkImage(
+                                            imageUrl: detailProfil.user.image,
+                                            placeholder: (context, url) => CircleAvatar(radius: 70, backgroundColor: Colors.grey[200], child: Center(child: Icon(Icons.image, color: Colors.grey))),
+                                            errorWidget: (context, url, error) => CircleAvatar(radius: 70, backgroundColor: Colors.grey[200], child: Center(child: Text('${detailProfil.user.name[0]}', style: AppStyle.textSubHeadlineBlack))),
+                                            imageBuilder: (context, imageProvider) => CircleAvatar(
+                                              backgroundImage: imageProvider,
+                                              radius: 70,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -192,7 +197,8 @@ class _ProfilPageState extends State<ProfilPage> with TickerProviderStateMixin {
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 28.0),
                                       child: PopUp(
-                                        3.5, Divider(
+                                        3.5,
+                                        Divider(
                                           thickness: 2,
                                         ),
                                       ),

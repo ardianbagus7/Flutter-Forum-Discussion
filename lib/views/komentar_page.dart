@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:discussion_app/providers/auth_provider.dart';
 import 'package:discussion_app/providers/posts_provider.dart';
 import 'package:discussion_app/services/role.dart';
+import 'package:discussion_app/utils/animation/fade.dart';
 import 'package:discussion_app/utils/showAlert.dart';
 import 'package:discussion_app/utils/style/AppStyle.dart';
 import 'package:discussion_app/utils/timeAgoIndo.dart';
@@ -83,166 +84,173 @@ class _KomentarScreenState extends State<KomentarScreen> {
       }
     }
 
-    return Scaffold(
-      backgroundColor: Colors.white.withOpacity(0.0),
-      body: SafeArea(
-        child: GestureDetector(
-          onTap: () {
-            FocusScope.of(context).requestFocus(new FocusNode());
-          },
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(
-              color: AppStyle.colorBg,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
+    return SlideUpKomentar(
+      0,
+      Scaffold(
+        backgroundColor: Colors.white.withOpacity(0.0),
+        body: SafeArea(
+          child: GestureDetector(
+            onTap: () {
+              FocusScope.of(context).requestFocus(new FocusNode());
+            },
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration: BoxDecoration(
+                color: AppStyle.colorBg,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
+                ),
               ),
-            ),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  flex: 8,
-                  child: (detailPostNew == null)
-                      ? PlaceHolderKomentar()
-                      : ListView.builder(
-                          controller: _controller,
-                          itemCount: detailPostNew.komentar.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  CircleAvatar(
-                                    radius: 20,
-                                    foregroundColor: Colors.grey,
-                                    backgroundImage: CachedNetworkImageProvider(detailPostNew.komentar[index].image),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      FittedBox(
-                                        fit: BoxFit.fitWidth,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFFE2E2E2),
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(10.0),
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    flex: 8,
+                    child: (detailPostNew == null)
+                        ? PlaceHolderKomentar()
+                        : ListView.builder(
+                            controller: _controller,
+                            itemCount: detailPostNew.komentar.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    CachedNetworkImage(
+                                      imageUrl: detailPostNew.komentar[index].image,
+                                      placeholder: (context, url) => CircleAvatar(radius: 20, backgroundColor: Colors.grey[200], child: Center(child: Icon(Icons.image,color: Colors.grey))),
+                                      errorWidget: (context, url, error) => CircleAvatar(radius: 20, backgroundColor: Colors.grey[200], child: Center(child: Text('${ detailPostNew.komentar[index].name[0]}', style: AppStyle.textSubHeadlineBlack))),
+                                      imageBuilder: (context, imageProvider) => CircleAvatar(
+                                        backgroundImage: imageProvider,
+                                        radius: 20,
+                                      ),
+                                    ),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        FittedBox(
+                                          fit: BoxFit.fitWidth,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: Color(0xFFE2E2E2),
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10.0),
+                                              ),
                                             ),
-                                          ),
-                                          margin: EdgeInsets.only(left: 10.0),
-                                          width: MediaQuery.of(context).size.width * 13 / 16,
-                                          child: Material(
-                                            color: Colors.white.withOpacity(0.0),
-                                            child: InkWell(
-                                              borderRadius: BorderRadius.circular(10),
-                                              radius: 500,
-                                              splashColor: AppStyle.colorMain,
-                                              highlightColor: Colors.grey.withOpacity(0.5),
-                                              onLongPress: () {
-                                                print('long pres $index');
-                                                longTapKomen(context, detailPostNew, index);
-                                              },
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(8.0),
-                                                child: Column(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Text(
-                                                      '${detailPostNew.komentar[index].name}',
-                                                      style: AppStyle.textName,
-                                                    ),
-                                                    SizedBox(height: 10.0),
-                                                    Text(
-                                                      '${detailPostNew.komentar[index].komentar}',
-                                                      style: AppStyle.textSubHeadlineBlack,
-                                                    ),
-                                                  ],
+                                            margin: EdgeInsets.only(left: 10.0),
+                                            width: MediaQuery.of(context).size.width * 13 / 16,
+                                            child: Material(
+                                              color: Colors.white.withOpacity(0.0),
+                                              child: InkWell(
+                                                borderRadius: BorderRadius.circular(10),
+                                                radius: 500,
+                                                splashColor: AppStyle.colorMain,
+                                                highlightColor: Colors.grey.withOpacity(0.5),
+                                                onLongPress: () {
+                                                  print('long pres $index');
+                                                  longTapKomen(context, detailPostNew, index);
+                                                },
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  child: Column(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: <Widget>[
+                                                      Text(
+                                                        '${detailPostNew.komentar[index].name}',
+                                                        style: AppStyle.textName,
+                                                      ),
+                                                      SizedBox(height: 10.0),
+                                                      Text(
+                                                        '${detailPostNew.komentar[index].komentar}',
+                                                        style: AppStyle.textSubHeadlineBlack,
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      SizedBox(height: 5),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                        child: Text(
-                                          timeAgoIndo(detailPostNew.komentar[index].createdAt),
-                                          style: AppStyle.textCaption,
+                                        SizedBox(height: 5),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                          child: Text(
+                                            timeAgoIndo(detailPostNew.komentar[index].createdAt),
+                                            style: AppStyle.textCaption,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                ),
-                Container(
-                  width: double.infinity,
-                  height: 70.0,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        offset: Offset(0.0, -0.5),
-                        blurRadius: 15.0,
-                      )
-                    ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                    child: (role == Role.alumni && detailPost.post[0].kategori != 'Forum Alumni' && detailPost.post[0].kategori != 'Info Prodi')
-                        ? Center(child: Text('Tidak bisa komentar di kategori ini', style: AppStyle.textCaption))
-                        : Row(
-                            children: <Widget>[
-                              Expanded(
-                                flex: 8,
-                                child: Container(
-                                  child: TextField(
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: 2,
-                                    controller: komentarController,
-                                    decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.all(0),
-                                      isDense: true,
-                                      border: InputBorder.none,
-                                      hintText: 'Komentar..',
+                  Container(
+                    width: double.infinity,
+                    height: 70.0,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          offset: Offset(0.0, -0.5),
+                          blurRadius: 15.0,
+                        )
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                      child: (role == Role.alumni && detailPost.post[0].kategori != 'Forum Alumni' && detailPost.post[0].kategori != 'Info Prodi')
+                          ? Center(child: Text('Tidak bisa komentar di kategori ini', style: AppStyle.textCaption))
+                          : Row(
+                              children: <Widget>[
+                                Expanded(
+                                  flex: 8,
+                                  child: Container(
+                                    child: TextField(
+                                      keyboardType: TextInputType.multiline,
+                                      maxLines: 2,
+                                      controller: komentarController,
+                                      decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.all(0),
+                                        isDense: true,
+                                        border: InputBorder.none,
+                                        hintText: 'Komentar..',
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              (statusKomentar != 'loading')
-                                  ? IconButton(
-                                      icon: Icon(Icons.send),
-                                      onPressed: () {
-                                        if (role == 0) {
-                                          showVerifikasi(context);
-                                        } else {
-                                          submit('${detailPost.post[0].id}');
-                                        }
-                                      },
-                                    )
-                                  : Center(
-                                      child: SizedBox(
-                                        height: 30.0,
-                                        width: 30.0,
-                                        child: new CircularProgressIndicator(),
-                                      ),
-                                    )
-                            ],
-                          ),
-                  ),
-                )
-              ],
+                                (statusKomentar != 'loading')
+                                    ? IconButton(
+                                        icon: Icon(Icons.send),
+                                        onPressed: () {
+                                          if (role == 0) {
+                                            showVerifikasi(context);
+                                          } else {
+                                            submit('${detailPost.post[0].id}');
+                                          }
+                                        },
+                                      )
+                                    : Center(
+                                        child: SizedBox(
+                                          height: 30.0,
+                                          width: 30.0,
+                                          child: new CircularProgressIndicator(),
+                                        ),
+                                      )
+                              ],
+                            ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),

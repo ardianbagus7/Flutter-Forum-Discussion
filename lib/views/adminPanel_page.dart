@@ -1187,9 +1187,14 @@ class _AdminPanelState extends State<AdminPanel> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          CircleAvatar(
-                            radius: 25,
-                            backgroundImage: CachedNetworkImageProvider(user[index].image),
+                          CachedNetworkImage(
+                            imageUrl: user[index].image,
+                            placeholder: (context, url) => CircleAvatar(radius: 25, backgroundColor: Colors.grey[200], child: Center(child: Icon(Icons.image,color: Colors.grey))),
+                            errorWidget: (context, url, error) => CircleAvatar(radius: 25, backgroundColor: Colors.grey[200], child: Center(child: Text('${user[index].name[0]}', style: AppStyle.textSubHeadlineBlack))),
+                            imageBuilder: (context, imageProvider) => CircleAvatar(
+                              backgroundImage: imageProvider,
+                              radius: 25,
+                            ),
                           ),
                           SizedBox(width: 10),
                           Container(
